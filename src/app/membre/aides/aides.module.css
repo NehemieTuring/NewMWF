@@ -1,0 +1,190 @@
+.page {
+  animation: fadeIn 0.4s ease;
+}
+
+.header {
+  margin-bottom: 2.5rem;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--text-dark);
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-top: 5px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  padding: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.aidIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(28, 200, 138, 0.1);
+  color: var(--success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.aidMeta {
+  flex: 1;
+}
+
+.aidMeta h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 4px;
+}
+
+.memberName {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.badgeActive {
+  background: rgba(28, 200, 138, 0.1);
+  color: var(--success);
+}
+
+.badgeCompleted {
+  background: rgba(54, 185, 204, 0.1);
+  color: var(--info);
+}
+
+.progressLabel {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-dark);
+}
+
+.progressBar {
+  height: 8px;
+  background: var(--light);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--gradient-primary);
+  border-radius: 4px;
+  transition: width 0.8s;
+}
+
+.statsPanel {
+  display: flex;
+  gap: 1.5rem;
+  background: var(--light);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.statCell {
+  display: flex;
+  flex-direction: column;
+}
+
+.statCell span {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.statCell strong {
+  font-size: 0.95rem;
+  color: var(--text-dark);
+}
+
+.cardFooter {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.detailsBtn, .donateBtn {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  font-size: 0.8rem;
+}
+
+.detailsBtn {
+  background: var(--light);
+  color: var(--text-dark);
+}
+
+.detailsBtn:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.donateBtn {
+  background: var(--gradient-accent);
+  color: white;
+  box-shadow: 0 4px 12px rgba(33, 147, 176, 0.3);
+}
+
+.donateBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(33, 147, 176, 0.4);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -1,0 +1,222 @@
+/* Super Admin Dashboard */
+.dashboard { max-width: 1200px; margin: 0 auto; }
+
+/* Welcome Banner */
+.banner {
+  background: linear-gradient(135deg, #4e73df 0%, #224abe 50%, #1a3a9e 100%);
+  border-radius: 20px;
+  padding: 2.5rem;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 40px rgba(78, 115, 223, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.banner::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.bannerInfo { position: relative; z-index: 1; }
+
+.bannerBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 215, 0, 0.2);
+  color: #ffd700;
+  padding: 0.4rem 0.85rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  backdrop-filter: blur(10px);
+}
+
+.bannerTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.bannerSub { opacity: 0.7; font-size: 0.9rem; }
+
+/* Stats Grid */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.statCard {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.statCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.statIcon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.statContent {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  line-height: 1.2;
+}
+
+/* Cashbox Section */
+.cashboxSection {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.cashboxHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.cashboxHeader h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cashboxHeader h3 i { color: #4e73df; }
+
+.cashboxBody { padding: 1.25rem 1.5rem; }
+
+.cashboxGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.cashboxCard {
+  background: linear-gradient(135deg, #f8f9ff, #eef0ff);
+  border-radius: 12px;
+  padding: 1.25rem;
+  border: 1px solid rgba(78, 115, 223, 0.1);
+  transition: all 0.25s ease;
+}
+
+.cashboxCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(78, 115, 223, 0.1);
+}
+
+.cashboxName {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.cashboxBalance {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #4e73df;
+}
+
+.cashboxUnit {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-light);
+  margin-left: 4px;
+}
+
+/* Loading */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  font-size: 1rem;
+  color: var(--text-muted);
+  gap: 0.75rem;
+}
+
+.loading i {
+  animation: spin 1s linear infinite;
+  color: #4e73df;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.error {
+  background: rgba(231, 74, 59, 0.08);
+  color: #e74a3b;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .statsGrid { grid-template-columns: repeat(2, 1fr); }
+  .banner { flex-direction: column; gap: 1.5rem; text-align: center; }
+}
+
+@media (max-width: 768px) {
+  .statsGrid { grid-template-columns: 1fr; }
+  .cashboxGrid { grid-template-columns: 1fr; }
+}

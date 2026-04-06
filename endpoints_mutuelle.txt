@@ -1,0 +1,206 @@
+# LISTE COMPLÈTE DES ENDPOINTS - MUTUELLE MOBILE
+
+## 1. Endpoints publics (sans authentification)
+
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| POST | /api/auth/login | Connexion utilisateur (renvoie JWT) |
+| POST | /api/auth/register | Inscription d’un nouveau membre (accessible uniquement via un token administrateur dans la réalité, mais ici défini comme public pour la simplicité ; en pratique, il devrait être protégé et réservé à la Secrétaire Générale) |
+| GET | /api/swagger-ui/** | Documentation Swagger UI |
+| GET | /api/v3/api-docs/** | Spécification OpenAPI |
+
+---
+
+## 2. SUPER_ADMIN
+
+**Permissions** : gestion complète des administrateurs, suppression de membres, réinitialisation de mots de passe.
+
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| **Gestion des administrateurs** |
+| POST | /api/admin/super/admins | Ajouter un administrateur (avec rôle : SECRETAIRE_GENERALE, PRESIDENT, TRESORIER) |
+| GET | /api/admin/super/admins | Lister tous les administrateurs |
+| GET | /api/admin/super/admins/{id} | Consulter le profil d’un administrateur |
+| PUT | /api/admin/super/admins/{id}/deactivate | Désactiver un administrateur |
+| DELETE | /api/admin/super/admins/{id} | Supprimer un administrateur |
+| **Gestion des membres** |
+| DELETE | /api/admin/super/members/{id} | Supprimer définitivement un membre |
+| PUT | /api/admin/super/users/{id}/password | Changer le mot de passe d’un utilisateur (admin ou membre) |
+| **Autres** |
+| GET | /api/admin/super/dashboard | Accès complet au tableau de bord (toutes données) |
+
+---
+
+## 3. ADMINISTRATEUR (générique)
+
+Tous les administrateurs (PRESIDENT, TRESORIER, SECRETAIRE_GENERALE) partagent certains endpoints de consultation, mais avec des restrictions d’écriture selon le sous‑rôle.
+
+### 3.1 Secrétaire Générale (droits d’édition)
+
+**Permissions** : toutes les opérations d’écriture sur les données opérationnelles.
+
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| **Membres** |
+| POST | /api/admin/members | Ajouter un membre (inscription) |
+| GET | /api/admin/members | Lister tous les membres |
+| GET | /api/admin/members/{id} | Consulter le profil d’un membre |
+| PUT | /api/admin/members/{id} | Modifier les informations d’un membre |
+| PUT | /api/admin/members/{id}/deactivate | Désactiver un membre |
+| GET | /api/admin/members/{id}/status | Obtenir le statut actuel (en règle, insolvable, inactif) |
+| GET | /api/admin/members/{id}/debts | Voir les dettes détaillées du membre |
+| **Solidarité** |
+| POST | /api/admin/solidarity/payments | Enregistrer un paiement de solidarité |
+| GET | /api/admin/solidarity/members/{memberId}/debt | Consulter la dette solidarité d’un membre |
+| GET | /api/admin/solidarity/members/{memberId}/history | Historique des paiements de solidarité |
+| **Épargne** |
+| POST | /api/admin/savings/deposit | Enregistrer un dépôt d’épargne |
+| POST | /api/admin/savings/withdrawal | Enregistrer un retrait d’épargne |
+| GET | /api/admin/savings/members/{memberId} | Épargnes d’un membre |
+| GET | /api/admin/savings/members/{memberId}/balance | Solde d’épargne d’un membre |
+| GET | /api/admin/savings/sessions/{sessionId} | Épargnes d’une session |
+| **Emprunts** |
+| POST | /api/admin/borrowings/request | Enregistrer une demande d’emprunt (accorder un prêt) |
+| GET | /api/admin/borrowings | Lister tous les emprunts |
+| GET | /api/admin/borrowings/{id} | Détails d’un emprunt |
+| POST | /api/admin/borrowings/{id}/refund | Enregistrer un remboursement d’emprunt |
+| GET | /api/admin/borrowings/members/{memberId} | Emprunts d’un membre |
+| **Aides (secours)** |
+| POST | /api/admin/helps/types | Créer un type d’aide |
+| GET | /api/admin/helps/types | Lister les types d’aide |
+| POST | /api/admin/helps | Créer une aide (secours) |
+| GET | /api/admin/helps | Lister toutes les aides |
+| GET | /api/admin/helps/{id} | Détails d’une aide |
+| POST | /api/admin/helps/{id}/contribute | Enregistrer une contribution à une aide |
+| GET | /api/admin/helps/active | Lister les aides actives |
+| **Sessions et exercices** |
+| POST | /api/admin/exercises | Créer un exercice |
+| GET | /api/admin/exercises | Lister les exercices |
+| PUT | /api/admin/exercises/{id}/close | Clôturer un exercice (déclenche le renflouement) |
+| POST | /api/admin/sessions | Créer une session |
+| GET | /api/admin/sessions | Lister les sessions |
+| PUT | /api/admin/sessions/{id}/close | Clôturer une session (distribue les intérêts) |
+| PUT | /api/admin/sessions/{id}/configure | Configurer les paramètres d’une session |
+| DELETE | /api/admin/sessions/{id} | Supprimer une session |
+| DELETE | /api/admin/exercises/{id} | Supprimer un exercice |
+| **Renflouement** |
+| POST | /api/admin/refueling/calculate/{exerciseId} | Calculer le renflouement pour un exercice |
+| POST | /api/admin/refueling/distribute/{refuelingId} | Distribuer le renflouement calculé |
+| GET | /api/admin/refueling/exercises/{exerciseId} | Consulter les détails du renflouement d’un exercice |
+| **Bilans et dashboard** |
+| GET | /api/admin/dashboard/exercises/{exerciseId} | Bilan d’un exercice |
+| GET | /api/admin/dashboard/sessions/{sessionId} | Bilan d’une session |
+| GET | /api/admin/dashboard/transactions | Transactions globales |
+| GET | /api/admin/dashboard/cashboxes | État des caisses |
+| GET | /api/admin/dashboard/members/in-rule | Membres en règle |
+| GET | /api/admin/dashboard/members/not-in-rule | Membres non en règle |
+| **Profil administrateur** |
+| GET | /api/admin/profile | Consulter son propre profil |
+| PUT | /api/admin/profile | Modifier son profil |
+| PUT | /api/admin/profile/password | Changer son mot de passe |
+| GET | /api/admin/admins | Lister les autres administrateurs (pour la communication) |
+| **Communication** |
+| POST | /api/admin/chat/send | Envoyer un message à un membre ou un autre administrateur |
+| GET | /api/admin/chat/conversations | Lister les conversations |
+| GET | /api/admin/chat/messages/{userId} | Messages avec un utilisateur donné |
+| GET | /api/admin/chat/unread | Messages non lus |
+| PUT | /api/admin/chat/mark-read/{messageId} | Marquer un message comme lu |
+
+### 3.2 Président (lecture seule)
+
+**Permissions** : accès en lecture à toutes les données du dashboard et des membres, mais aucune écriture.
+
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| GET | /api/president/members | Lister tous les membres |
+| GET | /api/president/members/{id} | Consulter le profil d’un membre |
+| GET | /api/president/members/{id}/status | Statut d’un membre |
+| GET | /api/president/members/{id}/debts | Dettes d’un membre |
+| GET | /api/president/solidarity/members/{memberId}/debt | Dette solidarité |
+| GET | /api/president/savings/members/{memberId} | Épargnes d’un membre |
+| GET | /api/president/borrowings | Lister tous les emprunts |
+| GET | /api/president/borrowings/{id} | Détails emprunt |
+| GET | /api/president/helps | Lister les aides |
+| GET | /api/president/helps/{id} | Détails d’une aide |
+| GET | /api/president/helps/active | Aides actives |
+| GET | /api/president/exercises | Lister les exercices |
+| GET | /api/president/sessions | Lister les sessions |
+| GET | /api/president/refueling/exercises/{exerciseId} | Détails renflouement |
+| GET | /api/president/dashboard/exercises/{exerciseId} | Bilan exercice |
+| GET | /api/president/dashboard/sessions/{sessionId} | Bilan session |
+| GET | /api/president/dashboard/transactions | Transactions globales |
+| GET | /api/president/dashboard/cashboxes | État des caisses |
+| GET | /api/president/dashboard/members/in-rule | Membres en règle |
+| GET | /api/president/dashboard/members/not-in-rule | Membres non en règle |
+| GET | /api/president/profile | Consulter son profil |
+| PUT | /api/president/profile/password | Changer son mot de passe (profil) |
+| GET | /api/president/admins | Lister les autres administrateurs |
+| POST | /api/president/chat/send | Envoyer un message |
+| GET | /api/president/chat/conversations | Conversations |
+| GET | /api/president/chat/messages/{userId} | Messages avec un utilisateur |
+| GET | /api/president/chat/unread | Messages non lus |
+| PUT | /api/president/chat/mark-read/{messageId} | Marquer comme lu |
+
+### 3.3 Trésorier (lecture seule, focus financier)
+
+**Permissions** : accès en lecture à toutes les données financières (transactions, caisses, emprunts, remboursements, pénalités).
+
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| GET | /api/treasurer/members | Lister les membres (avec informations financières) |
+| GET | /api/treasurer/members/{id}/debts | Dettes d’un membre |
+| GET | /api/treasurer/solidarity/members/{memberId}/debt | Dette solidarité |
+| GET | /api/treasurer/savings/members/{memberId} | Épargnes d’un membre |
+| GET | /api/treasurer/borrowings | Tous les emprunts |
+| GET | /api/treasurer/borrowings/{id} | Détails emprunt |
+| GET | /api/treasurer/borrowings/members/{memberId} | Emprunts d’un membre |
+| GET | /api/treasurer/penalties | Liste des pénalités |
+| GET | /api/treasurer/refueling/exercises/{exerciseId} | Détails renflouement |
+| GET | /api/treasurer/dashboard/transactions | Transactions globales |
+| GET | /api/treasurer/dashboard/cashboxes | État des caisses |
+| GET | /api/treasurer/dashboard/exercises/{exerciseId} | Bilan exercice |
+| GET | /api/treasurer/dashboard/sessions/{sessionId} | Bilan session |
+| GET | /api/treasurer/profile | Consulter son profil |
+| PUT | /api/treasurer/profile/password | Changer son mot de passe |
+| GET | /api/treasurer/admins | Lister les autres administrateurs |
+| POST | /api/treasurer/chat/send | Envoyer un message |
+| GET | /api/treasurer/chat/conversations | Conversations |
+| GET | /api/treasurer/chat/messages/{userId} | Messages avec un utilisateur |
+| GET | /api/treasurer/chat/unread | Messages non lus |
+| PUT | /api/treasurer/chat/mark-read/{messageId} | Marquer comme lu |
+
+---
+
+## 4. MEMBRE
+
+**Permissions** : accès à son propre profil, ses épargnes, emprunts, aides, et communication.
+
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| **Profil** |
+| GET | /api/member/profile | Consulter son profil |
+| PUT | /api/member/profile | Modifier son profil |
+| PUT | /api/member/profile/password | Changer son mot de passe |
+| **Statut et dettes** |
+| GET | /api/member/status | Consulter son statut (en règle, insolvable, inactif) |
+| GET | /api/member/debts | Voir ses dettes détaillées |
+| **Épargne** |
+| GET | /api/member/savings | Historique de ses épargnes |
+| GET | /api/member/savings/balance | Solde d’épargne actuel |
+| **Emprunts** |
+| GET | /api/member/borrowings | Ses emprunts (actifs et passés) |
+| POST | /api/member/borrowings/request | Faire une demande d’emprunt |
+| GET | /api/member/borrowings/{id} | Détails d’un emprunt spécifique |
+| GET | /api/member/borrowings/{id}/refunds | Historique des remboursements de cet emprunt |
+| **Aides** |
+| GET | /api/member/helps/types | Lister les types d’aide |
+| GET | /api/member/helps/active | Aides actives auxquelles contribuer |
+| GET | /api/member/helps/{id} | Détails d’une aide |
+| POST | /api/member/helps/{id}/contribute | Contribuer à une aide (si l’administrateur a ouvert une contribution, en réalité c’est la Secrétaire Générale qui enregistre, mais on peut permettre au membre de faire une demande) – *à adapter selon le workflow* |
+| **Communication** |
+| GET | /api/member/members | Lister les autres membres (pour chat) |
+| POST | /api/member/chat/send | Envoyer un message à un autre membre ou administrateur |
+| GET | /api/member/chat/conversations | Conversations |
+| GET | /api/member/chat/messages/{userId} | Messages avec un utilisateur donné |
+| GET | /api/member/chat/unread | Messages non lus |
+| PUT | /api/member/chat/mark-read/{messageId} | Marquer comme lu |

@@ -1,0 +1,289 @@
+.page {
+  animation: fadeIn 0.8s ease;
+  padding: 2.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3.5rem;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(15px);
+  padding: 3rem;
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme='dark'] .header {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.titleSection { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.title {
+  font-size: 2.8rem;
+  font-weight: 950;
+  color: var(--text-dark);
+  letter-spacing: -1.5px;
+  line-height: 1;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  font-size: 1.15rem;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 2rem;
+  background: var(--gradient-primary);
+  color: white;
+  border-radius: 20px;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 15px 35px rgba(78, 115, 223, 0.3);
+  font-size: 1.05rem;
+}
+
+.addBtn:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 25px 45px rgba(78, 115, 223, 0.45);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 2.5rem;
+  animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 35px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 2.5rem;
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.02);
+}
+
+[data-theme='dark'] .card {
+  background: rgba(26, 32, 44, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cardActive {
+  border-color: var(--primary);
+  box-shadow: 0 25px 60px rgba(78, 115, 223, 0.12);
+}
+
+.card:hover {
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 35px 70px rgba(0, 0, 0, 0.1);
+  border-color: rgba(78, 115, 223, 0.3);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+
+.dateIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: rgba(78, 115, 223, 0.1);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  box-shadow: 0 8px 20px rgba(78, 115, 223, 0.1);
+}
+
+.badge {
+  padding: 0.65rem 1.5rem;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.badgeActive {
+  background: rgba(28, 200, 138, 0.15);
+  color: #1cc88a;
+  border: 1px solid rgba(28, 200, 138, 0.3);
+}
+
+.badgeInactive {
+  background: rgba(246, 194, 62, 0.15);
+  color: #f6c23e;
+  border: 1px solid rgba(246, 194, 62, 0.3);
+}
+
+.sessionDate {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--text-dark);
+  margin-bottom: 1rem;
+  letter-spacing: -0.5px;
+}
+
+.sessionExercice {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.sessionExercice strong {
+  color: var(--primary);
+  font-weight: 900;
+}
+
+.sessionBrief {
+  padding: 1.25rem;
+  background: rgba(248, 249, 252, 0.5);
+  border-radius: 18px;
+  font-size: 1.05rem;
+  color: var(--text-dark);
+  font-weight: 700;
+  border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+[data-theme='dark'] .sessionBrief {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.cardFooter {
+  margin-top: 2.5rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.detailsBtn, .closeBtn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.1rem;
+  border-radius: 18px;
+  font-size: 1rem;
+  font-weight: 800;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.detailsBtn {
+  background: rgba(78, 115, 223, 0.1);
+  color: var(--primary);
+}
+
+.detailsBtn:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(78, 115, 223, 0.3);
+}
+
+.closeBtn {
+  background: rgba(231, 74, 59, 0.1);
+  color: var(--danger);
+}
+
+.closeBtn:hover {
+  background: var(--danger);
+  color: white;
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(231, 74, 59, 0.3);
+}
+
+.emptyState {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8rem 2rem;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px);
+  border-radius: 40px;
+  border: 2px dashed rgba(0, 0, 0, 0.05);
+  text-align: center;
+  gap: 2rem;
+  animation: fadeIn 1s ease;
+}
+
+[data-theme='dark'] .emptyState {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.emptyIcon {
+  width: 120px;
+  height: 120px;
+  border-radius: 40px;
+  background: var(--gradient-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  color: white;
+  box-shadow: 0 20px 40px rgba(78, 115, 223, 0.2);
+  margin-bottom: 1rem;
+}
+
+.emptyState h3 {
+  font-size: 2.2rem;
+  font-weight: 950;
+  color: var(--text-dark);
+  letter-spacing: -1px;
+}
+
+.emptyState p {
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  max-width: 500px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(50px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.loading {
+  height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: var(--primary);
+  gap: 1.5rem;
+  font-weight: 900;
+}
