@@ -1,4 +1,4 @@
-# LISTE COMPLÈTE DES ENDPOINTS - MUTUELLE MOBILE
+# LISTE COMPLÈTE DES ENDPOINTS - MUTUELLE WEB
 
 ## 1. Endpoints publics (sans authentification)
 

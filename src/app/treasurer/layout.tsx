@@ -60,23 +60,16 @@ export default function TreasurerLayout({ children }: { children: React.ReactNod
 
   const sidebarMenu = [
     {
-      title: "Navigation",
+      title: "Menu Trésorier",
       items: [
-        { label: "Tableau de Bord", icon: "fas fa-chart-pie", href: "/treasurer" },
-        { label: "Gestion des Caisses", icon: "fas fa-vault", href: "/treasurer/caisses" },
-        { label: "Transactions", icon: "fas fa-receipt", href: "/treasurer/transactions" },
-        { label: "Pénalités", icon: "fas fa-exclamation-circle", href: "/treasurer/penalites" },
+        { label: "Dashboard", icon: "fas fa-chart-line", href: "/treasurer" },
+        { label: "Finances (Perso)", icon: "fas fa-wallet", href: "/membre/finances" },
+        { label: "Gestion des Membres", icon: "fas fa-users", href: "/treasurer/membres" },
+        { label: "Comptabilité & Trésorerie", icon: "fas fa-vault", href: "/treasurer/tresorerie" },
+        { label: "Aides", icon: "fas fa-hand-holding-heart", href: "/membre/aides" },
+        { label: "Messagerie", icon: "fas fa-comments", href: "/membre/messages" },
+        { label: "Mon Profil", icon: "fas fa-user-circle", href: "/membre/profil" },
       ],
-    },
-    {
-      title: "Activités",
-      items: [
-        { label: "Dépenses", icon: "fas fa-file-invoice-dollar", href: "/treasurer/depenses" },
-      ],
-    },
-    {
-      title: "Communication",
-      items: [{ label: "Messagerie", icon: "fas fa-comments", href: "/treasurer/chat" }],
     },
   ];
 
@@ -113,6 +106,10 @@ export default function TreasurerLayout({ children }: { children: React.ReactNod
           ))}
           <div className={styles.menuSection}>
             <span className={styles.menuTitle}>{t.common.profil}</span>
+            <Link href="/membre" className={styles.menuItem}>
+              <i className="fas fa-arrow-left"></i>
+              <span>Portail Membre</span>
+            </Link>
             <Link href="/treasurer/profil" className={styles.menuItem}>
               <i className="fas fa-user-circle"></i>
               <span>{t.common.monProfil}</span>
@@ -133,7 +130,7 @@ export default function TreasurerLayout({ children }: { children: React.ReactNod
       <div className={styles.mainArea}>
         <header className={styles.topbar}>
           <div className={styles.topbarLeft}>
-            <button className={styles.mobileToggle} onClick={() => setSidebarOpen(!sidebarOpen)}>
+            <button className={styles.webToggle} onClick={() => setSidebarOpen(!sidebarOpen)}>
               <i className="fas fa-bars"></i>
             </button>
           </div>

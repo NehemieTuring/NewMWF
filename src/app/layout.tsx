@@ -1,8 +1,11 @@
-import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { NotificationProvider } from "@/context/NotificationContext";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Mutuelle ENSPY - Plateforme de Gestion",
@@ -24,11 +27,13 @@ export default function RootLayout({
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         />
       </head>
-      <body>
+      <body className={inter.className}>
         <ThemeProvider>
           <LanguageProvider>
             <AuthProvider>
-              {children}
+              <NotificationProvider>
+                {children}
+              </NotificationProvider>
             </AuthProvider>
           </LanguageProvider>
         </ThemeProvider>
@@ -36,3 +41,4 @@ export default function RootLayout({
     </html>
   );
 }
+

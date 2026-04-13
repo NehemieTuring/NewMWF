@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import styles from "./communication.module.css";
+import styles from "./chat.module.css";
 import { useTranslation } from "@/context/LanguageContext";
 import { memberService } from "@/services/memberService";
 import { useAuth } from "@/context/AuthContext";
@@ -19,9 +19,9 @@ export default function CommunicationPage() {
   useEffect(() => {
     async function loadConversations() {
       try {
-        const data = await memberService.getConversations();
+        const data = await memberService.getConversations().catch(() => []);
         setConversations(data);
-        if (data.length > 0) setActiveConv(data[0]);
+        if (data && data.length > 0) setActiveConv(data[0]);
       } catch (err) {
         console.error("Failed to load conversations", err);
       } finally {
@@ -70,10 +70,10 @@ export default function CommunicationPage() {
       <div className={styles.chatPage}>
         <div className={styles.sidebar}>
           <div className={styles.sidebarHeader}>
-            <h2>Messages</h2>
+            <h2>Messagerie</h2>
             <div className={styles.searchBar}>
               <i className="fas fa-search"></i>
-              <input type="text" placeholder="Rechercher..." />
+              <input type="text" placeholder="Rechercher des admins..." />
             </div>
           </div>
           <div className={styles.convList}>
@@ -97,9 +97,9 @@ export default function CommunicationPage() {
                 </div>
               ))
             ) : (
-              <div className={styles.noActiveConv}>
-                <div className={styles.noActiveIcon}>
-                  <i className="fas fa-comment-dots"></i>
+              <div className={styles.sidebarEmpty}>
+                <div className={styles.emptyIconBox}>
+                  <i className="fas fa-comment"></i>
                 </div>
                 <p>Aucune discussion active.</p>
               </div>
@@ -125,11 +125,13 @@ export default function CommunicationPage() {
               <div className={styles.messagesList}>
                 {messages.length > 0 ? (
                   messages.map((msg) => {
-                    const isMine = msg.sender?.email === authUser?.email || msg.sender?.username === authUser?.username;
+                    const isMine = msg.sender?.id === authUser?.id || 
+                                   (msg.sender?.email && msg.sender?.email === authUser?.email) || 
+                                   (msg.sender?.username && msg.sender?.username === authUser?.username);
                     return (
                       <div key={msg.id} className={`${styles.messageWrapper} ${isMine ? styles.myMsgWrapper : ""}`}>
                         <div className={`${styles.message} ${isMine ? styles.myMsg : styles.otherMsg}`}>
-                          <p>{msg.content}</p>
+                          <p>{msg.message || msg.content}</p>
                           <span className={styles.msgTime}>
                             {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
@@ -169,11 +171,11 @@ export default function CommunicationPage() {
             </>
           ) : (
             <div className={styles.noActiveConv}>
-              <div className={styles.noActiveIcon}>
+              <div className={styles.mainEmptyIconBox}>
                 <i className="fas fa-comments"></i>
               </div>
-              <h2>Votre Messagerie</h2>
-              <p>Sélectionnez une conversation pour commencer à discuter avec l'administration.</p>
+              <h2 className={styles.emptyTitle}>Messagerie Trésorerie</h2>
+              <p className={styles.emptySubtitle}>Sélectionnez un administrateur pour commencer à discuter.</p>
             </div>
           )}
         </div>
@@ -181,4 +183,3 @@ export default function CommunicationPage() {
     </div>
   );
 }
-

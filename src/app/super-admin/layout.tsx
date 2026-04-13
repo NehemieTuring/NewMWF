@@ -78,9 +78,26 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
             </div>
           ))}
         </nav>
+        <div className={styles.sidebarFooter}>
+          <Link
+            href="/membre/profil"
+            className={`${styles.menuItem} ${pathname === "/membre/profil" ? styles.menuItemActive : ""}`}
+            onClick={() => setSidebarOpen(false)}
+          >
+            <i className="fas fa-user-circle"></i>
+            <span>{t.common.monProfil}</span>
+          </Link>
+          <button
+            className={styles.menuItem}
+            onClick={() => { logout(); router.push("/connexion"); }}
+          >
+            <i className="fas fa-sign-out-alt"></i>
+            <span>{t.common.deconnexion}</span>
+          </button>
+        </div>
       </aside>
 
-      {/* Overlay for mobile */}
+      {/* Overlay for Web */}
       {sidebarOpen && (
         <div className={styles.overlay} onClick={() => setSidebarOpen(false)}></div>
       )}
@@ -90,7 +107,7 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
         {/* Top Navbar */}
         <header className={styles.topbar}>
           <div className={styles.topbarLeft}>
-            <button className={styles.mobileToggle} onClick={() => setSidebarOpen(!sidebarOpen)}>
+            <button className={styles.webToggle} onClick={() => setSidebarOpen(!sidebarOpen)}>
               <i className="fas fa-bars"></i>
             </button>
           </div>
@@ -135,11 +152,15 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
               </button>
               {profileOpen && (
                 <div className={styles.dropdownMenu}>
+                  <Link href="/membre/profil" className={styles.dropdownItem} onClick={() => setProfileOpen(false)}>
+                    <i className="fas fa-user-cog"></i>
+                    {t.common.monProfil}
+                  </Link>
                   <div className={styles.dropdownDivider}></div>
-                  <Link href="/connexion" className={styles.dropdownItem} onClick={() => { logout(); setProfileOpen(false); }}>
+                  <button className={styles.dropdownItem} onClick={() => { logout(); setProfileOpen(false); router.push("/connexion"); }}>
                     <i className="fas fa-sign-out-alt"></i>
                     {t.common.deconnexion}
-                  </Link>
+                  </button>
                 </div>
               )}
             </div>

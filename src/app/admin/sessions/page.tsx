@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import styles from "./sessions.module.css";
 import { useTranslation } from "@/context/LanguageContext";
 import { secretaryService } from "@/services/secretaryService";
+import { useNotification } from "@/context/NotificationContext";
 
 export default function SessionsPage() {
   const { t, locale } = useTranslation();
+  const { showToast, confirm } = useNotification();
   const [sessions, setSessions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -26,15 +28,22 @@ export default function SessionsPage() {
   }, []);
 
   const handleCloseSession = async (id: number) => {
-    if (!window.confirm("Voulez-vous vraiment cl\u00F4turer cette session ?")) return;
-    try {
-      await secretaryService.closeSession(id);
-      alert("Session cl\u00F4tur\u00E9e avec succ\u00E8s !");
-      const data = await secretaryService.getSessions();
-      setSessions(data);
-    } catch (err: any) {
-      alert("Erreur: " + err.message);
-    }
+    confirm({
+      title: "Clôturer la session",
+      message: "Voulez-vous vraiment clôturer cette session ? Cette action est irréversible.",
+      type: "warning",
+      confirmText: "Clôturer",
+      onConfirm: async () => {
+        try {
+          await secretaryService.closeSession(id);
+          showToast("Session clôturée avec succès !", "success");
+          const data = await secretaryService.getSessions();
+          setSessions(data);
+        } catch (err: any) {
+          showToast("Erreur: " + err.message, "error");
+        }
+      }
+    });
   };
 
   function formatAmount(n: number) {

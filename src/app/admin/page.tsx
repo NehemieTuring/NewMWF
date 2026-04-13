@@ -1,116 +1,126 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import styles from "./admin-dashboard.module.css";
 import { useTranslation } from "@/context/LanguageContext";
 import { secretaryService } from "@/services/secretaryService";
+import { useAuth } from "@/context/AuthContext";
+import { useNotification } from "@/context/NotificationContext";
 
 export default function AdminDashboard() {
-  const { t, locale } = useTranslation();
-  const [showSessionModal, setShowSessionModal] = useState(false);
+  const { locale } = useTranslation();
+  const { user } = useAuth();
+  const { showToast } = useNotification();
+  const subRole = user?.subRole?.toUpperCase();
+  const isSG = subRole === "SECRETAIRE_GENERALE";
+  const isTreasurer = subRole === "TRESORIER";
   const [stats, setStats] = useState<any>(null);
-  const [activeHelps, setActiveHelps] = useState<any[]>([]);
-  const [activeLoans, setActiveLoans] = useState<any[]>([]);
-  const [unreadMessages, setUnreadMessages] = useState(0);
+  const [exercises, setExercises] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [showSessionModal, setShowSessionModal] = useState(false);
+  const [showExerciseModal, setShowExerciseModal] = useState(false);
 
-  useEffect(() => {
-    async function loadDashboardData() {
+  const [sessionForm, setSessionForm] = useState({
+    name: "",
+    sessionDate: new Date().toISOString().split("T")[0],
+    exercise: { id: "" }
+  });
+
+  const [exerciseForm, setExerciseForm] = useState({
+    year: new Date().getFullYear().toString(),
+    startDate: `${new Date().getFullYear()}-01-01`,
+    endDate: `${new Date().getFullYear()}-12-31`,
+    interestRate: 3.0,
+    solidarityAmount: 150000,
+    agapeAmount: 45000,
+    penaltyAmount: 15000
+  });
+
+  async function loadDashboardData() {
       try {
-        const [statsData, helpsData, loansData, unreadData] = await Promise.all([
+        const [statsData, exercisesData] = await Promise.all([
           secretaryService.getGlobalTransactions(),
-          secretaryService.getActiveHelps(),
-          secretaryService.getAllLoans(),
-          secretaryService.getUnreadCount().catch(() => ({ count: 0 })),
+          secretaryService.getExercises()
         ]);
-        
         setStats(statsData);
-        setActiveHelps(Array.isArray(helpsData) ? helpsData.slice(0, 3) : []);
-        setActiveLoans(Array.isArray(loansData) ? loansData.filter((l: any) => l.status === 'ACTIVE').slice(0, 3) : []);
-        setUnreadMessages(unreadData?.count || 0);
+        setExercises(exercisesData || []);
+        
+        // Auto-select active exercise in form if possible
+        const activeEx = (exercisesData || []).find((e: any) => e.active);
+        if (activeEx) {
+          setSessionForm(prev => ({ ...prev, exercise: { id: activeEx.id } }));
+        }
       } catch (err: any) {
-        console.error("Dashboard data load error:", err);
-        setError(err.message || "Impossible de charger les données du tableau de bord");
+        console.error(err);
       } finally {
         setLoading(false);
       }
     }
+  useEffect(() => {
     loadDashboardData();
   }, []);
+
+  const handleCreateExercise = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await secretaryService.createExercise(exerciseForm);
+      setShowExerciseModal(false);
+      loadDashboardData();
+      showToast("L'exercice financier a été créé avec succès !", "success");
+    } catch (err: any) {
+      console.error(err);
+      showToast("Nous n'avons pas pu créer l'exercice. " + (err.message || "Veuillez vérifier les informations saisies."), "error");
+    }
+  };
+
+  const handleCreateSession = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!sessionForm.exercise.id) {
+      alert("Veuillez choisir un exercice pour cette session.");
+      return;
+    }
+    try {
+      await secretaryService.createSession(sessionForm);
+      setShowSessionModal(false);
+      loadDashboardData();
+      showToast("La séance a été ouverte et est prête à enregistrer des opérations.", "success");
+    } catch (err: any) {
+      console.error(err);
+      if (err.message?.includes("active exercise") || err.message?.includes("Exercice spécifié introuvable")) {
+        showToast("Impossible d'ouvrir la séance : aucun exercice financier n'est actuellement actif.", "error");
+      } else {
+        showToast("Une erreur est survenue lors de l'ouverture de la séance. Veuillez réessayer.", "error");
+      }
+    }
+  };
 
   function formatAmount(n: number) {
     return (n || 0).toLocaleString(locale === "fr" ? "fr-FR" : "en-US");
   }
 
-  if (loading && !stats) {
-    return (
-      <div className={styles.loading}>
-        <i className={`fas fa-circle-notch ${styles.loadingSpinner}`}></i>
-        <p>Préparation du portail de la Secrétaire Générale...</p>
-      </div>
-    );
-  }
+  if (loading) return <div className="fas fa-spinner fa-spin" style={{ fontSize: "2rem", color: "#4e73df", margin: "5rem auto", display: "block" }}></div>;
 
   return (
     <div className={styles.dashboard}>
-      <header style={{ marginBottom: '-1rem' }}>
-        <h1 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#2d3748' }}>Tableau de Bord</h1>
-        <p style={{ color: '#718096', fontWeight: 600 }}>Bienvenue dans votre espace de pilotage, Secrétaire Générale</p>
+      <header style={{ marginBottom: "2rem" }}>
+        <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#2e3b4e" }}>
+          Tableau de Bord {isSG ? "Secrétaire G." : isTreasurer ? "Trésorier" : "Président"}
+        </h1>
+        <p style={{ color: "#858796" }}>
+          {isSG ? "Gestion opérationnelle et suivi des activités récentes." : 
+           isTreasurer ? "Surveillance financière et état des fonds." : 
+           "Supervision globale et indicateurs de performance."}
+        </p>
       </header>
 
-      {/* Session Banner */}
-      <div className={styles.sessionBanner}>
-        <div className={styles.sessionInfo}>
-          {stats?.activeSession ? (
-            <>
-              <div className={styles.sessionBadge}>
-                <div className={styles.sessionBadgeDot}></div>
-                {t.dashboard.sessionActive}
-              </div>
-              <h2 className={styles.sessionTitle}>{stats.activeSession.name}</h2>
-              <p className={styles.sessionExercise}>Exercice Budgétaire {stats.activeSession.exerciseYear}</p>
-            </>
-          ) : (
-            <>
-              <div className={styles.sessionBadge} style={{ background: '#fef3f2', color: '#b91c1c' }}>
-                <i className="fas fa-exclamation-triangle"></i>
-                {t.dashboard.aucuneSession}
-              </div>
-              <h2 className={styles.sessionTitle}>Prêt pour une session ?</h2>
-              <p className={styles.sessionExercise}>{t.dashboard.demarrerSession}</p>
-            </>
-          )}
-        </div>
-        <div className={styles.sessionActions}>
-          {unreadMessages > 0 && (
-            <a href="/admin/chat" className={styles.sessionBtn} style={{ background: '#f59e0b', boxShadow: '0 4px 15px rgba(245, 158, 11, 0.2)' }}>
-              <i className="fas fa-comment-alt"></i>
-              {unreadMessages} Nouveaux messages
-            </a>
-          )}
-          {stats?.activeSession ? (
-            <button className={`${styles.sessionBtn} ${styles.sessionBtnDanger}`} onClick={() => { if(window.confirm("Voulez-vous clôturer cette session ?")) secretaryService.closeSession(stats.activeSession.id).then(() => window.location.reload()) }}>
-              <i className="fas fa-lock"></i>
-              {t.dashboard.cloturerSession}
-            </button>
-          ) : (
-            <button className={styles.sessionBtn} onClick={() => setShowSessionModal(true)}>
-              <i className="fas fa-plus"></i>
-              {t.dashboard.nouvelleSession}
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Stats Grid */}
+      {/* Primary KPI Grid */}
       <div className={styles.statsGrid}>
         <div className={styles.statCard}>
-          <div className={styles.statIcon} style={{ background: "rgba(56, 161, 105, 0.1)", color: "#38a169" }}>
-            <i className="fas fa-user-plus"></i>
+          <div className={styles.statIcon} style={{ background: "rgba(28,200,138,0.1)", color: "#1cc88a" }}>
+            <i className="fas fa-users-cog"></i>
           </div>
           <div className={styles.statContent}>
-            <span className={styles.statLabel}>Adhésions</span>
+            <span className={styles.statLabel}>Adhésions Totales</span>
             <div className={styles.statValueContainer}>
               <span className={styles.statValue}>{formatAmount(stats?.totalEnrollments)}</span>
               <span className={styles.statUnit}>XAF</span>
@@ -118,11 +128,11 @@ export default function AdminDashboard() {
           </div>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.statIcon} style={{ background: "rgba(78, 115, 223, 0.1)", color: "#4e73df" }}>
+          <div className={styles.statIcon} style={{ background: "rgba(78,115,223,0.1)", color: "#4e73df" }}>
             <i className="fas fa-shield-alt"></i>
           </div>
           <div className={styles.statContent}>
-            <span className={styles.statLabel}>Fonds Social</span>
+            <span className={styles.statLabel}>Fonds Social Cumulé</span>
             <div className={styles.statValueContainer}>
               <span className={styles.statValue}>{formatAmount(stats?.totalSocialFunds)}</span>
               <span className={styles.statUnit}>XAF</span>
@@ -142,7 +152,7 @@ export default function AdminDashboard() {
           </div>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.statIcon} style={{ background: "rgba(245, 101, 101, 0.1)", color: "#e53e3e" }}>
+          <div className={styles.statIcon} style={{ background: "rgba(231,74,59,0.1)", color: "#e74a3b" }}>
             <i className="fas fa-university"></i>
           </div>
           <div className={styles.statContent}>
@@ -155,129 +165,182 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Info Grid */}
-      <div className={styles.infoGrid}>
-        {/* Aides */}
-        <div className={styles.infoCard}>
-          <div className={styles.infoCardHeader}>
-            <h3><i className="fas fa-heart"></i> {t.dashboard.aidesActives}</h3>
-            <a href="/admin/aides" className={styles.viewAllLink}>
-              Tout voir <i className="fas fa-chevron-right" style={{ fontSize: '0.7rem' }}></i>
-            </a>
-          </div>
-          <div className={styles.infoCardBody}>
-            {activeHelps.length > 0 ? activeHelps.map((help) => {
-              const current = help.currentAmount || 0;
-              const target = help.targetAmount || 1;
-              const progress = Math.min(100, Math.round((current / target) * 100));
-              return (
-                <div key={help.id} className={styles.listItem}>
-                  <div className={styles.itemHeader}>
-                    <div className={styles.itemAvatar}>
-                      <i className="fas fa-hands-helping"></i>
-                    </div>
-                    <div className={styles.itemMeta}>
-                      <span className={styles.itemName}>{help.beneficiary?.user?.firstName} {help.beneficiary?.user?.name}</span>
-                      <span className={styles.itemSub}>{help.type?.name}</span>
-                    </div>
+      <div className={styles.infoGrid} style={{ marginTop: "2rem" }}>
+         {/* Session Status & Quick Actions for SG */}
+         <div className={styles.infoCard} style={{ background: stats?.activeSession ? "linear-gradient(135deg, #1e3a8a, #3b82f6)" : "#f8f9fc", color: stats?.activeSession ? "white" : "#2e3b4e" }}>
+            <div className={styles.infoCardHeader} style={{ color: "inherit" }}>
+               <h3 style={{ color: "inherit" }}><i className="fas fa-history"></i> Session en cours</h3>
+            </div>
+            <div style={{ padding: "1.5rem" }}>
+               {stats?.activeSession ? (
+                 <>
+                    <h2 style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>{stats.activeSession.name || "Session Actuelle"}</h2>
+                    <p style={{ opacity: 0.8, fontSize: "0.9rem" }}>Exercice {stats.activeSession.exerciseYear} - Lancée le {new Date(stats.activeSession.sessionDate).toLocaleDateString()}</p>
+                    {isSG && (
+                      <button className={styles.sessionBtn} style={{ marginTop: "2rem", width: "100%", background: "#e74a3b" }}>
+                         Clôturer la session
+                      </button>
+                    )}
+                 </>
+               ) : (
+                 <div style={{ textAlign: "center", padding: "1rem" }}>
+                    <i className="fas fa-calendar-times" style={{ fontSize: "3rem", opacity: 0.1, marginBottom: "1rem" }}></i>
+                    <p>Aucune session active actuellement.</p>
+                    {isSG && <button className={styles.sessionBtn} style={{ marginTop: "1rem" }} onClick={() => setShowSessionModal(true)}>Démarrer une session</button>}
                   </div>
-                  <div className={styles.progressSection}>
-                    <div className={styles.progressBar}>
-                      <div className={styles.progressFill} style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #38a169, #48bb78)' }}></div>
-                    </div>
-                    <div className={styles.progressInfo}>
-                      <span className={styles.amountText}>{formatAmount(current)} / {formatAmount(target)}</span>
-                      <span className={styles.percentText} style={{ color: '#38a169' }}>{progress}%</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            }) : (
-              <div style={{ textAlign: 'center', padding: '2rem', color: '#a0aec0' }}>Aucune aide active en ce moment</div>
-            )}
-            <a href="/admin/aies/nouveau" className={styles.addBtn}>
-              <i className="fas fa-plus-circle"></i> Enregistrer une nouvelle aide
-            </a>
-          </div>
-        </div>
+               )}
+            </div>
+         </div>
 
-        {/* Emprunts */}
-        <div className={styles.infoCard}>
-          <div className={styles.infoCardHeader}>
-            <h3><i className="fas fa-wallet"></i> {t.dashboard.empruntsActifs}</h3>
-            <a href="/admin/emprunts" className={styles.viewAllLink}>
-              Tout voir <i className="fas fa-chevron-right" style={{ fontSize: '0.7rem' }}></i>
-            </a>
-          </div>
-          <div className={styles.infoCardBody}>
-            {activeLoans.length > 0 ? activeLoans.map((loan) => {
-              const refunded = loan.refundedAmount || 0;
-              const total = (loan.amount || 0) * (1 + (loan.interestRate || 0)/100);
-              const progress = Math.min(100, Math.round((refunded / total) * 100));
-              return (
-                <div key={loan.id} className={styles.listItem}>
-                  <div className={styles.itemHeader}>
-                    <div className={styles.itemAvatar} style={{ color: '#e53e3e' }}>
-                      <i className="fas fa-hand-holding-usd"></i>
+         {/* Exercise Management Card */}
+         <div className={styles.infoCard} style={{ background: exercises.some(e => e.active) ? "#f8f9fc" : "rgba(78, 115, 223, 0.05)", border: exercises.some(e => e.active) ? "1px solid #edf2f7" : "2px dashed #4e73df88" }}>
+            <div className={styles.infoCardHeader}>
+               <h3><i className="fas fa-calendar-alt"></i> Exercice Annuel</h3>
+               <a href="/admin/parametres" className={styles.viewAllLink}>Tout voir <i className="fas fa-arrow-right"></i></a>
+            </div>
+            <div style={{ padding: "1.5rem" }}>
+               {exercises.find((e: any) => e.active) ? (
+                 <>
+                    <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.5rem" }}>
+                       <div style={{ width: "50px", height: "50px", borderRadius: "15px", background: "rgba(78, 115, 223, 0.1)", color: "#4e73df", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem", fontWeight: 800 }}>
+                          {exercises.find((e: any) => e.active).year}
+                       </div>
+                       <div>
+                          <h4 style={{ margin: 0, color: "#2d3748" }}>Exercice en cours</h4>
+                          <p style={{ margin: 0, fontSize: "0.85rem", color: "#718096" }}>Prêt pour les opérations de l{"'"}année.</p>
+                       </div>
                     </div>
-                    <div className={styles.itemMeta}>
-                      <span className={styles.itemName}>{loan.member?.user?.firstName} {loan.member?.user?.name}</span>
-                      <span className={styles.itemSub}>Échéance : {loan.endDate ? new Date(loan.endDate).toLocaleDateString() : "Non définie"}</span>
-                    </div>
-                  </div>
-                  <div className={styles.progressSection}>
-                    <div className={styles.progressBar}>
-                      <div className={styles.progressFill} style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #e53e3e, #f56565)' }}></div>
-                    </div>
-                    <div className={styles.progressInfo}>
-                      <span className={styles.amountText}>{formatAmount(refunded)} / {formatAmount(total)}</span>
-                      <span className={styles.percentText} style={{ color: '#e53e3e' }}>{progress}%</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            }) : (
-              <div style={{ textAlign: 'center', padding: '2rem', color: '#a0aec0' }}>Aucun emprunt actif à signaler</div>
-            )}
-            <a href="/admin/emprunts" className={styles.addBtn}>
-               Gérer les demandes de prêt
-            </a>
-          </div>
-        </div>
+                    {isSG && <button className={styles.addBtn} style={{ borderStyle: "solid", background: "#f8f9fc" }} onClick={() => setShowExerciseModal(true)}>Modifier l{"'"}exercice</button>}
+                 </>
+               ) : (
+                 <div style={{ textAlign: "center", padding: "1rem" }}>
+                    <i className="fas fa-calendar-plus" style={{ fontSize: "3rem", opacity: 0.1, marginBottom: "1rem" }}></i>
+                    <p style={{ fontSize: "0.9rem", color: "#718096" }}>Aucun exercice n{"'"}est actif pour le moment.</p>
+                    {isSG && <button className={styles.sessionBtn} style={{ marginTop: "1rem", background: "linear-gradient(135deg, #1cc88a, #16a085)" }} onClick={() => setShowExerciseModal(true)}>Initialiser un Exercice</button>}
+                 </div>
+               )}
+            </div>
+         </div>
+
       </div>
 
-      {/* New Session Modal */}
+      {/* MODAL SESSION */}
       {showSessionModal && (
-        <div className={styles.modalOverlay} onClick={() => setShowSessionModal(false)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalOverlay}>
+          <div className={styles.modal}>
             <div className={styles.modalHeader}>
-              <h3>Lancer une nouvelle Session</h3>
-              <button className={styles.modalClose} onClick={() => setShowSessionModal(false)}>
-                <i className="fas fa-times"></i>
-              </button>
+              <h3>Démarrer une session</h3>
+              <button className={styles.modalClose} onClick={() => setShowSessionModal(false)}><i className="fas fa-times"></i></button>
             </div>
-            <form className={styles.modalBody} onSubmit={(e) => { e.preventDefault(); /* Logic to create session */ }}>
+            <form onSubmit={handleCreateSession} className={styles.modalBody}>
               <div className={styles.formGroup}>
-                <label>Nom de la Session (optionnel)</label>
-                <input type="text" className={styles.formInput} placeholder="Ex: Session de Mars 2026" />
+                <label>Exercice Relatif</label>
+                <select 
+                  className={styles.formInput}
+                  value={sessionForm.exercise.id}
+                  onChange={e => setSessionForm({...sessionForm, exercise: { id: e.target.value }})}
+                  required
+                >
+                  <option value="">-- Choisir un exercice --</option>
+                  {exercises.map((ex: any) => (
+                    <option key={ex.id} value={ex.id}>{ex.year} {ex.active ? "(Actif)" : ""}</option>
+                  ))}
+                </select>
               </div>
               <div className={styles.formGroup}>
-                <label>Date de la Session</label>
-                <input type="date" className={styles.formInput} defaultValue={new Date().toISOString().split('T')[0]} />
+                <label>Nom de la session (ex: Janvier)</label>
+                <input 
+                  type="text" 
+                  className={styles.formInput} 
+                  value={sessionForm.name} 
+                  onChange={e => setSessionForm({...sessionForm, name: e.target.value})}
+                  placeholder="Ex: Assemblée de Janvier"
+                  required 
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Date de la session</label>
+                <input 
+                  type="date" 
+                  className={styles.formInput} 
+                  value={sessionForm.sessionDate} 
+                  onChange={e => setSessionForm({...sessionForm, sessionDate: e.target.value})}
+                  required 
+                />
               </div>
               <div className={styles.modalActions}>
-                <button type="button" className={styles.cancelBtn} onClick={() => setShowSessionModal(false)}>
-                  {t.dashboard.annuler}
-                </button>
-                <button type="submit" className={styles.submitBtn}>
-                  Confirmer et Ouvrir la Session
-                </button>
+                <button type="button" className={styles.cancelBtn} onClick={() => setShowSessionModal(false)}>Annuler</button>
+                <button type="submit" className={styles.submitBtn}>Ouvrir la session</button>
               </div>
             </form>
           </div>
         </div>
       )}
+
+      {/* MODAL EXERCICE */}
+      {showExerciseModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modal} style={{ maxWidth: "650px" }}>
+            <div className={styles.modalHeader}>
+              <h3>Configurer l{"'"}Exercice</h3>
+              <button className={styles.modalClose} onClick={() => setShowExerciseModal(false)}><i className="fas fa-times"></i></button>
+            </div>
+            <form onSubmit={handleCreateExercise} className={styles.modalBody}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+                <div className={styles.formGroup}>
+                  <label>Année</label>
+                  <input type="text" className={styles.formInput} value={exerciseForm.year} onChange={e => setExerciseForm({...exerciseForm, year: e.target.value})} required />
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Date Début</label>
+                  <input type="date" className={styles.formInput} value={exerciseForm.startDate} onChange={e => setExerciseForm({...exerciseForm, startDate: e.target.value})} required />
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Date Fin</label>
+                  <input type="date" className={styles.formInput} value={exerciseForm.endDate} onChange={e => setExerciseForm({...exerciseForm, endDate: e.target.value})} required />
+                </div>
+              </div>
+              <div className={styles.modalActions}>
+                <button type="button" className={styles.cancelBtn} onClick={() => setShowExerciseModal(false)}>Annuler</button>
+                <button type="submit" className={styles.submitBtn} style={{ background: "#1cc88a" }}>Enregistrer l{"'"}Exercice</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Transactions Récentes Unifiées */}
+      <section style={{ marginTop: "3rem" }}>
+         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+            <h2 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0 }}>Journal des Activités</h2>
+            <a href="/admin/operations" style={{ fontSize: "0.8rem", fontWeight: 700, color: "#4e73df" }}>Accéder au back-office <i className="fas fa-arrow-right"></i></a>
+         </div>
+         <div className={styles.tableCard} style={{ background: "white", borderRadius: "24px", border: "1px solid #e3e6f0", overflow: "hidden" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+               <thead style={{ background: "#f8f9fc" }}>
+                  <tr>
+                     <th style={{ padding: "1rem 1.5rem", textAlign: "left", fontSize: "0.7rem", fontWeight: 800, color: "#858796", textTransform: "uppercase" }}>Date</th>
+                     <th style={{ padding: "1rem 1.5rem", textAlign: "left", fontSize: "0.7rem", fontWeight: 800, color: "#858796", textTransform: "uppercase" }}>Rôle / Action</th>
+                     <th style={{ padding: "1rem 1.5rem", textAlign: "right", fontSize: "0.7rem", fontWeight: 800, color: "#858796", textTransform: "uppercase" }}>Impact Financier</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  {stats?.recentTransactions?.slice(0, 5).map((tx: any) => (
+                    <tr key={tx.id} style={{ borderBottom: "1px solid #f8f9fc" }}>
+                       <td style={{ padding: "1rem 1.5rem", fontSize: "0.85rem" }}>{new Date(tx.date).toLocaleDateString()}</td>
+                       <td style={{ padding: "1rem 1.5rem" }}>
+                          <span style={{ display: "block", fontWeight: 700, fontSize: "0.9rem" }}>{tx.type}</span>
+                          <span style={{ fontSize: "0.75rem", color: "#858796" }}>{tx.description}</span>
+                       </td>
+                       <td style={{ padding: "1rem 1.5rem", textAlign: "right", fontWeight: 800, color: tx.amount > 0 ? "#1cc88a" : "#e74a3b" }}>
+                          {tx.amount > 0 ? "+" : ""} {tx.amount.toLocaleString()} XAF
+                       </td>
+                    </tr>
+                  ))}
+               </tbody>
+            </table>
+         </div>
+      </section>
     </div>
   );
 }
-

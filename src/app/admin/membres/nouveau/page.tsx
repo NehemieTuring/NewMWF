@@ -313,6 +313,10 @@ export default function NewMemberPage() {
             </div>
             <h2>Membre inscrit avec succès !</h2>
             <p><strong>{formData.firstName} {formData.name}</strong> a été ajouté à la mutuelle.</p>
+            <div className={styles.feeNotification}>
+              <i className="fas fa-check"></i>
+              <span>Frais d{"'"}inscription réglés avec succès</span>
+            </div>
             <div className={styles.successActions}>
               <button className={styles.backStepBtn} onClick={() => { setStep(1); setFormData({ name: "", firstName: "", email: "", tel: "", address: "", username: "", password: "", confirmPassword: "" }); }}>
                 <i className="fas fa-plus"></i> Inscrire un autre membre

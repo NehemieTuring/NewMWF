@@ -1,151 +1,229 @@
-.page { max-width: 1200px; margin: 0 auto; }
+.page {
+  padding: 1rem;
+  animation: fadeIn 0.6s ease-out;
+}
+
+
+.welcomeText h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.welcomeText p {
+  color: #64748b;
+  font-size: 1.1rem;
+}
+
+.welcomeHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding: 1rem 0;
+}
+
+.roleBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  padding: 0.6rem 1.25rem;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.adminStatsRow {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.insightCard {
+  flex: 1;
+  min-width: 200px;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 20px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.insightLabel {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.insightValue {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.insightValue small {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-left: 0.25rem;
+}
 
 .grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 
 /* News Section */
 .newsSection {
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  border: 1px solid #f1f5f9;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .sectionHeader {
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--border-color);
+  padding: 1.75rem 2rem;
+  border-bottom: 1px solid #f1f5f9;
+  background: #fafafa;
 }
 
 .sectionHeader h2 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text-dark);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1e293b;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
-.sectionHeader h2 i { color: var(--primary); }
+.sectionHeader h2 i {
+  color: #3b82f6;
+}
 
-.newsList { padding: 1rem 1.5rem; }
+.newsList {
+  padding: 1.5rem 2rem;
+  flex: 1;
+}
 
 .newsCard {
-  background: var(--light);
-  border-radius: 14px;
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-  transition: all 0.3s ease;
-  border: 1px solid transparent;
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 20px;
+  padding: 1.75rem;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.01);
 }
 
 .newsCard:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.06);
-  border-color: var(--border-color);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.05);
+  border-color: #3b82f633;
 }
-
-.newsCard:last-child { margin-bottom: 0; }
 
 .newsHeader {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 .newsAvatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #4e73df, #6d8cef);
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 0.9rem;
-  flex-shrink: 0;
+  font-weight: 800;
+  font-size: 1rem;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
 .newsType {
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--text-dark);
-  margin-bottom: 0.15rem;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #1e293b;
+  margin: 0;
 }
 
 .newsMember {
-  font-size: 0.8rem;
-  color: var(--primary);
-  font-weight: 500;
+  font-size: 0.85rem;
+  color: #3b82f6;
+  font-weight: 600;
 }
 
 .newsComment {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  line-height: 1.6;
-  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  color: #475569;
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
 }
 
-.newsProgress { margin-bottom: 1rem; }
+.newsProgress {
+  margin-bottom: 0.5rem;
+}
 
 .progressTrack {
-  height: 6px;
-  background: var(--border-color);
-  border-radius: 100px;
+  height: 10px;
+  background: #f1f5f9;
+  border-radius: 50px;
   overflow: hidden;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .progressFill {
   height: 100%;
-  background: linear-gradient(135deg, #2193b0, #6dd5ed);
-  border-radius: 100px;
-  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  border-radius: 50px;
+  transition: width 1s ease-in-out;
 }
 
 .progressInfo {
   display: flex;
   justify-content: space-between;
-  font-size: 0.8rem;
-  color: var(--text-muted);
+  font-size: 0.9rem;
+  color: #64748b;
+  font-weight: 500;
 }
 
-.progressPercent { font-weight: 700; color: var(--accent); }
-
-.detailsBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 1rem;
-  background: rgba(78,115,223,0.08);
-  color: var(--primary);
-  font-size: 0.8rem;
-  font-weight: 600;
-  border-radius: 8px;
-  text-decoration: none;
-  transition: all 0.2s;
+.progressPercent {
+  font-weight: 800;
+  color: #3b82f6;
 }
-
-.detailsBtn:hover { background: var(--primary); color: white; }
 
 /* Account Section */
 .accountSection {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 2rem;
 }
 
 .accountCard {
-  background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
-  border-radius: 20px;
-  padding: 2.5rem 2rem;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border-radius: 28px;
+  padding: 3rem 2rem;
   color: white;
   text-align: center;
-  box-shadow: 0 10px 40px rgba(33,147,176,0.3);
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
   position: relative;
   overflow: hidden;
 }
@@ -153,145 +231,177 @@
 .accountCard::before {
   content: '';
   position: absolute;
-  top: -40%;
-  right: -20%;
-  width: 200px;
-  height: 200px;
+  top: -20px;
+  right: -20px;
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
   border-radius: 50%;
-  background: rgba(255,255,255,0.06);
 }
 
 .accountIcon {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
-  opacity: 0.9;
+  width: 70px;
+  height: 70px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin: 0 auto 1.5rem;
+  color: #60a5fa;
 }
 
 .accountCard h3 {
-  font-size: 1rem;
-  font-weight: 600;
-  opacity: 0.85;
-  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #94a3b8;
+  margin-bottom: 0.5rem;
 }
 
 .accountAmount {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .amountValue {
-  font-size: 2.5rem;
+  font-size: 3rem;
   font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .amountCurrency {
-  font-size: 1rem;
+  font-size: 1.25rem;
+  margin-left: 0.5rem;
+  color: #60a5fa;
   font-weight: 600;
-  opacity: 0.7;
 }
 
 .accountLabel {
-  font-size: 0.85rem;
-  opacity: 0.7;
-  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-bottom: 2rem;
 }
 
 .accountActions {
   display: flex;
-  gap: 0.75rem;
+  gap: 1rem;
   justify-content: center;
 }
 
 .payBtn, .debtBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.6rem 1.25rem;
-  border-radius: 10px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  flex: 1;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  font-weight: 700;
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .payBtn {
-  background: rgba(255,255,255,0.2);
+  background: #3b82f6;
   color: white;
-  backdrop-filter: blur(10px);
 }
 
 .payBtn:hover {
-  background: rgba(255,255,255,0.3);
+  background: #2563eb;
   transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(59, 130, 246, 0.25);
 }
 
 .debtBtn {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.05);
   color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .debtBtn:hover {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.1);
   transform: translateY(-2px);
 }
 
 /* Quick Stats */
 .quickStats {
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-  border: 1px solid var(--border-color);
-  padding: 1.25rem;
+  border-radius: 24px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  border: 1px solid #f1f5f9;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 .quickStat {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 0.75rem;
-  border-radius: 12px;
-  transition: background 0.2s;
+  gap: 1.25rem;
+  padding: 1rem;
+  border-radius: 18px;
+  transition: all 0.2s;
 }
 
-.quickStat:hover { background: var(--light); }
+.quickStat:hover {
+  background: #f8fafc;
+}
 
 .quickStatIcon {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
-  flex-shrink: 0;
+  font-size: 1.25rem;
 }
 
 .quickStatLabel {
   display: block;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  font-weight: 500;
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
 }
 
 .quickStatValue {
   display: block;
-  font-size: 0.9rem;
-  color: var(--text-dark);
-  font-weight: 700;
+  font-size: 1.1rem;
+  color: #1e293b;
+  font-weight: 800;
 }
 
-@media (max-width: 1024px) {
+.empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+  font-size: 1.2rem;
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 1100px) {
   .grid { grid-template-columns: 1fr; }
-  .accountCard { padding: 2rem 1.5rem; }
+  .accountSection { order: -1; }
 }
 
 @media (max-width: 768px) {
-  .amountValue { font-size: 2rem; }
-  .accountActions { flex-direction: column; }
+  .amountValue { font-size: 2.25rem; }
+  .welcomeText h1 { font-size: 1.75rem; }
 }

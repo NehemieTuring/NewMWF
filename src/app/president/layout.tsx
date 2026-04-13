@@ -64,7 +64,15 @@ export default function PresidentLayout({ children }: { children: React.ReactNod
       items: [
         { label: "Tableau de Bord", icon: "fas fa-chart-pie", href: "/president" },
         { label: "Liste des Membres", icon: "fas fa-users", href: "/president/membres" },
-        { label: "Bilans", icon: "fas fa-file-invoice-dollar", href: "/president/bilans" },
+        { label: "Bilans Financiers", icon: "fas fa-file-invoice-dollar", href: "/president/bilans" },
+        { label: "Portail Membre", icon: "fas fa-user", href: "/membre" },
+      ],
+    },
+    {
+      title: "Archives & Suivi",
+      items: [
+        { label: "Aides & Secours", icon: "fas fa-hand-holding-heart", href: "/president/aides" },
+        { label: "Renflouements", icon: "fas fa-sync-alt", href: "/president/renflouements" },
       ],
     },
     {
@@ -88,28 +96,28 @@ export default function PresidentLayout({ children }: { children: React.ReactNod
           </Link>
         </div>
         <nav className={styles.sidebarNav}>
-          <div className={styles.menuSection}>
-            <span className={styles.menuTitle}>{t.admin.menuPrincipal}</span>
-            <Link href="/president" className={`${styles.menuItem} ${pathname === "/president" ? styles.menuItemActive : ""}`}>
-              <i className="fas fa-chart-pie"></i>
-              <span>{t.admin.tableauDeBord}</span>
-            </Link>
-            <Link href="/president/membres" className={`${styles.menuItem} ${pathname === "/president/membres" ? styles.menuItemActive : ""}`}>
-              <i className="fas fa-users"></i>
-              <span>{t.admin.membres}</span>
-            </Link>
-          </div>
-
-          <div className={styles.menuSection}>
-            <span className={styles.menuTitle}>Finances</span>
-            <Link href="/president/bilans" className={`${styles.menuItem} ${pathname.startsWith("/president/bilans") ? styles.menuItemActive : ""}`}>
-              <i className="fas fa-file-invoice-dollar"></i>
-              <span>Bilans & Rapports</span>
-            </Link>
-          </div>
-
+          {sidebarMenu.map((section) => (
+            <div key={section.title} className={styles.menuSection}>
+              <span className={styles.menuTitle}>{section.title}</span>
+              {section.items.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`${styles.menuItem} ${pathname === item.href ? styles.menuItemActive : ""}`}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <i className={item.icon}></i>
+                  <span>{item.label}</span>
+                </Link>
+              ))}
+            </div>
+          ))}
           <div className={styles.menuSection}>
             <span className={styles.menuTitle}>{t.common.profil}</span>
+            <Link href="/membre" className={styles.menuItem}>
+              <i className="fas fa-arrow-left"></i>
+              <span>Portail Membre</span>
+            </Link>
             <Link href="/president/profil" className={styles.menuItem}>
               <i className="fas fa-user-circle"></i>
               <span>{t.common.monProfil}</span>
@@ -130,7 +138,7 @@ export default function PresidentLayout({ children }: { children: React.ReactNod
       <div className={styles.mainArea}>
         <header className={styles.topbar}>
           <div className={styles.topbarLeft}>
-            <button className={styles.mobileToggle} onClick={() => setSidebarOpen(!sidebarOpen)}>
+            <button className={styles.webToggle} onClick={() => setSidebarOpen(!sidebarOpen)}>
               <i className="fas fa-bars"></i>
             </button>
           </div>

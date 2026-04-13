@@ -1,12 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./payer.module.css";
 import { useTranslation } from "@/context/LanguageContext";
+import { memberService } from "@/services/memberService";
 
 export default function MemberPayerPage() {
   const { t } = useTranslation();
   const [method, setMethod] = useState("om");
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [debts, setDebts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [sessionsData, debtsData] = await Promise.all([
+          memberService.getSessions(),
+          memberService.getDebts()
+        ]);
+        setSessions(Array.isArray(sessionsData) ? sessionsData.filter((s: any) => s.status === "ACTIVE") : []);
+        setDebts(Array.isArray(debtsData) ? debtsData : []);
+      } catch (err) {
+        console.error("Failed to load payer data", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  if (loading) return <div className={styles.loading}>Préparation du paiement...</div>;
 
   return (
     <div className={styles.page}>
@@ -20,10 +44,19 @@ export default function MemberPayerPage() {
           <div className={styles.formGroup}>
             <label>Type de versement</label>
             <select className={styles.select}>
-              <option>Épargne session Mars 2026</option>
-              <option>Remboursement Prêt L-001</option>
-              <option>Aide Médicale (Solidarité)</option>
-              <option>Fond Social Mensuel</option>
+              <option value="">Sélectionnez un type de versement</option>
+              {sessions.map(s => (
+                <option key={`session-${s.id}`} value={`session-${s.id}`}>
+                  Épargne - Session {new Date(s.date).toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}
+                </option>
+              ))}
+              {debts.map(d => (
+                <option key={`debt-${d.id}`} value={`debt-${d.id}`}>
+                  {d.type || d.label || "Dette"} - {d.amount.toLocaleString()} XAF
+                </option>
+              ))}
+              <option value="solidarity">Contribution Solidarité</option>
+              <option value="social-fund">Fond Social Mensuel</option>
             </select>
           </div>
 

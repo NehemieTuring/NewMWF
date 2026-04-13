@@ -94,7 +94,7 @@ export default function TreasurerPenalties() {
                     <td colSpan={5} style={{ textAlign: "center", padding: "6rem" }}>
                       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem", opacity: 0.5 }}>
                         <i className="fas fa-check-circle" style={{ fontSize: "3.5rem", color: "#10b981" }}></i>
-                        <p style={{ fontWeight: 600 }}>Félicitations ! Aucune pénalité en attente.</p>
+                        <p style={{ fontWeight: 600 }}>Toutes les pénalités sont réglées.</p>
                       </div>
                     </td>
                   </tr>

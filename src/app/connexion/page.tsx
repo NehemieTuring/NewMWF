@@ -38,35 +38,37 @@ export default function ConnexionPage() {
       const role = data.role?.toUpperCase();
 
       // Vérification du rôle par rapport à la partie choisie
-      if (activeModal === "administrator" && role === "MEMBER") {
+      const isSuperAdmin = role === "SUPER_ADMIN";
+      const isAdminRole = role === "ADMIN"; // President, Treasurer, SG
+      const isMemberRole = role === "MEMBER";
+
+      if (activeModal === "administrator" && !isSuperAdmin) {
         logout();
         setError(t.login.erreurAccesAdmin);
         return;
       }
       
-      if (activeModal === "member" && role !== "MEMBER") {
+      if (activeModal === "member" && isSuperAdmin) {
         logout();
         setError(t.login.erreurAccesMembre);
         return;
       }
 
-      if (role === "SUPER_ADMIN") {
+      if (isSuperAdmin) {
         router.push("/super-admin");
-      } else if (role === "MEMBER") {
+      } else {
+        // All others (President, Treasurer, SG, Regular Members) go to Member portal
         router.push("/membre");
-      } else if (role === "ADMIN") {
-        const subRole = data.subRole?.toUpperCase();
-        if (subRole === "PRESIDENT") {
-          router.push("/president");
-        } else if (subRole === "TRESORIER") {
-          router.push("/treasurer");
-        } else {
-          // SECRETAIRE_GENERALE or others
-          router.push("/admin");
-        }
       }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : t.common.erreurIdentifiants;
+      let message = t.common.erreurIdentifiants;
+      if (err instanceof Error) {
+        if (err.message.includes("Failed to fetch") || err.message.includes("NetworkError")) {
+          message = t.common.erreurConnexion;
+        } else {
+          message = err.message;
+        }
+      }
       setError(message);
     } finally {
       setLoading(false);

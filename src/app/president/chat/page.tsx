@@ -132,11 +132,13 @@ export default function PresidentChat() {
               <div className={styles.messagesList}>
                 {messages.length > 0 ? (
                   messages.map((msg) => {
-                    const isMine = msg.sender?.email === authUser?.email || msg.sender?.username === authUser?.username;
+                    const isMine = msg.sender?.id === authUser?.id || 
+                                   (msg.sender?.email && msg.sender?.email === authUser?.email) || 
+                                   (msg.sender?.username && msg.sender?.username === authUser?.username);
                     return (
                       <div key={msg.id} className={`${styles.messageWrapper} ${isMine ? styles.myMsgWrapper : ""}`}>
                         <div className={`${styles.message} ${isMine ? styles.myMsg : styles.otherMsg}`}>
-                          <p>{msg.content}</p>
+                          <p>{msg.message || msg.content}</p>
                           <span className={styles.msgTime}>
                             {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>

@@ -144,7 +144,7 @@
   letter-spacing: -0.5px;
 }
 
-.mobileToggle {
+.webToggle {
   background: none;
   border: none;
   font-size: 1.25rem;
@@ -470,6 +470,6 @@
   .sidebarOpen { transform: translateX(0); }
   .mainArea { margin-left: 0; }
   .topbar { left: 0; }
-  .mobileToggle { display: block; }
+  .webToggle { display: block; }
   .overlay { display: block; }
 }

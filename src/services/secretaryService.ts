@@ -37,10 +37,17 @@ export const secretaryService = {
   // Sessions et Exercices
   getExercises: () => fetchWithAuth("/admin/exercises"),
   getSessions: () => fetchWithAuth("/admin/sessions"),
+  getCurrentExercise: () => fetchWithAuth("/admin/exercises/current"),
+  updateExercise: (id: number, data: any) => fetchWithAuth(`/admin/exercises/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   createExercise: (data: any) => fetchWithAuth("/admin/exercises", { method: "POST", body: JSON.stringify(data) }),
   createSession: (data: any) => fetchWithAuth("/admin/sessions", { method: "POST", body: JSON.stringify(data) }),
   closeSession: (id: number) => fetchWithAuth(`/admin/sessions/${id}/close`, { method: "PUT" }),
   closeExercise: (id: number) => fetchWithAuth(`/admin/exercises/${id}/close`, { method: "PUT" }),
+
+  // Refueling
+  getRefuelingByExercise: (exerciseId: number) => fetchWithAuth(`/admin/refueling/exercises/${exerciseId}`),
+  calculateRefueling: (exerciseId: number) => fetchWithAuth(`/admin/refueling/calculate/${exerciseId}`, { method: "POST" }),
+  distributeRefueling: (refuelingId: number) => fetchWithAuth(`/admin/refueling/distribute/${refuelingId}`, { method: "POST" }),
 
   // Chat
   getConversations: () => fetchWithAuth("/admin/chat/conversations"),
@@ -48,14 +55,22 @@ export const secretaryService = {
   sendMessage: (receiverId: number, content: string) => fetchWithAuth(`/admin/chat/send?receiverId=${receiverId}&content=${encodeURIComponent(content)}`, { method: "POST" }),
   getUnreadCount: () => fetchWithAuth("/admin/chat/unread"),
 
-  // Dashboard
+  // Dashboard / Bilans
   getGlobalTransactions: () => fetchWithAuth("/admin/dashboard/transactions"),
   getCashboxes: () => fetchWithAuth("/admin/dashboard/cashboxes"),
   getMembersInRule: () => fetchWithAuth("/admin/dashboard/members/in-rule"),
   getMembersNotInRule: () => fetchWithAuth("/admin/dashboard/members/not-in-rule"),
+  getExerciseBilan: (exerciseId: number) => fetchWithAuth(`/admin/dashboard/exercises/${exerciseId}`),
+  getSessionBilan: (sessionId: number) => fetchWithAuth(`/admin/dashboard/sessions/${sessionId}`),
 
   // Profil propre
   getProfile: () => fetchWithAuth("/admin/profile"),
   updateProfile: (data: any) => fetchWithAuth("/admin/profile", { method: "PUT", body: JSON.stringify(data) }),
   updatePassword: (data: any) => fetchWithAuth("/admin/profile/password", { method: "PUT", body: JSON.stringify(data) }),
+
+  // Agape
+  getAgapes: () => fetchWithAuth("/admin/agapes"),
+  createAgape: (data: { title: string, description: string, amount: number, date: string, sessionId: string }) => 
+    fetchWithAuth(`/admin/agapes?title=${encodeURIComponent(data.title)}&description=${encodeURIComponent(data.description)}&amount=${data.amount}&date=${data.date}&sessionId=${data.sessionId}`, { method: "POST" }),
+  disburseHelp: (helpId: number) => fetchWithAuth(`/admin/helps/${helpId}/disburse`, { method: "POST" }),
 };

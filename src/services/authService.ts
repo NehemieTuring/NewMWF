@@ -1,6 +1,7 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
 
 export interface LoginResponse {
+  id: number;
   token: string;
   email: string;
   username?: string;
@@ -9,6 +10,7 @@ export interface LoginResponse {
 }
 
 export interface AuthUser {
+  id: number;
   token: string;
   email: string;
   username?: string;
@@ -20,18 +22,26 @@ export async function loginApi(
   identifier: string,
   password: string
 ): Promise<LoginResponse> {
-  const res = await fetch(`${API_BASE_URL}/auth/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ 
-      identifier, 
-      email: identifier, 
-      username: identifier, 
-      password 
-    }),
-  });
+  let res;
+  try {
+    res = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ 
+        identifier, 
+        email: identifier, 
+        username: identifier, 
+        password 
+      }),
+    });
+  } catch (err) {
+    if (err instanceof Error && (err.message.includes("Failed to fetch") || err.name === "TypeError")) {
+      throw new Error("Impossible de se connecter au serveur. Veuillez vérifier votre connexion internet.");
+    }
+    throw err;
+  }
 
   if (!res.ok) {
     if (res.status === 401 || res.status === 403) {
@@ -57,6 +67,7 @@ export async function loginApi(
 }
 
 export function saveAuth(data: LoginResponse): void {
+  if (data.id) localStorage.setItem("auth_id", data.id.toString());
   localStorage.setItem("auth_token", data.token);
   localStorage.setItem("auth_email", data.email);
   if (data.username) localStorage.setItem("auth_username", data.username);
@@ -66,18 +77,21 @@ export function saveAuth(data: LoginResponse): void {
 
 export function getAuth(): AuthUser | null {
   if (typeof window === "undefined") return null;
+  const idStr = localStorage.getItem("auth_id");
   const token = localStorage.getItem("auth_token");
   const email = localStorage.getItem("auth_email");
   const username = localStorage.getItem("auth_username") || undefined;
   const role = localStorage.getItem("auth_role");
   const subRole = localStorage.getItem("auth_sub_role") || undefined;
-  if (token && email && role) {
-    return { token, email, username, role, subRole };
+  
+  if (idStr && token && email && role) {
+    return { id: parseInt(idStr), token, email, username, role, subRole };
   }
   return null;
 }
 
 export function clearAuth(): void {
+  localStorage.removeItem("auth_id");
   localStorage.removeItem("auth_token");
   localStorage.removeItem("auth_email");
   localStorage.removeItem("auth_username");

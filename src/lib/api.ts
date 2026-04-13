@@ -14,10 +14,19 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
 
   console.log(`🌐 Calling API: ${options.method || 'GET'} ${API_BASE_URL}${endpoint}`);
 
-  const res = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  let res;
+  try {
+    res = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      headers,
+    });
+  } catch (err) {
+    console.error("❌ API Fetch Error:", err);
+    if (err instanceof Error && (err.message.includes("Failed to fetch") || err.name === "TypeError")) {
+      throw new Error("Impossible de se connecter au serveur. Veuillez vérifier votre connexion internet ou contacter l'administrateur.");
+    }
+    throw err;
+  }
 
   if (res.status === 401) {
     if (typeof window !== 'undefined') {
@@ -33,5 +42,7 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
   }
 
   if (res.status === 204) return null;
-  return res.json();
+  
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
 }

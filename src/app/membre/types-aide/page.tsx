@@ -1,17 +1,45 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./typesAide.module.css";
 import { useTranslation } from "@/context/LanguageContext";
-
-const mockAidTypes = [
-  { id: 1, name: "Aide Médicale", description: "En cas d'hospitalisation ou chirurgie", amount: 300000 },
-  { id: 2, name: "Aide Scolaire", description: "Frais de scolarité des enfants", amount: 200000 },
-  { id: 3, name: "Naissance", description: "Soutien pour heureux événement", amount: 100000 },
-];
+import { memberService } from "@/services/memberService";
 
 export default function MemberTypesAidePage() {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
+  const [aidTypes, setAidTypes] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadTypes = async () => {
+      try {
+        const data = await memberService.getHelpTypes();
+        setAidTypes(data);
+      } catch (err: any) {
+        console.error("Failed to load aid types:", err);
+        setError(err.message || "Failed to load aid types");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadTypes();
+  }, []);
+
+  if (loading) return (
+    <div className={styles.loadingContainer}>
+      <div className={styles.loader}></div>
+      <p>Chargement des types d'aides...</p>
+    </div>
+  );
+
+  if (error) return (
+    <div className={styles.errorContainer}>
+      <i className="fas fa-exclamation-circle"></i>
+      <p>{error}</p>
+      <button onClick={() => window.location.reload()} className={styles.retryBtn}>Réessayer</button>
+    </div>
+  );
 
   return (
     <div className={styles.page}>
@@ -21,26 +49,35 @@ export default function MemberTypesAidePage() {
       </div>
 
       <div className={styles.grid}>
-        {mockAidTypes.map((type) => (
-          <div key={type.id} className={styles.card}>
-            <div className={styles.cardHeader}>
-              <div className={styles.icon}><i className="fas fa-hand-holding-heart"></i></div>
-              <h3>{type.name}</h3>
-            </div>
-            <div className={styles.cardBody}>
-              <p className={styles.description}>{type.description}</p>
-              <div className={styles.limitBox}>
-                <span className={styles.limitLabel}>Montant Plafond</span>
-                <span className={styles.limitValue}>{type.amount.toLocaleString()} XAF</span>
+        {aidTypes.length > 0 ? (
+          aidTypes.map((type) => (
+            <div key={type.id} className={styles.card}>
+              <div className={styles.cardHeader}>
+                <div className={styles.icon}><i className="fas fa-hand-holding-heart"></i></div>
+                <h3>{type.name}</h3>
+              </div>
+              <div className={styles.cardBody}>
+                <p className={styles.description}>{type.description || "Aucune description disponible"}</p>
+                <div className={styles.limitBox}>
+                  <span className={styles.limitLabel}>Montant Plafond</span>
+                  <span className={styles.limitValue}>
+                    {type.defaultAmount ? type.defaultAmount.toLocaleString() : "0"} XAF
+                  </span>
+                </div>
+              </div>
+              <div className={styles.cardFooter}>
+                <button className={styles.requestBtn}>
+                  <i className="fas fa-paper-plane"></i> Solliciter une aide
+                </button>
               </div>
             </div>
-            <div className={styles.cardFooter}>
-              <button className={styles.requestBtn}>
-                <i className="fas fa-paper-plane"></i> Solliciter une aide
-              </button>
-            </div>
+          ))
+        ) : (
+          <div className={styles.empty}>
+            <i className="fas fa-heart-broken" style={{ display: 'block', fontSize: '3rem', marginBottom: '1rem', opacity: 0.3 }}></i>
+            Aucun type d'aide disponible pour le moment.
           </div>
-        ))}
+        )}
       </div>
     </div>
   );

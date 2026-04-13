@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { treasurerService } from "@/services/treasurerService";
+import { useNotification } from "@/context/NotificationContext";
 import dashboardStyles from "../../admin/dashboard.module.css";
 import styles from "../treasurer.module.css";
 
 export default function TreasurerCaisses() {
+  const { showToast } = useNotification();
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -67,8 +69,11 @@ export default function TreasurerCaisses() {
            const amount = (e.target as any).amount.value;
            const reason = (e.target as any).reason.value;
            treasurerService.recordExpenditure(amount, reason)
-             .then(() => alert("Dépense enregistrée avec succès !"))
-             .catch((err) => alert("Erreur: " + err.message));
+             .then(() => {
+                showToast("Dépense enregistrée avec succès !", "success");
+                (e.target as any).reset();
+             })
+             .catch((err) => showToast("Erreur: " + err.message, "error"));
          }}>
             <div className={styles.formRow}>
                <div className={styles.inputGroup}>

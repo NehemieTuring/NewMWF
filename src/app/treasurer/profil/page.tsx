@@ -80,20 +80,25 @@ export default function TreasurerProfilPage() {
 
             <div className={styles.quickInfo}>
               <div className={styles.infoItem}>
-                <i className="fas fa-envelope"></i>
-                <span>{profile?.email || authUser?.email}</span>
+                <div className={styles.infoIconBox}><i className="fas fa-envelope"></i></div>
+                <div className={styles.infoContent}>
+                  <span className={styles.infoLabel}>Adresse E-mail</span>
+                  <span className={styles.infoValue}>{profile?.email || authUser?.email}</span>
+                </div>
               </div>
               <div className={styles.infoItem}>
-                <i className="fas fa-phone"></i>
-                <span>{profile?.tel || "Non renseigné"}</span>
+                <div className={styles.infoIconBox}><i className="fas fa-phone"></i></div>
+                <div className={styles.infoContent}>
+                  <span className={styles.infoLabel}>Téléphone</span>
+                  <span className={styles.infoValue}>{profile?.tel || "Non renseigné"}</span>
+                </div>
               </div>
               <div className={styles.infoItem}>
-                <i className="fas fa-wallet"></i>
-                <span>Trésorerie Centrale</span>
-              </div>
-              <div className={styles.infoItem}>
-                <i className="fas fa-calendar-check"></i>
-                <span>Membre depuis 2024</span>
+                <div className={styles.infoIconBox}><i className="fas fa-calendar-alt"></i></div>
+                <div className={styles.infoContent}>
+                  <span className={styles.infoLabel}>Membre depuis</span>
+                  <span className={styles.infoValue}>{profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString() : '...'}</span>
+                </div>
               </div>
             </div>
           </div>

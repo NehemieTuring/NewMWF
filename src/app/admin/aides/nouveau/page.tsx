@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import { secretaryService } from "@/services/secretaryService";
 import styles from "../aides.module.css";
 import { useTranslation } from "@/context/LanguageContext";
+import { useNotification } from "@/context/NotificationContext";
 
 export default function NewAidPage() {
   const router = useRouter();
   const { t } = useTranslation();
+  const { showToast } = useNotification();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [members, setMembers] = useState<any[]>([]);
@@ -56,8 +58,8 @@ export default function NewAidPage() {
         Number(formData.beneficiaryId),
         Number(formData.amount)
       );
-      alert("Aide créée avec succès !");
-      router.push("/admin/aides");
+      showToast("Aide créée avec succès !", "success");
+      setTimeout(() => router.push("/admin/aides"), 1000);
     } catch (err: any) {
       setError(err.message);
     } finally {

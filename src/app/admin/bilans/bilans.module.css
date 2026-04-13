@@ -1,0 +1,225 @@
+.page {
+  padding: 2rem;
+  animation: fadeIn 0.6s ease-out;
+}
+
+.header {
+  margin-bottom: 2.5rem;
+}
+
+.title {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #1a202c;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  color: #718096;
+  font-size: 1.1rem;
+}
+
+.filters {
+  background: white;
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  margin-bottom: 3rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  border: 1px solid #f1f5f9;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.filterGroup label {
+  font-weight: 700;
+  color: #4a5568;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.filterGroup select {
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  font-size: 1rem;
+  color: #1a202c;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234a5568'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1.25rem center;
+  background-size: 1.25rem;
+}
+
+.filterGroup select:focus {
+  border-color: #3b82f6;
+  background-color: white;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  outline: none;
+}
+
+.bilanGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+.statCard {
+  background: white;
+  padding: 2rem;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  border: 1px solid #f1f5f9;
+  transition: transform 0.2s ease;
+}
+
+.statCard:hover {
+  transform: translateY(-5px);
+}
+
+.statCard i {
+  width: 60px;
+  height: 60px;
+  background: #eff6ff;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  color: #3b82f6;
+}
+
+.statInfo span {
+  display: block;
+  font-size: 0.95rem;
+  color: #718096;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.statInfo h3 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1a202c;
+  margin: 0;
+}
+
+.cashboxTableCard {
+  grid-column: span 2;
+  background: white;
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  border: 1px solid #f1f5f9;
+}
+
+.cashboxTableCard h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1a202c;
+  margin-bottom: 1.5rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  text-align: left;
+  padding: 1rem;
+  color: #718096;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.table td {
+  padding: 1.25rem 1rem;
+  border-bottom: 1px solid #f8fafc;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+.amountText {
+  font-weight: 700;
+  color: #1a202c;
+  text-align: right;
+}
+
+.actionCard {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  padding: 2.5rem;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+  gap: 1.5rem;
+}
+
+.exportBtn {
+  background: white;
+  color: #2563eb;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: all 0.2s;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.exportBtn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 15px 25px rgba(0,0,0,0.15);
+}
+
+.empty {
+  text-align: center;
+  padding: 8rem 2rem;
+  background: #f8fafc;
+  border-radius: 20px;
+  color: #94a3b8;
+  font-size: 1.1rem;
+  border: 2px dashed #e2e8f0;
+}
+
+.loading {
+  text-align: center;
+  padding: 5rem;
+  color: #3b82f6;
+  font-weight: 700;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 1024px) {
+  .bilanGrid { grid-template-columns: 1fr; }
+  .cashboxTableCard, .actionCard { grid-column: auto; }
+  .filters { grid-template-columns: 1fr; }
+}

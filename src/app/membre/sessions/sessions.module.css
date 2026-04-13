@@ -1,94 +1,188 @@
 .page {
-  animation: fadeIn 0.4s ease;
+  animation: fadeIn 0.6s ease-out;
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .header {
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
+  animation: fadeIn 0.5s ease forwards;
 }
 
 .title {
-  font-size: 1.75rem;
+  font-size: 1.8rem;
   font-weight: 800;
-  color: var(--text-dark);
+  color: #2e3b4e;
+  letter-spacing: -0.02em;
 }
 
 .subtitle {
-  color: var(--text-muted);
+  color: #858796;
   font-size: 0.95rem;
-  margin-top: 5px;
+  font-weight: 500;
+  margin-top: 0.35rem;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.5rem;
 }
 
 .card {
-  background: var(--white);
-  padding: 1.5rem;
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--border-color);
-  text-align: center;
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid #e3e6f0;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.1);
+  border-color: rgba(78, 115, 223, 0.15);
 }
 
 .cardHeader {
+  padding: 1.75rem;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 1.25rem;
+  background: linear-gradient(135deg, rgba(78, 115, 223, 0.04), rgba(33, 147, 176, 0.03));
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
 }
 
 .icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: rgba(78, 115, 223, 0.1);
-  color: var(--primary);
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(78, 115, 223, 0.1), rgba(33, 147, 176, 0.08));
+  color: #4e73df;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
 }
 
 .cardHeader h3 {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 700;
-  color: var(--text-dark);
+  color: #2e3b4e;
 }
 
 .cardBody {
-  margin-bottom: 1.5rem;
+  padding: 1.5rem 1.75rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .badge {
-  padding: 4px 12px;
+  align-self: flex-start;
+  padding: 0.35rem 1rem;
   border-radius: 50px;
   font-size: 0.7rem;
-  font-weight: 800;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 
 .badgeActive {
   background: rgba(28, 200, 138, 0.1);
-  color: var(--success);
+  color: #1cc88a;
 }
 
 .badgeClosed {
-  background: var(--light);
-  color: var(--text-muted);
+  background: rgba(231, 74, 59, 0.08);
+  color: #e74a3b;
+}
+
+.sessionType {
+  color: #4e73df;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.cardFooter {
+  padding: 1.25rem 1.75rem;
+  background: #f8f9fc;
+  border-top: 1px solid #e3e6f0;
 }
 
 .detailsBtn {
   width: 100%;
-  padding: 0.75rem;
-  border-radius: 10px;
-  background: var(--light);
-  color: var(--text-dark);
+  padding: 0.8rem;
+  border-radius: 12px;
+  background: white;
+  color: #4e73df;
+  border: 2px solid rgba(78, 115, 223, 0.15);
   font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.detailsBtn:hover {
+  background: linear-gradient(135deg, #4e73df, #224abe);
+  color: white;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(78, 115, 223, 0.25);
+}
+
+.empty {
+  grid-column: 1 / -1;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: white;
+  border-radius: 20px;
+  color: #858796;
+  font-size: 1rem;
+  font-weight: 600;
+  border: 2px dashed #e3e6f0;
+}
+
+.loading {
+  height: 50vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.loading::before {
+  content: '';
+  width: 48px;
+  height: 48px;
+  border: 3px solid #e3e6f0;
+  border-top-color: #4e73df;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.loading::after {
+  content: 'Chargement des sessions...';
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #858796;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(15px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 640px) {
+  .grid { grid-template-columns: 1fr; }
 }

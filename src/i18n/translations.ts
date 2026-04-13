@@ -19,6 +19,7 @@ export interface Translations {
     seConnecter: string;
     connexionEnCours: string;
     erreurIdentifiants: string;
+    erreurConnexion: string;
     marquerCommeLu: string;
     contacterAdmin: string;
     contact: string;
@@ -41,6 +42,7 @@ export interface Translations {
     contributions: string;
     versements: string;
     chargement: string;
+    tableauDeBord: string;
   };
   admin: {
     menuPrincipal: string;
@@ -238,6 +240,7 @@ export const translations: Record<Locale, Translations> = {
       seConnecter: "SE CONNECTER",
       connexionEnCours: "Connexion...",
       erreurIdentifiants: "Identifiants incorrects",
+      erreurConnexion: "Impossible de se connecter au serveur. Veuillez vérifier votre connexion internet.",
       marquerCommeLu: "Marquer comme lu",
       contacterAdmin: "Contacter l'Admin",
       contact: "Contact",
@@ -260,6 +263,7 @@ export const translations: Record<Locale, Translations> = {
       contributions: "Contributions",
       versements: "versements",
       chargement: "Chargement",
+      tableauDeBord: "Tableau de bord",
     },
     admin: {
       menuPrincipal: "Menu Principal",
@@ -290,12 +294,12 @@ export const translations: Record<Locale, Translations> = {
     login: {
       titreAdmin: "Administrateur",
       titreMembre: "Membre",
-      descAdmin: "Les administrateurs ont le droit d'enregistrer des entrées, et des sorties d'argent.",
-      descMembre: "Les membres peuvent voir les informations sur leurs comptes ainsi que les informations générales de la mutuelle.",
-      titreModalAdmin: "Connexion Admin",
+      descAdmin: "Réservé au Super Administrateur pour la gestion globale de la mutuelle.",
+      descMembre: "Pour tous les membres (Membres, Bureau, Comité) : consultez vos comptes et gérez vos activités.",
+      titreModalAdmin: "Connexion Super Administrateur",
       titreModalMembre: "Connexion Membre",
-      erreurAccesAdmin: "Accès refusé. Veuillez utiliser la section Membre.",
-      erreurAccesMembre: "Accès refusé. Veuillez utiliser la section Administrateur.",
+      erreurAccesAdmin: "Accès réservé au Super Administrateur. Veuillez utiliser la section Membre.",
+      erreurAccesMembre: "Le Super Administrateur doit utiliser la section Administrateur.",
     },
     dashboard: {
       sessionActive: "Session active",
@@ -455,6 +459,7 @@ export const translations: Record<Locale, Translations> = {
       seConnecter: "LOGIN",
       connexionEnCours: "Connecting...",
       erreurIdentifiants: "Incorrect credentials",
+      erreurConnexion: "Unable to connect to the server. Please check your internet connection.",
       marquerCommeLu: "Mark as read",
       contacterAdmin: "Contact Admin",
       contact: "Contact",
@@ -477,6 +482,7 @@ export const translations: Record<Locale, Translations> = {
       contributions: "Contributions",
       versements: "payments",
       chargement: "Loading",
+      tableauDeBord: "Dashboard",
     },
     admin: {
       menuPrincipal: "Main Menu",
@@ -507,12 +513,12 @@ export const translations: Record<Locale, Translations> = {
     login: {
       titreAdmin: "Administrator",
       titreMembre: "Member",
-      descAdmin: "Administrators have the right to record inflows and outflows of money.",
-      descMembre: "Members can view information on their accounts as well as general mutual information.",
-      titreModalAdmin: "Admin Login",
+      descAdmin: "Reserved for the Super Administrator for global management of the mutual.",
+      descMembre: "For all members (Regular, Bureau, Committee): check your accounts and manage your activities.",
+      titreModalAdmin: "Super Admin Login",
       titreModalMembre: "Member Login",
-      erreurAccesAdmin: "Access denied. Please use the Member section.",
-      erreurAccesMembre: "Access denied. Please use the Administrator section.",
+      erreurAccesAdmin: "Access reserved for Super Admin. Please use the Member section.",
+      erreurAccesMembre: "Super Admin must use the Administrator section.",
     },
     dashboard: {
       sessionActive: "Active session",

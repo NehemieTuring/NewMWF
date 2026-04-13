@@ -24,17 +24,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   
   // Resilient authorization check
   const isAuthorizedFull = role === "SUPER_ADMIN" || 
-                          (role === "ADMIN" && (subRole === "SECRETAIRE_GENERALE" || !subRole)) ||
+                          (role === "ADMIN" && (subRole === "SECRETAIRE_GENERALE" || subRole === "TRESORIER" || subRole === "PRESIDENT" || !subRole)) ||
                           role === "SECRETAIRE_GENERALE";
 
   useEffect(() => {
     if (!loading) {
       if (!user) {
         router.push("/connexion");
+      } else if (role === "SUPER_ADMIN") {
+        router.push("/super-admin");
       } else if (!isAuthorizedFull) {
         // Only redirect if we ARE on an admin page but NOT authorized
-        if (role === "SUPER_ADMIN") router.push("/super-admin");
-        else if (role === "ADMIN") {
+        if (role === "ADMIN") {
           if (subRole === "PRESIDENT") router.push("/president");
           else if (subRole === "TRESORIER") router.push("/treasurer");
           else router.push("/connexion");
@@ -61,27 +62,30 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const sidebarMenu = [
     {
-      title: "Menu Principal",
+      title: "Back-Office " + (subRole === "SECRETAIRE_GENERALE" ? "SG" : "Président"),
       items: [
-        { label: t.admin.tableauDeBord, icon: "fas fa-chart-pie", href: "/admin" },
-        { label: "Membres", icon: "fas fa-users", href: "/admin/membres" },
-        { label: "Sessions", icon: "fas fa-table", href: "/admin/sessions" },
-        { label: "Exercices", icon: "fas fa-calendar", href: "/admin/exercices" },
+        { label: "Tableau de Bord", icon: "fas fa-chart-line", href: "/admin" },
+        { label: "Gestion des Membres", icon: "fas fa-users", href: "/admin/membres" },
+        { label: "Sessions & Exercices", icon: "fas fa-cog", href: "/admin/parametres" },
+        ...(subRole === "SECRETAIRE_GENERALE" ? [
+          { label: "Enregistrements", icon: "fas fa-exchange-alt", href: "/admin/operations" },
+          { label: "Agape", icon: "fas fa-utensils", href: "/admin/agape" },
+          { label: "Dossiers d'Aide", icon: "fas fa-hand-holding-heart", href: "/admin/aides" },
+          { label: "Paramètres Globaux", icon: "fas fa-sliders-h", href: "/admin/parametres-globaux" }
+        ] : []),
+        ...(subRole === "TRESORIER" ? [
+          { label: "Trésorerie & Dépenses", icon: "fas fa-vault", href: "/admin/tresorerie" }
+        ] : []),
       ],
     },
     {
-      title: "Activités",
+      title: "Usage Personnel",
       items: [
-        { label: "Emprunts", icon: "fas fa-hand-holding-usd", href: "/admin/emprunts" },
-        { label: "Aides / Secours", icon: "fas fa-hand-holding-heart", href: "/admin/aides" },
-        { label: "Types d'Aide", icon: "fas fa-sliders-h", href: "/admin/types-aide" },
-        { label: "Agape", icon: "fas fa-heart", href: "/admin/agape" },
-      ],
-    },
-    {
-      title: "Communication",
-      items: [
-        { label: t.admin.chat, icon: "fas fa-comments", href: "/admin/chat" },
+        { label: "Mes Finances", icon: "fas fa-wallet", href: "/membre/finances" },
+        { label: "Mes Emprunts", icon: "fas fa-hand-holding-usd", href: "/membre/emprunts" },
+        { label: "Solidarité & Aides", icon: "fas fa-hand-holding-heart", href: "/membre/aides" },
+        { label: "Messagerie", icon: "fas fa-comments", href: "/membre/messages" },
+        { label: "Mon Profil", icon: "fas fa-user-circle", href: "/membre/profil" },
       ],
     },
   ];
@@ -119,7 +123,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           ))}
           <div className={styles.menuSection}>
             <span className={styles.menuTitle}>{t.common.profil}</span>
-            <Link href="/admin/profil" className={styles.menuItem}>
+            <Link href="/membre" className={styles.menuItem}>
+              <i className="fas fa-arrow-left"></i>
+              <span>Portail Membre</span>
+            </Link>
+            <Link href="/membre/profil" className={styles.menuItem}>
               <i className="fas fa-user-circle"></i>
               <span>{t.common.monProfil}</span>
             </Link>
@@ -139,7 +147,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className={styles.mainArea}>
         <header className={styles.topbar}>
           <div className={styles.topbarLeft}>
-            <button className={styles.mobileToggle} onClick={() => setSidebarOpen(!sidebarOpen)}>
+            <button className={styles.webToggle} onClick={() => setSidebarOpen(!sidebarOpen)}>
               <i className="fas fa-bars"></i>
             </button>
           </div>
@@ -158,7 +166,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </button>
               {profileOpen && (
                 <div className={styles.dropdownMenu}>
-                  <Link href="/admin/profil" className={styles.dropdownItem} onClick={() => setProfileOpen(false)}>
+                  <Link href="/membre/profil" className={styles.dropdownItem} onClick={() => setProfileOpen(false)}>
                     <i className="fas fa-user-cog"></i>
                     {t.common.monProfil}
                   </Link>

@@ -23,25 +23,19 @@ export default function MembreLayout({ children }: { children: React.ReactNode }
   const subRole = user?.subRole?.toUpperCase();
   
   // Resilient authorization check
-  const isAuthorizedFull = role === "MEMBER" || role === "SUPER_ADMIN";
+  const isAuthorizedFull = role === "MEMBER" || role === "SUPER_ADMIN" || role === "ADMIN";
 
   useEffect(() => {
     if (!loading) {
       if (!user) {
         router.push("/connexion");
       } else if (!isAuthorizedFull) {
-        if (role === "SUPER_ADMIN") router.push("/super-admin");
-        else if (role === "ADMIN") {
-          if (subRole === "SECRETAIRE_GENERALE") router.push("/admin");
-          else if (subRole === "PRESIDENT") router.push("/president");
-          else if (subRole === "TRESORIER") router.push("/treasurer");
-          else router.push("/connexion");
-        } else {
-          router.push("/connexion");
-        }
+        router.push("/connexion");
+      } else if (role === "SUPER_ADMIN" && pathname !== "/membre/profil") {
+        router.push("/super-admin");
       }
     }
-  }, [user, loading, router, isAuthorizedFull, role, subRole]);
+  }, [user, loading, router, isAuthorizedFull, role, pathname]);
 
   if (loading) {
     return (
@@ -59,22 +53,32 @@ export default function MembreLayout({ children }: { children: React.ReactNode }
     {
       title: t.common.navigation,
       items: [
-        { label: t.admin.typesAide, icon: "fas fa-hand-holding-heart", href: "/membre/types-aide" },
-        { label: t.common.tontines, icon: "fas fa-coins", href: "/membre/tontines" },
-        { label: t.admin.exercices, icon: "fas fa-calendar", href: "/membre/exercices" },
-        { label: t.admin.sessions, icon: "fas fa-table", href: "/membre/sessions" },
-        { label: t.admin.chat, icon: "fas fa-comments", href: "/membre/chat" },
-      ],
-    },
-    {
-      title: t.common.gestionFinanciere,
-      items: [
-        { label: t.common.payer, icon: "fas fa-money-bill-wave", href: "/membre/payer" },
-        { label: t.common.maDette, icon: "fas fa-wallet", href: "/membre/dette" },
-        { label: t.common.mesPaiements, icon: "fas fa-credit-card", href: "/membre/paiements" },
+        { label: "Dashboard", icon: "fas fa-chart-line", href: "/membre" },
+        { label: "Finances", icon: "fas fa-wallet", href: "/membre/finances" },
+        { label: "Emprunts", icon: "fas fa-hand-holding-usd", href: "/membre/emprunts" },
+        { label: "Aides", icon: "fas fa-hand-holding-heart", href: "/membre/aides" },
+        { label: "Messages", icon: "fas fa-comments", href: "/membre/messages" },
+        { label: t.common.profil, icon: "fas fa-user-circle", href: "/membre/profil" },
       ],
     },
   ];
+
+  // Logic to show admin links in Member sidebar
+  const adminLinks = [];
+  if (role === "ADMIN") {
+    if (subRole === "PRESIDENT") {
+      adminLinks.push({ label: "Console Président", icon: "fas fa-user-shield", href: "/president" });
+    } else if (subRole === "TRESORIER") {
+      adminLinks.push({ label: "Console Trésorier", icon: "fas fa-vault", href: "/treasurer" });
+    } else if (subRole === "SECRETAIRE_GENERALE") {
+      adminLinks.push({ label: "Console Secrétaire G.", icon: "fas fa-user-edit", href: "/admin" });
+    }
+  } else if (role === "SUPER_ADMIN") {
+    adminLinks.push({ label: "Console Super Admin", icon: "fas fa-crown", href: "/super-admin" });
+  }
+
+  // Super Admin should not see regular member navigation
+  const filteredMenu = role === "SUPER_ADMIN" ? [] : sidebarMenu;
 
   const handleLogout = () => {
     logout();
@@ -91,7 +95,7 @@ export default function MembreLayout({ children }: { children: React.ReactNode }
           </Link>
         </div>
         <nav className={styles.sidebarNav}>
-          {sidebarMenu.map((section) => (
+          {filteredMenu.map((section) => (
             <div key={section.title} className={styles.menuSection}>
               <span className={styles.menuTitle}>{section.title}</span>
               {section.items.map((item) => (
@@ -107,8 +111,34 @@ export default function MembreLayout({ children }: { children: React.ReactNode }
               ))}
             </div>
           ))}
+
+          {adminLinks.length > 0 && (
+            <div className={styles.menuSection}>
+              <span className={styles.menuTitle}>ADMINISTRATION</span>
+              {adminLinks.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`${styles.menuItem} ${pathname === item.href ? styles.menuItemActive : ""}`}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <i className={item.icon}></i>
+                  <span>{item.label}</span>
+                </Link>
+              ))}
+            </div>
+          )}
+
           <div className={styles.menuSection}>
             <span className={styles.menuTitle}>{t.common.profil}</span>
+            <Link
+              href="/membre/profil"
+              className={`${styles.menuItem} ${pathname === "/membre/profil" ? styles.menuItemActive : ""}`}
+              onClick={() => setSidebarOpen(false)}
+            >
+              <i className="fas fa-user-circle"></i>
+              <span>{t.common.monProfil}</span>
+            </Link>
             <button className={styles.menuItem} onClick={() => setShowLogout(true)}>
               <i className="fas fa-sign-out-alt"></i>
               <span>{t.common.deconnexion}</span>
@@ -126,7 +156,7 @@ export default function MembreLayout({ children }: { children: React.ReactNode }
       <div className={styles.mainArea}>
         <header className={styles.topbar}>
           <div className={styles.topbarLeft}>
-            <button className={styles.mobileToggle} onClick={() => setSidebarOpen(!sidebarOpen)}>
+            <button className={styles.webToggle} onClick={() => setSidebarOpen(!sidebarOpen)}>
               <i className="fas fa-bars"></i>
             </button>
           </div>
@@ -184,7 +214,13 @@ export default function MembreLayout({ children }: { children: React.ReactNode }
           </div>
         </header>
 
-        <main className={styles.content}>{children}</main>
+        <main className={styles.content}>
+          {role === "SUPER_ADMIN" && pathname !== "/membre/profil" ? (
+             <div style={{ display: "flex", height: "50vh", alignItems: "center", justifyContent: "center" }}>
+                <div className="fas fa-spinner fa-spin" style={{ fontSize: "2rem", color: "#4e73df" }}></div>
+             </div>
+          ) : children}
+        </main>
       </div>
 
       {/* Logout Modal */}

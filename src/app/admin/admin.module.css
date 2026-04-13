@@ -163,7 +163,7 @@
   min-width: 0;
 }
 
-.mobileToggle {
+.webToggle {
   display: none;
   background: none;
   border: none;
@@ -175,7 +175,7 @@
   transition: all 0.2s;
 }
 
-.mobileToggle:hover {
+.webToggle:hover {
   background: var(--light);
   color: var(--primary);
 }
@@ -485,7 +485,7 @@
 
 .confirmBtn {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #e74a3b, #c0392b);
+  background: linear-gradient(135deg, #1cc88a, #13855c);
   color: white;
   border: none;
   border-radius: 10px;
@@ -493,12 +493,51 @@
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(231, 74, 59, 0.25);
+  box-shadow: 0 4px 15px rgba(28, 200, 138, 0.25);
 }
 
 .confirmBtn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(231, 74, 59, 0.35);
+  box-shadow: 0 6px 20px rgba(28, 200, 138, 0.35);
+}
+
+.modalForm {
+  padding: 1.5rem;
+  text-align: left;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.fullWidth {
+  grid-column: span 2;
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formField label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.confirmActionBtn {
+  background: linear-gradient(135deg, #1cc88a, #13855c);
+  box-shadow: 0 4px 15px rgba(28, 200, 138, 0.25);
+}
+
+.confirmActionBtn:hover {
+  box-shadow: 0 6px 20px rgba(28, 200, 138, 0.35);
 }
 
 /* ========================
@@ -526,7 +565,7 @@
     left: 0;
   }
 
-  .mobileToggle {
+  .webToggle {
     display: block;
   }
 
@@ -551,4 +590,201 @@
   .topNav {
     gap: 0;
   }
+}
+
+/* ========================
+   Modern UI Extensions
+   ======================== */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.glassCard {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+}
+
+.staggerDelayed {
+  animation: slideUp 0.5s ease backwards;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.kpiCard {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.kpiCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+  border-color: var(--primary);
+}
+
+.kpiIcon {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.kpiContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.kpiLabel {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.kpiValue {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-dark);
+}
+
+.tabsContainer {
+  margin-top: 2rem;
+}
+
+.tabsHeader {
+  display: flex;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.03);
+  padding: 0.4rem;
+  border-radius: 16px;
+  width: fit-content;
+  margin-bottom: 2rem;
+}
+
+.tabBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1.25rem;
+  border: none;
+  background: transparent;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.tabBtn i {
+  font-size: 1rem;
+}
+
+.tabBtnActive {
+  background: white;
+  color: var(--primary);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+.tableCard {
+  background: white;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  text-align: left;
+  padding: 1.25rem 1.5rem;
+  background: #f8f9fc;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.table td {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.92rem;
+  color: var(--text-dark);
+}
+
+.badgePrimary {
+  background: rgba(78, 115, 223, 0.1);
+  color: #4e73df;
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.badgeSuccess {
+  background: rgba(28, 200, 138, 0.1);
+  color: #1cc88a;
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.formInput {
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: #f8f9fc;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.25s;
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: white;
+  box-shadow: 0 0 0 4px rgba(78, 115, 223, 0.1);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #4e73df, #224abe);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  background: #f8f9fc;
+  border: 2px dashed #e3e6f0;
+  border-radius: 20px;
+  color: #858796;
+  text-align: center;
 }

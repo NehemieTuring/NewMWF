@@ -1,21 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./paiements.module.css";
 import { useTranslation } from "@/context/LanguageContext";
-
-const mockPaiements = [
-  { id: 1, type: "Épargne Mars", amount: 50000, date: "2026-03-15", method: "OM/MOMO" },
-  { id: 2, type: "Remboursement Prêt L-001", amount: 25000, date: "2026-03-15", method: "OM/MOMO" },
-  { id: 3, type: "Épargne Février", amount: 50000, date: "2026-02-15", method: "Virement" },
-];
+import { memberService } from "@/services/memberService";
 
 export default function MemberPaiementsPage() {
   const { t, locale } = useTranslation();
+  const [paiements, setPaiements] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadPaiements() {
+      try {
+        const data = await memberService.getMyPayments();
+        setPaiements(data || []);
+      } catch (err) {
+        console.error("Failed to load payments", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadPaiements();
+  }, []);
 
   function formatAmount(n: number) {
     return n.toLocaleString(locale === "fr" ? "fr-FR" : "en-US");
   }
+
+  if (loading) return <div className={styles.loading}>Chargement des transactions...</div>;
 
   return (
     <div className={styles.page}>
@@ -36,17 +49,23 @@ export default function MemberPaiementsPage() {
             </tr>
           </thead>
           <tbody>
-            {mockPaiements.map((p) => (
-              <tr key={p.id}>
-                <td className={styles.typeName}>{p.type}</td>
-                <td><span className={styles.amount}>{formatAmount(p.amount)} XAF</span></td>
-                <td>{new Date(p.date).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US")}</td>
-                <td>{p.method}</td>
-                <td>
-                  <span className={styles.badge}>CONFIRMÉ</span>
-                </td>
+            {paiements.length > 0 ? (
+              paiements.map((p) => (
+                <tr key={p.id}>
+                  <td className={styles.typeName}>{p.paymentType ? p.paymentType.replace('_', ' ') : "Transaction"} {p.session ? ` - Session ${p.session.id}` : ""}</td>
+                  <td><span className={styles.amount}>{formatAmount(p.amount)} XAF</span></td>
+                  <td>{new Date(p.paymentDate || p.createdAt).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US")}</td>
+                  <td>{p.paymentMethod || "ESPÈCES"}</td>
+                  <td>
+                    <span className={`${styles.badge} ${p.status === 'VALIDATED' ? styles.badgeSuccess : ""}`}>{p.status || "CONFIRMÉ"}</span>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={5} className={styles.empty}>Aucune transaction enregistrée.</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

@@ -1,16 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./exercices.module.css";
 import { useTranslation } from "@/context/LanguageContext";
-
-const mockExercices = [
-  { id: 1, year: 2026, status: "ACTIVE", start: "2026-01-01", end: "2026-12-31" },
-  { id: 2, year: 2025, status: "CLOSED", start: "2025-01-01", end: "2025-12-31" },
-];
+import { memberService } from "@/services/memberService";
 
 export default function MemberExercicesPage() {
   const { t, locale } = useTranslation();
+  const [exercices, setExercices] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadExercices() {
+      try {
+        const data = await memberService.getExercises();
+        setExercices(data || []);
+      } catch (err) {
+        console.error("Failed to load exercises", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadExercices();
+  }, []);
+
+  if (loading) return <div className={styles.loading}>Chargement des exercices...</div>;
 
   return (
     <div className={styles.page}>
@@ -20,29 +34,36 @@ export default function MemberExercicesPage() {
       </div>
 
       <div className={styles.grid}>
-        {mockExercices.map((ex) => (
-          <div key={ex.id} className={styles.card}>
-            <div className={styles.cardHeader}>
-              <div className={styles.icon}><i className="fas fa-history"></i></div>
-              <h3>Exercice {ex.year}</h3>
-            </div>
-            <div className={styles.cardBody}>
-              <div className={styles.dates}>
-                <div>
-                  <span>Du</span>
-                  <strong>{new Date(ex.start).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US")}</strong>
-                </div>
-                <div>
-                  <span>Au</span>
-                  <strong>{new Date(ex.end).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US")}</strong>
-                </div>
+        {exercices.length > 0 ? (
+          exercices.map((ex) => (
+            <div key={ex.id} className={styles.card}>
+              <div className={styles.cardHeader}>
+                <div className={styles.icon}><i className="fas fa-history"></i></div>
+                <h3>Exercice {ex.year || ex.label}</h3>
               </div>
-              <span className={`${styles.badge} ${ex.status === "ACTIVE" ? styles.badgeActive : styles.badgeClosed}`}>
-                {ex.status === "ACTIVE" ? t.dashboard.active.toUpperCase() : "FERMÉ"}
-              </span>
+              <div className={styles.cardBody}>
+                <div className={styles.dates}>
+                  <div>
+                    <span>Du</span>
+                    <strong>{ex.startDate ? new Date(ex.startDate).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US") : "N/A"}</strong>
+                  </div>
+                  <div>
+                    <span>Au</span>
+                    <strong>{ex.endDate ? new Date(ex.endDate).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US") : "N/A"}</strong>
+                  </div>
+                </div>
+                <span className={`${styles.badge} ${ex.status === "ACTIVE" ? styles.badgeActive : styles.badgeClosed}`}>
+                  {ex.status === "ACTIVE" ? t.dashboard.active.toUpperCase() : "FERMÉ"}
+                </span>
+              </div>
             </div>
+          ))
+        ) : (
+          <div className={styles.empty}>
+            <i className="fas fa-box-open" style={{ display: 'block', fontSize: '3rem', marginBottom: '1rem', opacity: 0.3 }}></i>
+            Aucun exercice enregistré.
           </div>
-        ))}
+        )}
       </div>
     </div>
   );

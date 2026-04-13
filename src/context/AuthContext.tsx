@@ -41,7 +41,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const data = await loginApi(email, password);
       saveAuth(data);
-      setUser({ token: data.token, email: data.email, username: data.username, role: data.role, subRole: data.subRole });
+      setUser({ 
+        id: data.id || 0, 
+        token: data.token, 
+        email: data.email, 
+        username: data.username, 
+        role: data.role, 
+        subRole: data.subRole 
+      });
       return data;
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Erreur inconnue";

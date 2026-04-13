@@ -53,6 +53,13 @@
 .sidebarNav {
   flex: 1;
   padding: 1rem 0.75rem;
+  overflow-y: auto;
+}
+
+.sidebarFooter {
+  padding: 1rem 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .menuSection {
@@ -145,7 +152,7 @@
   min-width: 0;
 }
 
-.mobileToggle {
+.webToggle {
   display: none;
   background: none;
   border: none;
@@ -157,7 +164,7 @@
   transition: all 0.2s;
 }
 
-.mobileToggle:hover {
+.webToggle:hover {
   background: var(--light);
   color: #4e73df;
 }
@@ -288,7 +295,7 @@
   .overlay { display: block; }
   .mainArea { margin-left: 0; }
   .topbar { left: 0; }
-  .mobileToggle { display: block; }
+  .webToggle { display: block; }
   .profileName { display: none; }
 }
 

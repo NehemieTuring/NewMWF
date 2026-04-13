@@ -1,0 +1,83 @@
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  min-width: 300px;
+  max-width: 450px;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xl);
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  gap: 1rem;
+  z-index: 10000;
+  animation: slideInRight 0.3s ease-out;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.success { border-left: 4px solid var(--success); }
+.error { border-left: 4px solid var(--danger); }
+.warning { border-left: 4px solid var(--warning); }
+.info { border-left: 4px solid var(--primary); }
+
+.icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.success .icon { color: var(--success); }
+.error .icon { color: var(--danger); }
+.warning .icon { color: var(--warning); }
+.info .icon { color: var(--primary); }
+
+.message {
+  flex: 1;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: color 0.2s;
+}
+
+.closeBtn:hover {
+  color: var(--text-dark);
+}
+
+.progressBar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.progress {
+  height: 100%;
+  width: 100%;
+  animation: progressLinear linear forwards;
+}
+
+.success .progress { background: var(--success); }
+.error .progress { background: var(--danger); }
+.warning .progress { background: var(--warning); }
+.info .progress { background: var(--primary); }
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes progressLinear {
+  from { width: 100%; }
+  to { width: 0%; }
+}

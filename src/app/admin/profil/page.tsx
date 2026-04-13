@@ -127,12 +127,25 @@ export default function ProfilPage() {
 
             <div className={styles.quickInfo}>
               <div className={styles.infoItem}>
-                <i className="fas fa-user-tag"></i>
-                <span>@{profile?.username || "utilisateur"}</span>
+                <div className={styles.infoIconBox}><i className="fas fa-user-tag"></i></div>
+                <div className={styles.infoContent}>
+                  <span className={styles.infoLabel}>Identifiant</span>
+                  <span className={styles.infoValue}>@{profile?.username || "utilisateur"}</span>
+                </div>
               </div>
               <div className={styles.infoItem}>
-                <i className="fas fa-calendar-check"></i>
-                <span>Membre depuis 2024</span>
+                <div className={styles.infoIconBox}><i className="fas fa-envelope"></i></div>
+                <div className={styles.infoContent}>
+                  <span className={styles.infoLabel}>E-mail</span>
+                  <span className={styles.infoValue}>{profile?.user?.email}</span>
+                </div>
+              </div>
+              <div className={styles.infoItem}>
+                <div className={styles.infoIconBox}><i className="fas fa-calendar-alt"></i></div>
+                <div className={styles.infoContent}>
+                  <span className={styles.infoLabel}>Membre depuis</span>
+                  <span className={styles.infoValue}>{profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString() : '...'}</span>
+                </div>
               </div>
             </div>
           </div>

@@ -5,11 +5,13 @@ import { useParams, useRouter } from "next/navigation";
 import { secretaryService } from "@/services/secretaryService";
 import styles from "../membres.module.css";
 import { useTranslation } from "@/context/LanguageContext";
+import { useNotification } from "@/context/NotificationContext";
 
 export default function MemberDetailsPage() {
   const { id } = useParams();
   const router = useRouter();
   const { t, locale } = useTranslation();
+  const { showToast, confirm } = useNotification();
   const [member, setMember] = useState<any>(null);
   const [debts, setDebts] = useState<any>(null);
   const [savings, setSavings] = useState<any[]>([]);
@@ -43,25 +45,39 @@ export default function MemberDetailsPage() {
   }
 
   const handleDeactivate = async () => {
-    if (!window.confirm("Voulez-vous vraiment désactiver ce membre ?")) return;
-    try {
-      await secretaryService.deactivateMember(Number(id));
-      alert("Membre désactivé avec succès");
-      window.location.reload();
-    } catch (err: any) {
-      alert("Erreur: " + err.message);
-    }
+    confirm({
+      title: "Confirmer la désactivation",
+      message: "Voulez-vous vraiment désactiver ce membre ?",
+      type: "danger",
+      confirmText: "Désactiver",
+      onConfirm: async () => {
+        try {
+          await secretaryService.deactivateMember(Number(id));
+          showToast("Membre désactivé avec succès", "success");
+          setTimeout(() => window.location.reload(), 1000);
+        } catch (err: any) {
+          showToast("Erreur: " + err.message, "error");
+        }
+      }
+    });
   };
 
   const handleActivate = async () => {
-    if (!window.confirm("Voulez-vous vraiment activer ce membre ?")) return;
-    try {
-      await secretaryService.activateMember(Number(id));
-      alert("Membre activé avec succès");
-      window.location.reload();
-    } catch (err: any) {
-      alert("Erreur: " + err.message);
-    }
+    confirm({
+      title: "Confirmer l'activation",
+      message: "Voulez-vous vraiment activer ce membre ?",
+      type: "success",
+      confirmText: "Activer",
+      onConfirm: async () => {
+        try {
+          await secretaryService.activateMember(Number(id));
+          showToast("Membre activé avec succès", "success");
+          setTimeout(() => window.location.reload(), 1000);
+        } catch (err: any) {
+          showToast("Erreur: " + err.message, "error");
+        }
+      }
+    });
   };
 
   if (loading) return <div className={styles.loading}>Chargement des détails...</div>;

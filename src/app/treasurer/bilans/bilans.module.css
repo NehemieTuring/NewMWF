@@ -1,0 +1,59 @@
+.page { padding: 2rem; }
+.header { margin-bottom: 2rem; }
+.title { font-size: 1.8rem; color: #1a202c; }
+
+.filters {
+  display: flex;
+  gap: 2rem;
+  background: #f7fafc;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+.filterGroup { flex: 1; display: flex; flex-direction: column; gap: 0.5rem; }
+.filterGroup label { font-size: 0.8rem; font-weight: 700; color: #4a5568; }
+.filterGroup select { padding: 0.8rem; border-radius: 8px; border: 1px solid #cbd5e0; }
+
+.cashboxGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.cashboxCard {
+  background: white;
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  border-bottom: 4px solid #48bb78;
+}
+
+.cbName { font-size: 0.85rem; color: #718096; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; }
+.cbBalance { font-size: 2rem; font-weight: 900; margin: 1rem 0; color: #2d3748; }
+
+.indicatorTrack { background: #edf2f7; height: 8px; border-radius: 10px; }
+.indicatorFill { background: #48bb78; height: 100%; border-radius: 10px; }
+
+.fullWidthCard {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  grid-column: 1 / -1;
+}
+
+.placeholderChart {
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e0;
+  border-radius: 15px;
+  color: #a0aec0;
+}
+
+.actions { display: flex; gap: 1rem; margin-top: 2rem; }
+.exportBtn { padding: 0.8rem 1.5rem; border-radius: 10px; border: none; background: #2d3748; color: white; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; }

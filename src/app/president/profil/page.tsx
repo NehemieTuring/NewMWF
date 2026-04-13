@@ -86,28 +86,28 @@ export default function PresidentProfilPage() {
             <div className={styles.infoItem}>
               <div className={styles.infoIcon}><i className="fas fa-user"></i></div>
               <div className={styles.infoDetails}>
-                <span className={styles.infoLabel}>Nom complet</span>
+                <span className={styles.infoLabel}>NOM COMPLET</span>
                 <span className={styles.infoValue}>{userData?.firstName} {userData?.name}</span>
               </div>
             </div>
             <div className={styles.infoItem}>
               <div className={styles.infoIcon}><i className="fas fa-envelope"></i></div>
               <div className={styles.infoDetails}>
-                <span className={styles.infoLabel}>Adresse e-mail</span>
+                <span className={styles.infoLabel}>ADRESSE E-MAIL</span>
                 <span className={styles.infoValue}>{userData?.email || "Non renseignée"}</span>
               </div>
             </div>
             <div className={styles.infoItem}>
               <div className={styles.infoIcon}><i className="fas fa-phone"></i></div>
               <div className={styles.infoDetails}>
-                <span className={styles.infoLabel}>Téléphone</span>
+                <span className={styles.infoLabel}>TÉLÉPHONE</span>
                 <span className={styles.infoValue}>{userData?.tel || "Non renseigné"}</span>
               </div>
             </div>
             <div className={styles.infoItem}>
               <div className={styles.infoIcon}><i className="fas fa-map-marker-alt"></i></div>
               <div className={styles.infoDetails}>
-                <span className={styles.infoLabel}>Adresse Physique</span>
+                <span className={styles.infoLabel}>ADRESSE PHYSIQUE</span>
                 <span className={styles.infoValue}>{userData?.address || "Non renseignée"}</span>
               </div>
             </div>

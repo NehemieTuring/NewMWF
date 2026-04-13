@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import styles from "./epargnes.module.css";
@@ -34,7 +34,7 @@ export default function MyEpargnesPage() {
     return (n || 0).toLocaleString(locale === "fr" ? "fr-FR" : "en-US");
   }
 
-  if (loading) return <div className={styles.loading}>Chargement de vos Ã©pargnes...</div>;
+  if (loading) return <div className={styles.loading}>Chargement de vos épargnes...</div>;
   if (error) return <div className={styles.errorBanner}>{error}</div>;
 
   return (
@@ -42,7 +42,7 @@ export default function MyEpargnesPage() {
       <div className={styles.header}>
         <div className={styles.headerInfo}>
           <h1 className={styles.title}>{t.common.mesEpargnes}</h1>
-          <p className={styles.subtitle}>Consultez l'historique de vos dÃ©pÃ´ts d'Ã©pargne</p>
+          <p className={styles.subtitle}>Consultez l'historique de vos dépôts d'épargne</p>
         </div>
         <div className={styles.totalCard}>
           <span className={styles.totalLabel}>{t.epargnes.balance}</span>
@@ -70,19 +70,19 @@ export default function MyEpargnesPage() {
                 <td>{new Date(e.createdAt).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US")}</td>
                 <td>
                   <span className={`${styles.badge} ${e.type === "DEPOSIT" ? styles.badgeDeposit : styles.badgeWithdrawal}`}>
-                    {e.type === "DEPOSIT" ? "DÃ‰PÃ”T" : "RETRAIT"}
+                    {e.type === "DEPOSIT" ? "DÉPÔT" : "RETRAIT"}
                   </span>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        {savings.length === 0 && <div className={styles.empty}>Aucun historique d'Ã©pargne trouvÃ©.</div>}
+        {savings.length === 0 && <div className={styles.empty}>Aucun historique d'épargne trouvé.</div>}
       </div>
 
       <div className={styles.actions}>
         <button className={styles.actionBtn}>
-          <i className="fas fa-plus"></i> Nouveau dÃ©pÃ´t
+          <i className="fas fa-plus"></i> Nouveau dépôt
         </button>
       </div>
     </div>

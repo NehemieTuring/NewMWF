@@ -442,6 +442,21 @@
   gap: 1rem;
 }
 
+.feeNotification {
+  background: rgba(40, 167, 69, 0.1);
+  color: var(--success);
+  padding: 0.6rem 1.25rem;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(40, 167, 69, 0.2);
+  animation: slideUp 0.5s ease-out 0.2s both;
+}
+
 /* Animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }

@@ -3,12 +3,13 @@ import { fetchWithAuth } from "../lib/api";
 export const memberService = {
   // Profil
   getProfile: () => fetchWithAuth("/member/profile"),
-  updateProfile: (data: any) => fetchWithAuth("/member/profile", { method: "PUT", body: JSON.stringify(data) }),
+  updateProfile: (data: any) => fetchWithAuth(`/member/profile?name=${encodeURIComponent(data.name)}&firstName=${encodeURIComponent(data.firstName)}&username=${encodeURIComponent(data.username)}&tel=${encodeURIComponent(data.tel)}&address=${encodeURIComponent(data.address)}`, { method: "PUT" }),
   updatePassword: (newPassword: string) => fetchWithAuth(`/member/profile/password?newPassword=${encodeURIComponent(newPassword)}`, { method: "PUT" }),
 
   // Statut et dettes
   getStatus: () => fetchWithAuth("/member/status"),
   getDebts: () => fetchWithAuth("/member/debts"),
+  getMyPayments: () => fetchWithAuth("/member/payments"),
 
   // Épargne
   getMySavings: () => fetchWithAuth("/member/savings"),
@@ -32,4 +33,8 @@ export const memberService = {
   getMessages: (userId: number) => fetchWithAuth(`/member/chat/messages/${userId}`),
   getUnreadCount: () => fetchWithAuth("/member/chat/unread"),
   sendMessage: (receiverId: number, content: string) => fetchWithAuth(`/member/chat/send?receiverId=${receiverId}&content=${encodeURIComponent(content)}`, { method: "POST" }),
+
+  // Sessions et exercices (consultation)
+  getSessions: () => fetchWithAuth("/member/sessions"),
+  getExercises: () => fetchWithAuth("/member/exercises"),
 };
