@@ -10,7 +10,7 @@ type Tab = "sessions" | "exercices";
 export default function StructuralAdminPage() {
   const [activeTab, setActiveTab] = useState<Tab>("sessions");
   const [loading, setLoading] = useState(true);
-  const { showToast } = useNotification();
+  const { showToast, confirm } = useNotification();
   
   // Data states
   const [sessions, setSessions] = useState<any[]>([]);
@@ -35,7 +35,7 @@ export default function StructuralAdminPage() {
 
   const [sessionForm, setSessionForm] = useState({
     name: "",
-    sessionDate: new Date().toISOString().split("T")[0],
+    date: new Date().toISOString().split("T")[0],
     exercise: { id: "" }
   });
 
@@ -67,9 +67,9 @@ export default function StructuralAdminPage() {
       setShowExerciseModal(false);
       loadStructure();
       showToast("L'exercice annuel a été initialisé avec succès.", "success");
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      showToast("Erreur lors de l'initialisation de l'exercice financier.", "error");
+      showToast(err.message || "Erreur lors de l'initialisation de l'exercice financier.", "error");
     }
   };
 
@@ -84,10 +84,64 @@ export default function StructuralAdminPage() {
       setShowSessionModal(false);
       loadStructure();
       showToast("La séance mensuelle a été créée et ouverte.", "success");
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      showToast("Erreur lors de l'ouverture de la séance.", "error");
+      showToast(err.message || "Erreur lors de l'ouverture de la séance.", "error");
     }
+  };
+
+  const handleCloseExercise = async (ex: any) => {
+    const exerciseName = ex.name || `Exercice ${ex.year}`;
+    const confirmName = window.prompt(`⚠️ Attention : La clôture est définitive. \n\nPour confirmer la clôture de l'exercice "${exerciseName}", veuillez saisir son nom exactement :`);
+    
+    if (confirmName !== exerciseName) {
+      if (confirmName !== null) {
+        showToast("Le nom saisi ne correspond pas. Clôture annulée.", "error");
+      }
+      return;
+    }
+
+    try {
+      await secretaryService.closeExercise(ex.id);
+      loadStructure();
+      showToast("L'exercice a été clôturé avec succès.", "success");
+    } catch (err: any) {
+      console.error(err);
+      showToast("Erreur lors de la clôture de l'exercice.", "error");
+    }
+  };
+
+  const handleCloseSession = async (id: number) => {
+    confirm({
+      title: "Clôturer la séance",
+      message: "Voulez-vous vraiment clôturer cette séance ? Toute opération ultérieure sur cette séance sera impossible.",
+      type: "warning",
+      confirmText: "Clôturer définitivement",
+      onConfirm: async () => {
+        try {
+          await secretaryService.closeSession(id);
+          loadStructure();
+          showToast("La séance a été clôturée avec succès.", "success");
+        } catch (err: any) {
+          console.error(err);
+          showToast("Erreur lors de la clôture de la séance.", "error");
+        }
+      }
+    });
+  };
+
+  const handleEditExercise = (ex: any) => {
+    setExerciseForm({
+      year: ex.year,
+      name: ex.name || `Exercice ${ex.year}`,
+      startDate: ex.startDate,
+      endDate: ex.endDate,
+      interestRate: ex.interestRate || 3.0,
+      solidarityAmount: ex.solidarityAmount || 15000,
+      agapeAmount: ex.agapeAmount || 10000,
+      penaltyAmount: ex.penaltyAmount || 1000
+    });
+    setShowExerciseModal(true);
   };
 
   if (loading) return <div className="fas fa-spinner fa-spin" style={{ fontSize: "2rem", color: "#4e73df", margin: "5rem auto", display: "block" }}></div>;
@@ -121,7 +175,7 @@ export default function StructuralAdminPage() {
           </div>
         </div>
         <div className={styles.kpiCard}>
-          <div className={styles.kpiIcon} style={{ background: "rgba(28, 200, 138, 0.1)", color: "#1cc88a" }}>
+          <div className={styles.kpiIcon} style={{ background: "rgba(78, 115, 223, 0.1)", color: "#4e73df" }}>
             <i className="fas fa-clock"></i>
           </div>
           <div className={styles.kpiContent}>
@@ -177,22 +231,36 @@ export default function StructuralAdminPage() {
                          <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "4px", background: "linear-gradient(90deg, #4e73df, #224abe)" }}></div>
                        )}
                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1.25rem" }}>
-                          <div style={{ width: "48px", height: "48px", borderRadius: "14px", background: s.status === "ACTIVE" ? "rgba(78, 115, 223, 0.1)" : "#f7fafc", display: "flex", alignItems: "center", justifyContent: "center", color: s.status === "ACTIVE" ? "#4e73df" : "#a0aec0", fontSize: "1.2rem" }}>
+                          <div style={{ width: "48px", height: "48px", borderRadius: "14px", background: (s.state === "OPEN" || s.state === "SAVING") ? "rgba(78, 115, 223, 0.1)" : "#f7fafc", display: "flex", alignItems: "center", justifyContent: "center", color: (s.state === "OPEN" || s.state === "SAVING") ? "#4e73df" : "#a0aec0", fontSize: "1.2rem" }}>
                              <i className="fas fa-calendar-check"></i>
                           </div>
-                          <span style={{ padding: "0.35rem 0.85rem", borderRadius: "50px", fontSize: "0.7rem", fontWeight: 800, background: s.status === "ACTIVE" ? "rgba(28,200,138,0.1)" : "#f7fafc", color: s.status === "ACTIVE" ? "#1cc88a" : "#718096", border: "1px solid rgba(0,0,0,0.05)", height: "fit-content" }}>
-                             {s.status === "ACTIVE" ? "EN COURS" : "CLÔTURÉE"}
+                          <span style={{ padding: "0.35rem 0.85rem", borderRadius: "50px", fontSize: "0.7rem", fontWeight: 800, background: (s.state === "OPEN" || s.state === "SAVING") ? "rgba(78, 115, 223, 0.1)" : "#f7fafc", color: (s.state === "OPEN" || s.state === "SAVING") ? "#4e73df" : "#718096", border: "1px solid rgba(0,0,0,0.05)", height: "fit-content" }}>
+                             {(s.state === "OPEN" || s.state === "SAVING") ? "EN COURS" : "CLÔTURÉE"}
                           </span>
                        </div>
-                       <h4 style={{ margin: "0 0 0.5rem 0", fontSize: "1.1rem", fontWeight: 800, color: "#1a365d" }}>{s.name}</h4>
+                       <h4 style={{ margin: "0 0 0.5rem 0", fontSize: "1.1rem", fontWeight: 800, color: "#1a365d" }}>{s.name || `Session #${s.sessionNumber}`}</h4>
                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#718096", fontSize: "0.85rem", marginBottom: "1.75rem" }}>
                           <i className="far fa-clock"></i>
                           <span>Tenu le {new Date(s.date).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                        </div>
                        <div style={{ display: "flex", gap: "0.75rem" }}>
-                          <button className={styles.cancelBtn} style={{ flex: 1, padding: "0.75rem", borderRadius: "12px", fontSize: "0.85rem" }}>Détails</button>
-                          {s.status === "ACTIVE" && (
-                            <button className={styles.confirmBtn} style={{ flex: 1.5, padding: "0.75rem", background: "linear-gradient(135deg, #e74a3b, #c0392b)", borderRadius: "12px", fontSize: "0.85rem" }}>Clôturer</button>
+                          <button 
+                            type="button"
+                            onClick={() => window.location.href = `/admin/sessions/${s.id}`}
+                            className={styles.cancelBtn} 
+                            style={{ flex: 1, padding: "0.75rem", borderRadius: "12px", fontSize: "0.85rem" }}
+                          >
+                            Détails
+                          </button>
+                          {(s.state === "OPEN" || s.state === "SAVING") && (
+                             <button 
+                               type="button"
+                               onClick={() => handleCloseSession(s.id)}
+                               className={styles.confirmBtn} 
+                               style={{ flex: 1.5, padding: "0.75rem", background: "linear-gradient(135deg, #e74a3b, #c0392b)", borderRadius: "12px", fontSize: "0.85rem" }}
+                             >
+                               Clôturer
+                             </button>
                           )}
                        </div>
                     </div>
@@ -243,10 +311,27 @@ export default function StructuralAdminPage() {
                                </span>
                              </td>
                              <td style={{ textAlign: "right" }}>
-                                <button style={{ background: "none", border: "none", color: "#4e73df", cursor: "pointer", fontSize: "1rem", padding: "0.5rem" }} title="Modifier">
+                                {ex.active && (
+                                  <button 
+                                    onClick={() => handleCloseExercise(ex)}
+                                    style={{ background: "none", border: "none", color: "#e74a3b", cursor: "pointer", fontSize: "1.1rem", padding: "0.5rem" }} 
+                                    title="Clôturer l'exercice"
+                                  >
+                                     <i className="fas fa-lock"></i>
+                                  </button>
+                                )}
+                                <button 
+                                  onClick={() => handleEditExercise(ex)}
+                                  style={{ background: "none", border: "none", color: "#4e73df", cursor: "pointer", fontSize: "1.1rem", padding: "0.5rem" }} 
+                                  title="Modifier"
+                                >
                                    <i className="fas fa-edit"></i>
                                 </button>
-                                <button style={{ background: "none", border: "none", color: "#718096", cursor: "pointer", fontSize: "1rem", padding: "0.5rem" }} title="Rapport">
+                                <button 
+                                  onClick={() => showToast("Génération du rapport en cours...", "info")}
+                                  style={{ background: "none", border: "none", color: "#718096", cursor: "pointer", fontSize: "1.1rem", padding: "0.5rem" }} 
+                                  title="Rapport"
+                                >
                                    <i className="fas fa-file-alt"></i>
                                 </button>
                              </td>
@@ -364,8 +449,8 @@ export default function StructuralAdminPage() {
                   <input 
                     type="date" 
                     className={styles.formInput} 
-                    value={sessionForm.sessionDate} 
-                    onChange={e => setSessionForm({...sessionForm, sessionDate: e.target.value})}
+                    value={sessionForm.date} 
+                    onChange={e => setSessionForm({...sessionForm, date: e.target.value})}
                     required 
                   />
                 </div>

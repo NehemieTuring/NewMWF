@@ -79,6 +79,13 @@ export interface Translations {
     titreModalMembre: string;
     erreurAccesAdmin: string;
     erreurAccesMembre: string;
+    featureAdmin1: string;
+    featureAdmin2: string;
+    featureAdmin3: string;
+    featureMember1: string;
+    featureMember2: string;
+    featureMember3: string;
+    tagline: string;
   };
   dashboard: {
     sessionActive: string;
@@ -123,6 +130,7 @@ export interface Translations {
     montant: string;
     date: string;
     justificatif: string;
+    chargement: string;
   };
   membres: {
     titre: string;
@@ -300,6 +308,13 @@ export const translations: Record<Locale, Translations> = {
       titreModalMembre: "Connexion Membre",
       erreurAccesAdmin: "Accès réservé au Super Administrateur. Veuillez utiliser la section Membre.",
       erreurAccesMembre: "Le Super Administrateur doit utiliser la section Administrateur.",
+      featureAdmin1: "Gestion globale",
+      featureAdmin2: "Configuration système",
+      featureAdmin3: "Supervision complète",
+      featureMember1: "Épargne & Emprunts",
+      featureMember2: "Messagerie",
+      featureMember3: "Suivi des activités",
+      tagline: "Épargne · Solidarité · Croissance",
     },
     dashboard: {
       sessionActive: "Session active",
@@ -344,6 +359,7 @@ export const translations: Record<Locale, Translations> = {
       montant: "Montant",
       date: "Date",
       justificatif: "Justificatif",
+      chargement: "Chargement",
     },
     membres: {
       titre: "Membres",
@@ -519,6 +535,13 @@ export const translations: Record<Locale, Translations> = {
       titreModalMembre: "Member Login",
       erreurAccesAdmin: "Access reserved for Super Admin. Please use the Member section.",
       erreurAccesMembre: "Super Admin must use the Administrator section.",
+      featureAdmin1: "Global management",
+      featureAdmin2: "System configuration",
+      featureAdmin3: "Full supervision",
+      featureMember1: "Savings & Loans",
+      featureMember2: "Messaging",
+      featureMember3: "Activity tracking",
+      tagline: "Savings · Solidarity · Growth",
     },
     dashboard: {
       sessionActive: "Active session",
@@ -563,6 +586,7 @@ export const translations: Record<Locale, Translations> = {
       montant: "Amount",
       date: "Date",
       justificatif: "Receipt",
+      chargement: "Loading",
     },
     membres: {
       titre: "Members",

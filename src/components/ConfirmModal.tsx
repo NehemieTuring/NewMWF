@@ -53,10 +53,10 @@ export default function ConfirmModal({
           </div>
         </div>
         <div className="modal-footer">
-          <button className={`${styles.btn} ${styles.btnCancel}`} onClick={onCancel}>
+          <button type="button" className={`${styles.btn} ${styles.btnCancel}`} onClick={onCancel}>
             {cancelText}
           </button>
-          <button className={`${styles.btn} ${styles[type]} ${styles.btnConfirm}`} onClick={onConfirm}>
+          <button type="button" className={`${styles.btn} ${styles[type]} ${styles.btnConfirm}`} onClick={onConfirm}>
             {confirmText}
           </button>
         </div>

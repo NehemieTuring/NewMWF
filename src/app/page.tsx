@@ -4,11 +4,26 @@ import styles from "./page.module.css";
 import Link from "next/link";
 import Image from "next/image";
 import { useTranslation } from "@/context/LanguageContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
   const { t, locale, setLocale } = useTranslation();
+  const { user, isLogged, loading } = useAuth();
+  const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    if (!loading && isLogged && user) {
+      const role = user.role.toUpperCase();
+      if (role === "SUPER_ADMIN") router.push("/super-admin");
+      else if (role === "ADMIN" || role === "SECRETAIRE_GENERALE") router.push("/admin");
+      else if (role === "TRESORIER") router.push("/treasurer");
+      else if (role === "PRESIDENT") router.push("/president");
+      else router.push("/membre");
+    }
+  }, [isLogged, user, loading, router]);
 
   return (
     <div className={styles.landing}>
@@ -119,11 +134,22 @@ export default function HomePage() {
       {/* Hero - Welcome Box */}
       <main className={styles.hero}>
         <div className={styles.welcomeBox}>
+          <div className={styles.welcomeGlow}></div>
+          <div className={styles.logoCircle}>
+            <Image src="/img/icon.png" alt="Logo" width={60} height={60} className={styles.logoImg} />
+            <div className={styles.logoRing}></div>
+          </div>
           <h1 className={styles.welcomeTitle}>{t.common.bienvenue}</h1>
+          <div className={styles.divider}>
+            <span></span>
+            <i className="fas fa-handshake"></i>
+            <span></span>
+          </div>
           <h2 className={styles.welcomeSubtitle}>{t.common.mutuelle}</h2>
+          <p className={styles.tagline}>{t.login.tagline}</p>
           <Link href="/connexion" className={styles.connectBtn}>
-            <i className="fas fa-sign-in-alt"></i>
             <span>{t.common.connexion.toUpperCase()}</span>
+            <i className="fas fa-arrow-right"></i>
           </Link>
         </div>
       </main>

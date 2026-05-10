@@ -27,7 +27,16 @@ export default function NewMemberPage() {
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    
+    // Pour le téléphone, on ne garde que les chiffres et les espaces
+    if (name === "tel") {
+      const numericValue = value.replace(/[^0-9\s+]/g, "");
+      setFormData({ ...formData, [name]: numericValue });
+      return;
+    }
+    
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleNext = () => {
@@ -185,6 +194,8 @@ export default function NewMemberPage() {
                     placeholder="Ex: 6 99 00 00 00"
                     value={formData.tel} 
                     onChange={handleChange} 
+                    inputMode="tel"
+                    pattern="[0-9\s+]*"
                     required 
                   />
                 </div>

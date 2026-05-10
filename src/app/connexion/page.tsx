@@ -171,41 +171,49 @@ export default function ConnexionPage() {
       <div className={styles.content}>
         <div className={styles.cardsGrid}>
           {/* Admin Card */}
-          <div className={styles.roleCard}>
-            <div className={styles.roleImage}>
-              <Image
-                src="/img/admin_connection.jpg"
-                alt={t.login.titreAdmin}
-                fill
-                style={{ objectFit: "cover" }}
-              />
+          <div className={`${styles.roleCard} ${styles.adminCard}`} onClick={() => setActiveModal("administrator")}>
+            <div className={styles.cardGlow}></div>
+            <div className={styles.roleIconWrapper}>
+              <div className={styles.roleIcon}>
+                <i className="fas fa-user-shield"></i>
+              </div>
+              <div className={styles.iconRing}></div>
             </div>
             <div className={styles.roleContent}>
               <h3 className={styles.roleTitle}>{t.login.titreAdmin}</h3>
               <p className={styles.roleDesc}>{t.login.descAdmin}</p>
-              <button className={styles.connectBtn} onClick={() => setActiveModal("administrator")}>
-                <i className="fas fa-user-shield"></i>
+              <div className={styles.featureList}>
+                <span><i className="fas fa-check-circle"></i> {t.login.featureAdmin1}</span>
+                <span><i className="fas fa-check-circle"></i> {t.login.featureAdmin2}</span>
+                <span><i className="fas fa-check-circle"></i> {t.login.featureAdmin3}</span>
+              </div>
+              <button className={styles.connectBtn}>
                 <span>{t.common.connexion.toUpperCase()}</span>
+                <i className="fas fa-arrow-right"></i>
               </button>
             </div>
           </div>
 
           {/* Member Card */}
-          <div className={styles.roleCard}>
-            <div className={styles.roleImage}>
-              <Image
-                src="/img/member_connection.jpg"
-                alt={t.login.titreMembre}
-                fill
-                style={{ objectFit: "cover" }}
-              />
+          <div className={`${styles.roleCard} ${styles.memberCard}`} onClick={() => setActiveModal("member")}>
+            <div className={styles.cardGlow}></div>
+            <div className={styles.roleIconWrapper}>
+              <div className={styles.roleIcon}>
+                <i className="fas fa-users"></i>
+              </div>
+              <div className={styles.iconRing}></div>
             </div>
             <div className={styles.roleContent}>
               <h3 className={styles.roleTitle}>{t.login.titreMembre}</h3>
               <p className={styles.roleDesc}>{t.login.descMembre}</p>
-              <button className={styles.connectBtn} onClick={() => setActiveModal("member")}>
-                <i className="fas fa-user"></i>
+              <div className={styles.featureList}>
+                <span><i className="fas fa-check-circle"></i> {t.login.featureMember1}</span>
+                <span><i className="fas fa-check-circle"></i> {t.login.featureMember2}</span>
+                <span><i className="fas fa-check-circle"></i> {t.login.featureMember3}</span>
+              </div>
+              <button className={styles.connectBtn}>
                 <span>{t.common.connexion.toUpperCase()}</span>
+                <i className="fas fa-arrow-right"></i>
               </button>
             </div>
           </div>

@@ -304,3 +304,44 @@
     padding: calc(var(--header-height) + 1rem) 1rem 1rem;
   }
 }
+
+/* ========================
+   DARK MODE — Super Admin Layout
+   ======================== */
+
+:global([data-theme='dark']) .topbar {
+  background: rgba(15, 23, 42, 0.85);
+  border-bottom-color: rgba(51, 65, 85, 0.6);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+:global([data-theme='dark']) .profileBtn:hover {
+  background: #283548;
+}
+
+:global([data-theme='dark']) .profileName {
+  color: #e2e8f0;
+}
+
+:global([data-theme='dark']) .dropdownMenu {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+:global([data-theme='dark']) .dropdownItem {
+  color: #cbd5e1;
+}
+
+:global([data-theme='dark']) .dropdownItem:hover {
+  background: rgba(109, 140, 239, 0.1);
+  color: #93b4fd;
+}
+
+:global([data-theme='dark']) .dropdownItem i {
+  color: #6d8cef;
+}
+
+:global([data-theme='dark']) .dropdownDivider {
+  background: #334155;
+}

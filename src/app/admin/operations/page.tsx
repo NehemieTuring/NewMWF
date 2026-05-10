@@ -10,10 +10,11 @@ type OperationType = "epargne" | "solidarite" | "emprunt" | "remboursement";
 
 export default function GlobalOperationsPage() {
   const { locale } = useTranslation();
-  const { showToast } = useNotification();
+  const { showToast, confirm: showConfirm } = useNotification();
   const [loading, setLoading] = useState(false);
   const [members, setMembers] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
+  const [activeSession, setActiveSession] = useState<any>(null);
   
   // Selection states
   const [selectedOp, setSelectedOp] = useState<OperationType | null>(null);
@@ -21,21 +22,24 @@ export default function GlobalOperationsPage() {
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [memberData, adminData, statsData] = await Promise.all([
-          treasurerService.getAllMembers(),
-          treasurerService.getOtherAdmins(),
-          treasurerService.getGlobalTransactions()
-        ]);
-        
-        setMembers(memberData || []);
-        setTransactions(statsData?.recentTransactions || []);
-      } catch (err) {
-        console.error("Failed to load operations data", err);
-      }
+  async function loadData() {
+    try {
+      const [memberData, statsData, sessionData] = await Promise.all([
+        treasurerService.getAllMembers(),
+        treasurerService.getGlobalTransactions(),
+        treasurerService.getSessions()
+      ]);
+      setMembers(memberData || []);
+      setTransactions(statsData?.recentTransactions || []);
+      
+      const session = sessionData?.find((s: any) => s.active === true);
+      setActiveSession(session || null);
+    } catch (err) {
+      console.error("Failed to load operations data", err);
     }
+  }
+
+  useEffect(() => {
     loadData();
   }, []);
 
@@ -43,24 +47,46 @@ export default function GlobalOperationsPage() {
     e.preventDefault();
     if (!selectedMemberId || !amount || !selectedOp) return;
 
-    setLoading(true);
-    try {
-      if (selectedOp === "epargne") {
-        await treasurerService.addMemberSaving(Number(selectedMemberId), Number(amount));
-        showToast("Épargne enregistrée avec succès", "success");
-      } else if (selectedOp === "remboursement") {
-        await treasurerService.addRefund(Number(selectedMemberId), Number(amount));
-        showToast("Remboursement enregistré", "success");
-      }
-      // Reset
-      setAmount("");
-      setDescription("");
-      setSelectedOp(null);
-    } catch (err: any) {
-      showToast(err.message || "Erreur lors de l'opération", "error");
-    } finally {
-      setLoading(false);
+    if (!activeSession) {
+      showToast("Opération impossible : Aucune session de collecte n'est actuellement ouverte.", "error");
+      return;
     }
+
+    const member = members.find(m => m.id === Number(selectedMemberId));
+    const opLabel = actions.find(a => a.type === selectedOp)?.label;
+
+    showConfirm({
+      title: `Confirmer ${opLabel}`,
+      message: `Voulez-vous enregistrer cette opération de ${amount} XAF pour ${member?.user?.firstName} ${member?.user?.name} ? (Session: ${activeSession.name || activeSession.sessionNumber})`,
+      type: "info",
+      onConfirm: async () => {
+        setLoading(true);
+        try {
+          if (selectedOp === "epargne") {
+            await treasurerService.addMemberSaving(Number(selectedMemberId), Number(amount));
+            showToast("Épargne enregistrée avec succès", "success");
+          } else if (selectedOp === "remboursement") {
+            await treasurerService.addRefund(Number(selectedMemberId), Number(amount));
+            showToast("Remboursement enregistré", "success");
+          } else if (selectedOp === "emprunt") {
+            await treasurerService.addLoan(Number(selectedMemberId), Number(amount));
+            showToast("Prêt accordé et décaissé avec succès", "success");
+          } else if (selectedOp === "solidarite") {
+            await treasurerService.paySolidarity(Number(selectedMemberId), Number(amount));
+            showToast("Cotisation Solidarité enregistrée", "success");
+          }
+          // Reset
+          setAmount("");
+          setDescription("");
+          setSelectedOp(null);
+          loadData();
+        } catch (err: any) {
+          showToast(err.message || "Erreur lors de l'opération", "error");
+        } finally {
+          setLoading(false);
+        }
+      }
+    });
   };
 
   const actions = [
@@ -75,16 +101,44 @@ export default function GlobalOperationsPage() {
       <header style={{ marginBottom: "3rem" }}>
         <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#2e3b4e" }}>Opérations Financières</h1>
         <p style={{ color: "#858796" }}>Interface opérationnelle pour la gestion des flux financiers quotidiens.</p>
+        
+        {!activeSession ? (
+          <div style={{ marginTop: "1.5rem", padding: "1.5rem", background: "#fff5f5", border: "1px solid #feb2b2", borderRadius: "16px", display: "flex", alignItems: "center", gap: "1rem", color: "#c53030" }}>
+             <i className="fas fa-exclamation-circle" style={{ fontSize: "1.5rem" }}></i>
+             <div>
+                <strong style={{ display: "block" }}>Aucune session active</strong>
+                <span style={{ fontSize: "0.85rem" }}>Vous devez ouvrir une session dans le module de gestion pour enregistrer des collectes d'épargne, des remboursements ou accorder des prêts.</span>
+             </div>
+          </div>
+        ) : (
+          <div style={{ marginTop: "1.5rem", padding: "1.5rem", background: "#f0fff4", border: "1px solid #9ae6b4", borderRadius: "16px", display: "flex", alignItems: "center", gap: "1rem", color: "#276749" }}>
+             <i className="fas fa-check-circle" style={{ fontSize: "1.5rem" }}></i>
+             <div>
+                <strong style={{ display: "block" }}>Session Active : {activeSession.name || `Session #${activeSession.sessionNumber}`}</strong>
+                <span style={{ fontSize: "0.85rem" }}>La session est ouverte. Vous pouvez enregistrer les opérations financières courantes.</span>
+             </div>
+          </div>
+        )}
       </header>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.5rem" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.5rem", opacity: !activeSession ? 0.7 : 1 }}>
          {actions.map((act) => (
            <div 
             key={act.type} 
-            style={{ background: "white", padding: "2rem", borderRadius: "24px", border: "1px solid #e3e6f0", display: "flex", flexDirection: "column", gap: "1.25rem", cursor: "pointer", transition: "all 0.2s" }}
-            onClick={() => setSelectedOp(act.type)}
-            onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-5px)"}
-            onMouseLeave={(e) => e.currentTarget.style.transform = "translateY(0)"}
+            style={{ 
+              background: "white", 
+              padding: "2rem", 
+              borderRadius: "24px", 
+              border: !activeSession ? "1px dashed #cbd5e0" : "1px solid #e3e6f0", 
+              display: "flex", 
+              flexDirection: "column", 
+              gap: "1.25rem", 
+              cursor: !activeSession ? "not-allowed" : "pointer", 
+              transition: "all 0.2s" 
+            }}
+            onClick={() => activeSession && setSelectedOp(act.type)}
+            onMouseEnter={(e) => activeSession && (e.currentTarget.style.transform = "translateY(-5px)")}
+            onMouseLeave={(e) => activeSession && (e.currentTarget.style.transform = "translateY(0)")}
            >
               <div style={{ width: "56px", height: "56px", borderRadius: "16px", background: `${act.color}15`, color: act.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem" }}>
                  <i className={act.icon}></i>
@@ -121,7 +175,7 @@ export default function GlobalOperationsPage() {
                   >
                     <option value="">-- Choisir un membre --</option>
                     {members.map(m => (
-                      <option key={m.id} value={m.id}>{m.user?.firstName} {m.user?.name} ({m.registrationNumber})</option>
+                      <option key={m.id} value={m.id}>{m.user?.firstName} {m.user?.name}</option>
                     ))}
                   </select>
                </div>

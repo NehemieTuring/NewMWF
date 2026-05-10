@@ -7,6 +7,7 @@ export interface LoginResponse {
   username?: string;
   role: string;
   subRole?: string;
+  avatar?: string;
 }
 
 export interface AuthUser {
@@ -16,6 +17,7 @@ export interface AuthUser {
   username?: string;
   role: string;
   subRole?: string;
+  avatar?: string;
 }
 
 export async function loginApi(
@@ -73,6 +75,9 @@ export function saveAuth(data: LoginResponse): void {
   if (data.username) localStorage.setItem("auth_username", data.username);
   localStorage.setItem("auth_role", data.role);
   if (data.subRole) localStorage.setItem("auth_sub_role", data.subRole);
+  
+  const avatarUrl = data.avatar || (data as any).photoUrl;
+  if (avatarUrl) localStorage.setItem("auth_avatar", avatarUrl);
 }
 
 export function getAuth(): AuthUser | null {
@@ -83,9 +88,10 @@ export function getAuth(): AuthUser | null {
   const username = localStorage.getItem("auth_username") || undefined;
   const role = localStorage.getItem("auth_role");
   const subRole = localStorage.getItem("auth_sub_role") || undefined;
+  const avatar = localStorage.getItem("auth_avatar") || undefined;
   
   if (idStr && token && email && role) {
-    return { id: parseInt(idStr), token, email, username, role, subRole };
+    return { id: parseInt(idStr), token, email, username, role, subRole, avatar };
   }
   return null;
 }
@@ -97,6 +103,7 @@ export function clearAuth(): void {
   localStorage.removeItem("auth_username");
   localStorage.removeItem("auth_role");
   localStorage.removeItem("auth_sub_role");
+  localStorage.removeItem("auth_avatar");
 }
 
 export function getAuthHeaders(): Record<string, string> {

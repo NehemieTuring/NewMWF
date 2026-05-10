@@ -627,3 +627,43 @@
   .detailsGrid { grid-template-columns: 1fr; }
   .fullWidth { grid-column: span 1; }
 }
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.table th {
+  padding: 1rem;
+  background: #f8f9fc;
+  color: #858796;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  border-bottom: 2px solid #e3e6f0;
+}
+
+.table td {
+  padding: 1rem;
+  border-bottom: 1px solid #e3e6f0;
+  vertical-align: middle;
+}
+
+.badgeSuccess {
+  background: rgba(28, 200, 138, 0.1);
+  color: #1cc88a;
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.badgeDanger {
+  background: rgba(231, 74, 59, 0.1);
+  color: #e74a3b;
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}

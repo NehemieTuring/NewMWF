@@ -630,3 +630,175 @@
 .memberName { display: block; font-weight: 700; color: #2e3b4e; font-size: 0.95rem; }
 .memberSub { display: block; font-size: 0.75rem; color: #858796; }
 
+/* ========================
+   DARK MODE — Treasurer Layout
+   ======================== */
+
+:global([data-theme='dark']) .topbar {
+  background: rgba(15, 23, 42, 0.85);
+  border-bottom-color: rgba(51, 65, 85, 0.6);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+:global([data-theme='dark']) .profileBtn:hover {
+  background: #283548;
+}
+
+:global([data-theme='dark']) .profileName {
+  color: #e2e8f0;
+}
+
+:global([data-theme='dark']) .dropdownMenu {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+:global([data-theme='dark']) .dropdownItem {
+  color: #cbd5e1;
+}
+
+:global([data-theme='dark']) .dropdownItem:hover {
+  background: rgba(109, 140, 239, 0.1);
+  color: #93b4fd;
+}
+
+:global([data-theme='dark']) .dropdownItem i {
+  color: #6d8cef;
+}
+
+:global([data-theme='dark']) .dropdownDivider {
+  background: #334155;
+}
+
+:global([data-theme='dark']) .modal {
+  background: #1e293b;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
+}
+
+:global([data-theme='dark']) .modalBody {
+  background: #1e293b;
+}
+
+:global([data-theme='dark']) .modalText {
+  color: #94a3b8;
+}
+
+:global([data-theme='dark']) .modalIcon {
+  background: rgba(248, 113, 113, 0.12);
+  color: #f87171;
+}
+
+:global([data-theme='dark']) .cancelBtn {
+  background: #283548;
+  color: #94a3b8;
+  border-color: #334155;
+}
+
+:global([data-theme='dark']) .cancelBtn:hover {
+  background: #334155;
+}
+
+/* Stat Cards */
+:global([data-theme='dark']) .statCard {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+:global([data-theme='dark']) .statCard:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  border-color: rgba(109, 140, 239, 0.3);
+}
+
+:global([data-theme='dark']) .statLabel {
+  color: #94a3b8;
+}
+
+:global([data-theme='dark']) .statValue {
+  color: #f1f5f9;
+}
+
+/* Glass Card */
+:global([data-theme='dark']) .glassCard {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(51, 65, 85, 0.4);
+}
+
+/* Table */
+:global([data-theme='dark']) .tableCard {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+:global([data-theme='dark']) .table th {
+  background: #1a2537;
+  color: #94a3b8;
+  border-bottom-color: #334155;
+}
+
+:global([data-theme='dark']) .table td {
+  color: #e2e8f0;
+  border-bottom-color: #283548;
+}
+
+:global([data-theme='dark']) .table tr:hover td {
+  background: rgba(109, 140, 239, 0.06);
+}
+
+/* Badges */
+:global([data-theme='dark']) .badgeSuccess {
+  background: rgba(52, 211, 153, 0.15);
+  color: #6ee7b7;
+}
+
+:global([data-theme='dark']) .badgeWarning {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fde68a;
+}
+
+:global([data-theme='dark']) .badgeDanger {
+  background: rgba(248, 113, 113, 0.15);
+  color: #fca5a5;
+}
+
+:global([data-theme='dark']) .badgePrimary {
+  background: rgba(109, 140, 239, 0.15);
+  color: #93b4fd;
+}
+
+/* Member Card */
+:global([data-theme='dark']) .memberCard {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+:global([data-theme='dark']) .memberCard:hover {
+  border-color: #6d8cef;
+  box-shadow: 0 10px 25px rgba(109, 140, 239, 0.12);
+}
+
+:global([data-theme='dark']) .memberName {
+  color: #e2e8f0;
+}
+
+:global([data-theme='dark']) .memberSub {
+  color: #64748b;
+}
+
+/* Form Inputs */
+:global([data-theme='dark']) .formInput {
+  background: #0f172a;
+  border-color: #475569;
+  color: #f1f5f9;
+}
+
+:global([data-theme='dark']) .formInput:focus {
+  border-color: #6d8cef;
+  box-shadow: 0 0 0 4px rgba(109, 140, 239, 0.12);
+}
+
+/* Section Header */
+:global([data-theme='dark']) .sectionHeader h2 {
+  color: #e2e8f0;
+}

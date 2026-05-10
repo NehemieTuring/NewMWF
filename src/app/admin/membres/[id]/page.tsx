@@ -132,7 +132,7 @@ export default function MemberDetailsPage() {
           <div className={styles.statBoxes}>
             <div className={styles.statBox}>
               <span>Total Épargnes</span>
-              <strong>{formatAmount(member.savingsTotal)} FCFA</strong>
+              <strong>{formatAmount(member.savingsTotal || savings.reduce((acc, s) => s.type === 'INFLOW' ? acc + s.amount : acc - s.amount, 0))} FCFA</strong>
             </div>
             <div className={styles.statBox}>
               <span>Dette Actuelle</span>
@@ -156,9 +156,15 @@ export default function MemberDetailsPage() {
               <tbody>
                 {savings.map((saving) => (
                   <tr key={saving.id}>
-                    <td>{new Date(saving.date).toLocaleDateString()}</td>
-                    <td>{saving.type}</td>
-                    <td className={styles.amount}>{formatAmount(saving.amount)} FCFA</td>
+                    <td>{saving.createdAt ? new Date(saving.createdAt).toLocaleDateString() : 'N/A'}</td>
+                    <td>
+                       <span className={saving.type === 'INFLOW' ? styles.badgeSuccess : styles.badgeDanger}>
+                          {saving.type === 'INFLOW' ? 'DÉPÔT' : 'RETRAIT'}
+                       </span>
+                    </td>
+                    <td className={styles.amount} style={{ fontWeight: 800 }}>
+                      {saving.type === 'INFLOW' ? '+' : '-'} {formatAmount(saving.amount)} FCFA
+                    </td>
                   </tr>
                 ))}
                 {savings.length === 0 && <tr><td colSpan={3} className={styles.empty}>Aucune épargne enregistrée</td></tr>}

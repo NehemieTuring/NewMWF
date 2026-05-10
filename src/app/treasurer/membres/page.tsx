@@ -60,8 +60,7 @@ export default function TreasurerMembersPage() {
 
   const filteredMembers = members.filter(m => 
     m.user?.name?.toLowerCase().includes(search.toLowerCase()) || 
-    m.user?.firstName?.toLowerCase().includes(search.toLowerCase()) ||
-    m.registrationNumber?.includes(search)
+    m.user?.firstName?.toLowerCase().includes(search.toLowerCase())
   );
 
   if (loading) return <div className="fas fa-spinner fa-spin" style={{ fontSize: "2rem", color: "#4e73df", margin: "5rem auto", display: "block" }}></div>;
@@ -100,14 +99,18 @@ export default function TreasurerMembersPage() {
                 </div>
                 <div>
                    <span className={styles.memberName}>{m.user?.firstName} {m.user?.name}</span>
-                   <span className={styles.memberSub}>Matricule: {m.registrationNumber || "N/A"}</span>
                 </div>
              </div>
-             <div style={{ textAlign: "right" }}>
-                <span className={`${styles.badge} ${m.active ? styles.badgeSuccess : styles.badgeDanger}`}>
-                   {m.active ? "ACTIF" : "INACTIF"}
-                </span>
-                <div style={{ marginTop: "0.25rem", color: "#858796", fontSize: "0.75rem" }}>{m.user?.tel || ""}</div>
+             <div style={{ padding: "1rem", background: "#f8f9fc", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                   <span style={{ display: "block", fontSize: "0.65rem", fontWeight: 800, color: "#858796", textTransform: "uppercase" }}>Épargne Totale</span>
+                   <span style={{ fontWeight: 800, color: "#1cc88a" }}>{formatAmount(m.savingsTotal)} XAF</span>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                   <span className={`${styles.badge} ${m.active ? styles.badgeSuccess : styles.badgeDanger}`}>
+                      {m.active ? "ACTIF" : "INACTIF"}
+                   </span>
+                </div>
              </div>
           </div>
         ))}
@@ -155,7 +158,6 @@ export default function TreasurerMembersPage() {
                         </div>
                         <div>
                            <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 800, color: "#858796", textTransform: "uppercase" }}>Adhésion</label>
-                           <p style={{ fontWeight: 600 }}>Matricule: {selectedMember.registrationNumber}</p>
                            <p style={{ fontWeight: 600 }}>Statut: {selectedMember.active ? "Actif" : "Inactif"}</p>
                         </div>
                      </div>
@@ -165,7 +167,7 @@ export default function TreasurerMembersPage() {
                      <div>
                         <div style={{ padding: "1.5rem", background: "rgba(28,200,138,0.1)", borderRadius: "12px", marginBottom: "1.5rem" }}>
                            <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#1cc88a" }}>SOLDE ÉPARGNE CUMULÉ</span>
-                           <h2 style={{ color: "#1cc88a", margin: 0 }}>{formatAmount(memberDetails.savings?.reduce((acc: any, s: any) => acc + s.amount, 0))} XAF</h2>
+                           <h2 style={{ color: "#1cc88a", margin: 0 }}>{formatAmount(selectedMember.savingsTotal)} XAF</h2>
                         </div>
                         <table className={styles.table}>
                            <thead>
@@ -175,8 +177,14 @@ export default function TreasurerMembersPage() {
                               {memberDetails.savings?.map((s: any) => (
                                  <tr key={s.id}>
                                     <td>{new Date(s.createdAt).toLocaleDateString()}</td>
-                                    <td><span className={styles.badgePrimary}>{s.type}</span></td>
-                                    <td style={{ fontWeight: 700 }}>{formatAmount(s.amount)} XAF</td>
+                                    <td>
+                                       <span className={s.type === 'INFLOW' ? styles.badgeSuccess : styles.badgeDanger}>
+                                          {s.type === 'INFLOW' ? 'DÉPÔT' : 'RETRAIT'}
+                                       </span>
+                                    </td>
+                                    <td style={{ fontWeight: 700, color: s.type === 'INFLOW' ? "#1cc88a" : "#e74a3b" }}>
+                                       {s.type === 'INFLOW' ? '+' : '-'} {formatAmount(s.amount)} XAF
+                                    </td>
                                  </tr>
                               ))}
                            </tbody>

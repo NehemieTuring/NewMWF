@@ -645,4 +645,349 @@
   color: #b7b9cc;
 }
 
+.avatarContainer {
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
 
+.avatarContainer:hover {
+  transform: scale(1.05);
+}
+
+.avatarOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.avatarContainer:hover .avatarOverlay {
+  opacity: 1;
+}
+
+/* ========================
+   DARK MODE — Member Layout
+   ======================== */
+
+/* Topbar */
+:global([data-theme='dark']) .topbar {
+  background: rgba(15, 23, 42, 0.85);
+  border-bottom-color: rgba(51, 65, 85, 0.6);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+:global([data-theme='dark']) .profileBtn:hover {
+  background: #283548;
+}
+
+:global([data-theme='dark']) .profileName {
+  color: #e2e8f0;
+}
+
+/* Dropdown */
+:global([data-theme='dark']) .dropdownMenu {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+:global([data-theme='dark']) .dropdownItem {
+  color: #cbd5e1;
+}
+
+:global([data-theme='dark']) .dropdownItem:hover {
+  background: rgba(109, 140, 239, 0.1);
+  color: #93b4fd;
+}
+
+:global([data-theme='dark']) .dropdownItem i {
+  color: #6d8cef;
+}
+
+:global([data-theme='dark']) .dropdownDivider {
+  background: #334155;
+}
+
+/* Modal */
+:global([data-theme='dark']) .modal {
+  background: #1e293b;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
+}
+
+:global([data-theme='dark']) .modalBody {
+  background: #1e293b;
+}
+
+:global([data-theme='dark']) .modalText {
+  color: #94a3b8;
+}
+
+:global([data-theme='dark']) .modalIcon {
+  background: rgba(248, 113, 113, 0.12);
+  color: #f87171;
+}
+
+:global([data-theme='dark']) .cancelBtn {
+  background: #283548;
+  color: #94a3b8;
+  border-color: #334155;
+}
+
+:global([data-theme='dark']) .cancelBtn:hover {
+  background: #334155;
+}
+
+/* Stat Cards */
+:global([data-theme='dark']) .statCard {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+:global([data-theme='dark']) .statCard:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  border-color: rgba(109, 140, 239, 0.3);
+}
+
+:global([data-theme='dark']) .statLabel {
+  color: #94a3b8;
+}
+
+:global([data-theme='dark']) .statValue {
+  color: #f1f5f9;
+}
+
+/* Data Card */
+:global([data-theme='dark']) .dataCard {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+}
+
+:global([data-theme='dark']) .dataCard:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  border-color: rgba(109, 140, 239, 0.2);
+}
+
+/* Section Title */
+:global([data-theme='dark']) .sectionTitle {
+  color: #e2e8f0;
+}
+
+/* Form Input */
+:global([data-theme='dark']) .input {
+  background: #0f172a;
+  border-color: #475569;
+  color: #f1f5f9;
+}
+
+:global([data-theme='dark']) .input:focus {
+  border-color: #6d8cef;
+  box-shadow: 0 0 0 4px rgba(109, 140, 239, 0.12);
+}
+
+:global([data-theme='dark']) .input::placeholder {
+  color: #64748b;
+}
+
+/* Tables */
+:global([data-theme='dark']) .dataTable thead {
+  background: #1a2537;
+}
+
+:global([data-theme='dark']) .dataTable th {
+  color: #94a3b8;
+  border-bottom-color: #334155;
+}
+
+:global([data-theme='dark']) .dataTable td {
+  border-bottom-color: #283548;
+  color: #e2e8f0;
+}
+
+:global([data-theme='dark']) .dataTable tbody tr:hover {
+  background: rgba(109, 140, 239, 0.06);
+}
+
+:global([data-theme='dark']) .tableWrapper {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+/* KPI Row */
+:global([data-theme='dark']) .kpiRow {
+  background: #0f172a;
+}
+
+:global([data-theme='dark']) .kpiItem + .kpiItem {
+  border-left-color: #334155;
+}
+
+:global([data-theme='dark']) .kpiItemLabel {
+  color: #94a3b8;
+}
+
+:global([data-theme='dark']) .kpiItemValue {
+  color: #f1f5f9;
+}
+
+/* Progress */
+:global([data-theme='dark']) .progressTrack {
+  background: #283548;
+}
+
+/* Loading */
+:global([data-theme='dark']) .loadingSpinner {
+  border-color: #334155;
+  border-top-color: #6d8cef;
+}
+
+:global([data-theme='dark']) .loadingText {
+  color: #94a3b8;
+}
+
+/* Tabs */
+:global([data-theme='dark']) .tabsHeader {
+  border-bottom-color: #334155;
+}
+
+:global([data-theme='dark']) .tabBtn {
+  color: #94a3b8;
+}
+
+:global([data-theme='dark']) .tabBtn:hover {
+  color: #93b4fd;
+  background: rgba(109, 140, 239, 0.08);
+}
+
+:global([data-theme='dark']) .tabBtnActive {
+  color: #93b4fd !important;
+}
+
+:global([data-theme='dark']) .tabBtnActive::after {
+  background: #6d8cef;
+}
+
+/* Messaging / Chat */
+:global([data-theme='dark']) .messageLayout {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+:global([data-theme='dark']) .messageSidebar {
+  background: #0f172a;
+  border-right-color: #334155;
+}
+
+:global([data-theme='dark']) .messageSidebarHeader {
+  background: #1e293b;
+  border-bottom-color: #334155;
+}
+
+:global([data-theme='dark']) .messageSidebarHeader h2 {
+  color: #e2e8f0;
+}
+
+:global([data-theme='dark']) .searchBox input {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+:global([data-theme='dark']) .searchBox input:focus {
+  border-color: #6d8cef;
+}
+
+:global([data-theme='dark']) .searchBox i {
+  color: #64748b;
+}
+
+:global([data-theme='dark']) .convItem {
+  border-bottom-color: rgba(51, 65, 85, 0.3);
+}
+
+:global([data-theme='dark']) .convItem:hover {
+  background: rgba(109, 140, 239, 0.06);
+}
+
+:global([data-theme='dark']) .convItemActive {
+  background: #1e293b !important;
+  border-left-color: #6d8cef;
+}
+
+:global([data-theme='dark']) .convName {
+  color: #e2e8f0;
+}
+
+:global([data-theme='dark']) .convPreview {
+  color: #64748b;
+}
+
+:global([data-theme='dark']) .convTime {
+  color: #475569;
+}
+
+:global([data-theme='dark']) .chatWindow {
+  background-color: rgba(15, 23, 42, 0.95);
+}
+
+:global([data-theme='dark']) .chatHeader {
+  background: #1e293b;
+  border-bottom-color: #334155;
+}
+
+:global([data-theme='dark']) .chatHeaderInfo h3 {
+  color: #e2e8f0;
+}
+
+:global([data-theme='dark']) .messagesArea {
+  background: #0f172a;
+  border-bottom-color: #334155;
+}
+
+:global([data-theme='dark']) .received {
+  background: #1e293b;
+  color: #e2e8f0;
+  border-color: #334155;
+}
+
+:global([data-theme='dark']) .received .msgTime {
+  color: #64748b;
+}
+
+:global([data-theme='dark']) .chatInputArea {
+  background: #1e293b;
+  border-top-color: #334155;
+}
+
+:global([data-theme='dark']) .chatInputWrapper {
+  background: #0f172a;
+}
+
+:global([data-theme='dark']) .chatInput {
+  color: #f1f5f9;
+}
+
+/* Action Button */
+:global([data-theme='dark']) .actionBtn {
+  background: rgba(109, 140, 239, 0.1);
+  color: #93b4fd;
+}
+
+:global([data-theme='dark']) .actionBtn:hover {
+  background: rgba(109, 140, 239, 0.18);
+}
+
+/* Status Badge in dark */
+:global([data-theme='dark']) .statusBadge {
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}

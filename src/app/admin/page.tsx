@@ -10,7 +10,7 @@ import { useNotification } from "@/context/NotificationContext";
 export default function AdminDashboard() {
   const { locale } = useTranslation();
   const { user } = useAuth();
-  const { showToast } = useNotification();
+  const { showToast, confirm } = useNotification();
   const subRole = user?.subRole?.toUpperCase();
   const isSG = subRole === "SECRETAIRE_GENERALE";
   const isTreasurer = subRole === "TRESORIER";
@@ -22,7 +22,7 @@ export default function AdminDashboard() {
 
   const [sessionForm, setSessionForm] = useState({
     name: "",
-    sessionDate: new Date().toISOString().split("T")[0],
+    date: new Date().toISOString().split("T")[0],
     exercise: { id: "" }
   });
 
@@ -80,6 +80,7 @@ export default function AdminDashboard() {
       return;
     }
     try {
+      // Ensure we send the data the backend expects
       await secretaryService.createSession(sessionForm);
       setShowSessionModal(false);
       loadDashboardData();
@@ -92,6 +93,24 @@ export default function AdminDashboard() {
         showToast("Une erreur est survenue lors de l'ouverture de la séance. Veuillez réessayer.", "error");
       }
     }
+  };
+
+  const handleCloseSession = async (id: number) => {
+    confirm({
+      title: "Clôturer la séance",
+      message: "Voulez-vous clôturer la séance en cours ? Cette action mettra fin à toutes les opérations de cette session.",
+      type: "warning",
+      confirmText: "Clôturer maintenant",
+      onConfirm: async () => {
+        try {
+          await secretaryService.closeSession(id);
+          showToast("Séance clôturée avec succès !", "success");
+          loadDashboardData();
+        } catch (err: any) {
+          showToast("Erreur: " + (err.message || "Impossible de clôturer la séance"), "error");
+        }
+      }
+    });
   };
 
   function formatAmount(n: number) {
@@ -177,7 +196,12 @@ export default function AdminDashboard() {
                     <h2 style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>{stats.activeSession.name || "Session Actuelle"}</h2>
                     <p style={{ opacity: 0.8, fontSize: "0.9rem" }}>Exercice {stats.activeSession.exerciseYear} - Lancée le {new Date(stats.activeSession.sessionDate).toLocaleDateString()}</p>
                     {isSG && (
-                      <button className={styles.sessionBtn} style={{ marginTop: "2rem", width: "100%", background: "#e74a3b" }}>
+                      <button 
+                        type="button"
+                        onClick={() => handleCloseSession(stats.activeSession.id)}
+                        className={styles.sessionBtn} 
+                        style={{ marginTop: "2rem", width: "100%", background: "#e74a3b" }}
+                      >
                          Clôturer la session
                       </button>
                     )}
@@ -263,8 +287,8 @@ export default function AdminDashboard() {
                 <input 
                   type="date" 
                   className={styles.formInput} 
-                  value={sessionForm.sessionDate} 
-                  onChange={e => setSessionForm({...sessionForm, sessionDate: e.target.value})}
+                  value={sessionForm.date} 
+                  onChange={e => setSessionForm({...sessionForm, date: e.target.value})}
                   required 
                 />
               </div>

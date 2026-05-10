@@ -44,7 +44,7 @@ export default function EmpruntsPage() {
 
   const totalLoans = loans.length;
   const activeLoans = loans.filter(l => l.status === "ACTIVE").length;
-  const totalAmount = loans.reduce((sum, l) => sum + (l.amount || 0), 0);
+  const totalAmount = loans.reduce((sum, l) => sum + (l.requestedAmount || 0), 0);
 
   return (
     <div className={styles.page}>
@@ -108,9 +108,10 @@ export default function EmpruntsPage() {
       {/* Loans Grid */}
       <div className={styles.grid}>
         {filtered.map((e) => {
-          const total = (e.amount || 0) * (1 + (e.interestRate || 0)/100);
-          const remaining = total - (e.refundedAmount || 0);
-          const progress = total > 0 ? Math.round(((e.refundedAmount || 0) / total) * 100) : 0;
+          const total = e.requestedAmount || 0;
+          const remaining = e.remainingBalance || 0;
+          const refunded = total - remaining;
+          const progress = total > 0 ? Math.round((refunded / total) * 100) : 0;
           return (
             <div key={e.id} className={styles.card}>
               <div className={styles.cardHeader}>

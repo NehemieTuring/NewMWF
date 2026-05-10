@@ -5,6 +5,11 @@ export const memberService = {
   getProfile: () => fetchWithAuth("/member/profile"),
   updateProfile: (data: any) => fetchWithAuth(`/member/profile?name=${encodeURIComponent(data.name)}&firstName=${encodeURIComponent(data.firstName)}&username=${encodeURIComponent(data.username)}&tel=${encodeURIComponent(data.tel)}&address=${encodeURIComponent(data.address)}`, { method: "PUT" }),
   updatePassword: (newPassword: string) => fetchWithAuth(`/member/profile/password?newPassword=${encodeURIComponent(newPassword)}`, { method: "PUT" }),
+  updateAvatar: (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return fetchWithAuth("/member/profile/avatar", { method: "PUT", body: formData });
+  },
 
   // Statut et dettes
   getStatus: () => fetchWithAuth("/member/status"),
@@ -17,6 +22,7 @@ export const memberService = {
 
   // Emprunts
   getMyBorrowings: () => fetchWithAuth("/member/borrowings"),
+  getMaxBorrowingAmount: () => fetchWithAuth("/member/borrowings/max-amount"),
   requestLoan: (amount: number) => fetchWithAuth(`/member/borrowings/request?amount=${amount}`, { method: "POST" }),
   getLoanDetails: (id: number) => fetchWithAuth(`/member/borrowings/${id}`),
   getLoanRefunds: (id: number) => fetchWithAuth(`/member/borrowings/${id}/refunds`),

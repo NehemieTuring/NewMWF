@@ -10,6 +10,7 @@ export default function EmpruntsPage() {
   const { locale } = useTranslation();
   const { showToast } = useNotification();
   const [borrowings, setBorrowings] = useState<any[]>([]);
+  const [activeSession, setActiveSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [selectedLoan, setSelectedLoan] = useState<any>(null);
   const [refunds, setRefunds] = useState<any[]>([]);
@@ -20,17 +21,23 @@ export default function EmpruntsPage() {
   const [loanAmount, setLoanAmount] = useState("");
 
   useEffect(() => {
-    async function loadBorrowings() {
+    async function loadData() {
       try {
-        const data = await memberService.getMyBorrowings();
-        setBorrowings(data || []);
+        const [borrowData, sessionData] = await Promise.all([
+          memberService.getMyBorrowings(),
+          memberService.getSessions()
+        ]);
+        setBorrowings(borrowData || []);
+        
+        const current = sessionData?.find((s: any) => s.active === true || s.state === "OPEN");
+        setActiveSession(current || null);
       } catch (err) {
-        console.error("Failed to load borrowings", err);
+        console.error("Failed to load data", err);
       } finally {
         setLoading(false);
       }
     }
-    loadBorrowings();
+    loadData();
   }, []);
 
   const viewLoanDetails = async (loan: any) => {
@@ -48,6 +55,10 @@ export default function EmpruntsPage() {
 
   const handleLoanRequest = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!activeSession) {
+      showToast("Opération impossible : Aucune session de collecte n'est actuellement ouverte.", "error");
+      return;
+    }
     try {
       await memberService.requestLoan(Number(loanAmount));
       showToast("Demande d'emprunt soumise avec succès", "success");
@@ -95,19 +106,35 @@ export default function EmpruntsPage() {
   );
 
   const activeCount = borrowings.filter(b => b.status === "ACTIVE" || b.status === "APPROVED").length;
-  const totalBorrowed = borrowings.reduce((s, b) => s + (b.amount || 0), 0);
-  const totalRefunded = borrowings.reduce((s, b) => s + (b.refundedAmount || 0), 0);
+  const totalBorrowed = borrowings.reduce((s, b) => s + (b.requestedAmount || 0), 0);
+  const totalRefunded = borrowings.reduce((s, b) => s + ((b.requestedAmount || 0) - (b.remainingBalance || 0)), 0);
 
   return (
     <div className={styles.container}>
-      <header className="fade-in-up" style={{ marginBottom: "2rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <header className="fade-in-up" style={{ marginBottom: "2rem", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
           <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#2e3b4e", letterSpacing: "-0.02em" }}>
             Mes <span className="text-gradient">Emprunts</span>
           </h1>
           <p style={{ color: "#858796", fontSize: "0.95rem" }}>Suivi complet de vos emprunts, remboursements et demandes de prêt.</p>
+          
+          {!activeSession && (
+            <div style={{ marginTop: "1rem", color: "#e74a3b", fontSize: "0.85rem", display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 600 }}>
+               <i className="fas fa-exclamation-triangle"></i>
+               Aucune session de collecte ouverte. Les nouvelles demandes sont temporairement suspendues.
+            </div>
+          )}
         </div>
-        <button className={styles.confirmBtn} onClick={() => setShowLoanRequest(true)} style={{ background: "linear-gradient(135deg, #4e73df, #224abe)", boxShadow: "0 4px 15px rgba(78,115,223,0.3)" }}>
+        <button 
+          className={styles.confirmBtn} 
+          onClick={() => activeSession && setShowLoanRequest(true)} 
+          disabled={!activeSession}
+          style={{ 
+            background: activeSession ? "linear-gradient(135deg, #4e73df, #224abe)" : "#cbd5e0", 
+            boxShadow: activeSession ? "0 4px 15px rgba(78,115,223,0.3)" : "none",
+            cursor: activeSession ? "pointer" : "not-allowed"
+          }}
+        >
           <i className="fas fa-plus"></i> Demander un emprunt
         </button>
       </header>
@@ -165,11 +192,13 @@ export default function EmpruntsPage() {
             </thead>
             <tbody>
               {borrowings.map((b) => {
-                const progress = b.amount > 0 ? Math.round(((b.refundedAmount || 0) / ((b.amount || 1) * (1 + (b.interestRate || 0) / 100))) * 100) : 0;
+                const totalDebt = b.requestedAmount || 0;
+                const paid = totalDebt - (b.remainingBalance || 0);
+                const progress = totalDebt > 0 ? Math.round((paid / totalDebt) * 100) : 0;
                 return (
                   <tr key={b.id}>
                     <td style={{ fontWeight: 700, color: "#4e73df" }}>#{b.id}</td>
-                    <td style={{ fontWeight: 800 }}>{formatAmount(b.amount)} XAF</td>
+                    <td style={{ fontWeight: 800 }}>{formatAmount(b.requestedAmount)} XAF</td>
                     <td>
                       <span className={styles.statusBadge} style={{ background: `${getStatusColor(b.status)}15`, color: getStatusColor(b.status) }}>
                         {getStatusLabel(b.status)}
@@ -181,7 +210,7 @@ export default function EmpruntsPage() {
                         <div className={styles.progressTrack} style={{ width: "80px", height: "6px" }}>
                           <div className={styles.progressFill} style={{ width: `${Math.min(progress, 100)}%` }}></div>
                         </div>
-                        <span style={{ fontWeight: 700, fontSize: "0.85rem" }}>{formatAmount(b.refundedAmount || 0)}</span>
+                        <span style={{ fontWeight: 700, fontSize: "0.85rem" }}>{formatAmount(paid)}</span>
                       </div>
                     </td>
                     <td style={{ textAlign: "center" }}>
@@ -218,15 +247,15 @@ export default function EmpruntsPage() {
               <div className={styles.kpiRow} style={{ marginBottom: "2rem" }}>
                 <div className={styles.kpiItem}>
                   <span className={styles.kpiItemLabel}>Montant Initial</span>
-                  <span className={styles.kpiItemValue}>{formatAmount(selectedLoan.amount)} XAF</span>
+                  <span className={styles.kpiItemValue}>{formatAmount(selectedLoan.requestedAmount)} XAF</span>
                 </div>
                 <div className={styles.kpiItem}>
-                  <span className={styles.kpiItemLabel}>Taux d&apos;intérêt</span>
-                  <span className={styles.kpiItemValue}>{selectedLoan.interestRate || 0}%</span>
+                  <span className={styles.kpiItemLabel}>Intérêts (pré-prélevés)</span>
+                  <span className={styles.kpiItemValue}>{formatAmount(selectedLoan.interestAmount)} XAF</span>
                 </div>
                 <div className={styles.kpiItem}>
-                  <span className={styles.kpiItemLabel}>Échéance</span>
-                  <span className={styles.kpiItemValue}>{selectedLoan.endDate ? new Date(selectedLoan.endDate).toLocaleDateString() : "Non définie"}</span>
+                  <span className={styles.kpiItemLabel}>Net Reçu</span>
+                  <span className={styles.kpiItemValue}>{formatAmount(selectedLoan.netAmountReceived)} XAF</span>
                 </div>
               </div>
 
@@ -235,12 +264,12 @@ export default function EmpruntsPage() {
                 <div className={styles.progressHeader}>
                   <span>Progression du remboursement</span>
                   <span style={{ color: "#1cc88a" }}>
-                    {formatAmount(selectedLoan.refundedAmount || 0)} / {formatAmount((selectedLoan.amount || 0) * (1 + (selectedLoan.interestRate || 0) / 100))} XAF
+                    {formatAmount(selectedLoan.requestedAmount - (selectedLoan.remainingBalance || 0))} / {formatAmount(selectedLoan.requestedAmount)} XAF
                   </span>
                 </div>
                 <div className={styles.progressTrack} style={{ height: "10px" }}>
                   <div className={styles.progressFill} style={{ 
-                    width: `${Math.min(100, Math.round(((selectedLoan.refundedAmount || 0) / ((selectedLoan.amount || 1) * (1 + (selectedLoan.interestRate || 0) / 100))) * 100))}%`
+                    width: `${Math.min(100, Math.round(((selectedLoan.requestedAmount - (selectedLoan.remainingBalance || 0)) / (selectedLoan.requestedAmount || 1)) * 100))}%`
                   }}></div>
                 </div>
               </div>

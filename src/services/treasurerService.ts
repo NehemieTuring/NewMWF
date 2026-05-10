@@ -11,6 +11,8 @@ export const treasurerService = {
   // Opérations financières (SG / Trésorier)
   addMemberSaving: (memberId: number, amount: number) => fetchWithAuth(`/treasurer/savings/deposit?memberId=${memberId}&amount=${amount}`, { method: "POST" }),
   addRefund: (memberId: number, amount: number) => fetchWithAuth(`/treasurer/borrowings/refund?memberId=${memberId}&amount=${amount}`, { method: "POST" }),
+  addLoan: (memberId: number, amount: number) => fetchWithAuth(`/treasurer/borrowings/grant?memberId=${memberId}&amount=${amount}`, { method: "POST" }),
+  paySolidarity: (memberId: number, amount: number) => fetchWithAuth(`/treasurer/solidarity/pay?memberId=${memberId}&amount=${amount}`, { method: "POST" }),
 
   // Emprunts et Penalités
   getAllLoans: () => fetchWithAuth("/treasurer/borrowings"),

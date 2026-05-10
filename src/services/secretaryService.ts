@@ -27,12 +27,14 @@ export const secretaryService = {
   getLoanById: (id: number) => fetchWithAuth(`/admin/borrowings/${id}`),
   requestLoan: (memberId: number, amount: number) => fetchWithAuth(`/admin/borrowings/request?memberId=${memberId}&amount=${amount}`, { method: "POST" }),
   refundLoan: (id: number, amount: number) => fetchWithAuth(`/admin/borrowings/${id}/refund?amount=${amount}`, { method: "POST" }),
+  getMaxBorrowingAmount: (memberId: number) => fetchWithAuth(`/admin/borrowings/members/${memberId}/max-amount`),
 
   // Aides
   getAllHelps: () => fetchWithAuth("/admin/helps"),
   getActiveHelps: () => fetchWithAuth("/admin/helps/active"),
   createHelp: (typeId: number, beneficiaryId: number, amount: number) => fetchWithAuth(`/admin/helps?typeId=${typeId}&beneficiaryId=${beneficiaryId}&amount=${amount}`, { method: "POST" }),
   getHelpTypes: () => fetchWithAuth("/admin/helps/types"),
+  createHelpType: (name: string, description: string, amount: number) => fetchWithAuth(`/admin/helps/types?name=${encodeURIComponent(name)}&description=${encodeURIComponent(description)}&amount=${amount}`, { method: "POST" }),
 
   // Sessions et Exercices
   getExercises: () => fetchWithAuth("/admin/exercises"),
@@ -67,6 +69,11 @@ export const secretaryService = {
   getProfile: () => fetchWithAuth("/admin/profile"),
   updateProfile: (data: any) => fetchWithAuth("/admin/profile", { method: "PUT", body: JSON.stringify(data) }),
   updatePassword: (data: any) => fetchWithAuth("/admin/profile/password", { method: "PUT", body: JSON.stringify(data) }),
+  updateAvatar: (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return fetchWithAuth("/admin/profile/avatar", { method: "PUT", body: formData });
+  },
 
   // Agape
   getAgapes: () => fetchWithAuth("/admin/agapes"),

@@ -9,6 +9,7 @@ import { secretaryService } from "@/services/secretaryService";
 import { treasurerService } from "@/services/treasurerService";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import { webSocketService } from "@/services/webSocketService";
 
 export default function MembreDashboard() {
   const { t, locale } = useTranslation();
@@ -40,14 +41,14 @@ export default function MembreDashboard() {
         const [profileData, debtsData, balanceData, helpsData, unreadData, borrowData] = await Promise.all([
           memberService.getProfile().catch(() => null),
           memberService.getDebts().catch(() => null),
-          memberService.getSavingBalance().catch(() => ({ balance: 0 })),
+          memberService.getSavingBalance().catch(() => 0),
           memberService.getActiveHelps().catch(() => []),
           memberService.getUnreadCount().catch(() => 0),
           memberService.getMyBorrowings().catch(() => []),
         ]);
         setProfile(profileData);
         setDebts(debtsData || { totalDebts: 0 });
-        setBalance(balanceData?.balance || 0);
+        setBalance(typeof balanceData === 'number' ? balanceData : 0);
         setActiveHelps(helpsData || []);
         setUnreadCount(unreadData || 0);
         setBorrowings(borrowData || []);
@@ -76,6 +77,20 @@ export default function MembreDashboard() {
     }
     loadData();
   }, [role, subRole]);
+
+  useEffect(() => {
+    if (user?.id) {
+        webSocketService.connect(
+            user.id,
+            () => setUnreadCount(prev => prev + 1), // Private msg -> increment
+            () => setUnreadCount(prev => prev + 1), // Group msg -> increment (or handle differently)
+            () => {}, // Update
+            () => {}, // Status
+            (count) => setUnreadCount(count) // Direct unread count update from server
+        );
+        return () => webSocketService.disconnect();
+    }
+  }, [user]);
 
   const totalDebtAmount = Array.isArray(debts) ? debts.reduce((sum, d) => sum + (d.amount || 0), 0) : (debts?.totalDebts || 0);
 
@@ -172,7 +187,7 @@ export default function MembreDashboard() {
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             {activeHelps.slice(0, 3).map((help) => {
-              const progress = Math.min(100, Math.round(((help.currentAmount || 0) / (help.targetAmount || 1)) * 100));
+              const progress = Math.min(100, Math.round(((help.collectedAmount || 0) / (help.targetAmount || 1)) * 100));
               return (
                 <div key={help.id} className={styles.dataCard}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.75rem" }}>
@@ -181,8 +196,8 @@ export default function MembreDashboard() {
                         <i className="fas fa-hand-holding-heart"></i>
                       </div>
                       <div>
-                        <h4 style={{ fontSize: "0.9rem", margin: 0, fontWeight: 700 }}>{help.type?.name}</h4>
-                        <small style={{ color: "#858796" }}>{help.beneficiary?.user?.firstName} {help.beneficiary?.user?.name}</small>
+                        <h4 style={{ fontSize: "0.9rem", margin: 0, fontWeight: 700 }}>{help.helpType?.name}</h4>
+                        <small style={{ color: "#858796" }}>{help.member?.user?.firstName} {help.member?.user?.name}</small>
                       </div>
                     </div>
                     <span style={{ fontSize: "0.8rem", fontWeight: 800, color: "#1cc88a", background: "rgba(28,200,138,0.08)", padding: "0.2rem 0.6rem", borderRadius: "8px", height: "fit-content" }}>{progress}%</span>

@@ -68,7 +68,7 @@ export default function TreasurerCaisses() {
            e.preventDefault();
            const amount = (e.target as any).amount.value;
            const reason = (e.target as any).reason.value;
-           treasurerService.recordExpenditure(amount, reason)
+           treasurerService.recordExpenditure(amount, reason, "Général")
              .then(() => {
                 showToast("Dépense enregistrée avec succès !", "success");
                 (e.target as any).reset();

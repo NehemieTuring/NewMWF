@@ -60,37 +60,41 @@ export default function SessionsPage() {
           <h1 className={styles.title}>{t.sessions.titre}</h1>
           <p className={styles.subtitle}>{sessions.length} sessions au total pour cet exercice financier</p>
         </div>
-        <button className={styles.addBtn}>
+        <button type="button" className={styles.addBtn}>
           <i className="fas fa-calendar-plus"></i> Créer une nouvelle session
         </button>
       </header>
 
       <div className={styles.grid}>
         {sessions.map((session) => (
-          <div key={session.id} className={`${styles.card} ${session.status === "ACTIVE" ? styles.cardActive : ""}`}>
+          <div key={session.id} className={`${styles.card} ${(session.state === "OPEN" || session.state === "SAVING") ? styles.cardActive : ""}`}>
             <div className={styles.cardHeader}>
               <div className={styles.dateIcon}>
                 <i className="far fa-calendar-alt"></i>
               </div>
               <div className={styles.sessionStatus}>
-                <span className={`${styles.badge} ${session.status === "ACTIVE" ? styles.badgeActive : styles.badgeInactive}`}>
-                  {session.status === "ACTIVE" ? t.dashboard.active.toUpperCase() : t.dashboard.termine.toUpperCase()}
+                <span className={`${styles.badge} ${(session.state === "OPEN" || session.state === "SAVING") ? styles.badgeActive : styles.badgeInactive}`}>
+                  {(session.state === "OPEN" || session.state === "SAVING") ? t.dashboard.active.toUpperCase() : t.dashboard.termine.toUpperCase()}
                 </span>
               </div>
             </div>
             <div className={styles.cardBody}>
-              <h3 className={styles.sessionDate}>{new Date(session.sessionDate).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US", { day: "numeric", month: "long", year: "numeric" })}</h3>
-              <p className={styles.sessionExercice}>{t.sessions.exercice}: <strong>{session.exerciseYear}</strong></p>
+              <h3 className={styles.sessionDate}>{new Date(session.date).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US", { day: "numeric", month: "long", year: "numeric" })}</h3>
+              <p className={styles.sessionExercice}>{t.sessions.exercice}: <strong>{session.exercise?.year || session.exerciseYear || "N/A"}</strong></p>
               <div className={styles.sessionBrief}>
-                 <span>Nom: {session.name}</span>
+                 <span>Nom: {session.name || `Session #${session.sessionNumber}`}</span>
               </div>
             </div>
             <div className={styles.cardFooter}>
-              <a href={`/admin/sessions/${session.id}`} className={styles.detailsBtn}>
+              <button 
+                type="button"
+                onClick={() => window.location.href = `/admin/sessions/${session.id}`} 
+                className={styles.detailsBtn}
+              >
                 <i className="fas fa-eye"></i> {t.dashboard.details}
-              </a>
-              {session.status === "ACTIVE" && (
-                <button className={`${styles.detailsBtn} ${styles.closeBtn}`} onClick={() => handleCloseSession(session.id)}>
+              </button>
+              {(session.state === "OPEN" || session.state === "SAVING") && (
+                <button type="button" className={`${styles.detailsBtn} ${styles.closeBtn}`} onClick={() => handleCloseSession(session.id)}>
                   <i className="fas fa-lock"></i> {t.sessions.cloturer}
                 </button>
               )}

@@ -8,7 +8,7 @@ import styles from "../treasurer.module.css";
 type Tab = "caisses" | "transactions" | "bilans";
 
 export default function TresoreriePage() {
-  const { showToast } = useNotification();
+  const { showToast, confirm: showConfirm } = useNotification();
   const [activeTab, setActiveTab] = useState<Tab>("caisses");
   const [loading, setLoading] = useState(true);
   
@@ -37,20 +37,30 @@ export default function TresoreriePage() {
     loadTreasury();
   }, []);
 
-  const handleExpenditure = async (e: React.FormEvent) => {
+  const handleExpenditure = (e: React.FormEvent) => {
     e.preventDefault();
-    const amount = (e.target as any).amount.value;
-    const reason = (e.target as any).reason.value;
-    try {
-      await treasurerService.recordExpenditure(amount, reason);
-      showToast("Dépense enregistrée !", "success");
-      (e.target as any).reset();
-      // Refresh
-      const caissesData = await treasurerService.getCashboxes();
-      setCaisses(caissesData?.cashboxes || []);
-    } catch (err: any) {
-      showToast("Erreur: " + err.message, "error");
-    }
+    const target = e.target as any;
+    const amount = target.amount.value;
+    const reason = target.reason.value;
+
+    showConfirm({
+      title: "Confirmer la dépense",
+      message: `Voulez-vous enregistrer une dépense de ${amount} XAF pour : ${reason} ?`,
+      type: "warning",
+      confirmText: "Confirmer la dépense",
+      onConfirm: async () => {
+        try {
+          await treasurerService.recordExpenditure(amount, reason, "Général");
+          showToast("Dépense enregistrée !", "success");
+          target.reset();
+          // Refresh
+          const caissesData = await treasurerService.getCashboxes();
+          setCaisses(caissesData?.cashboxes || []);
+        } catch (err: any) {
+          showToast("Erreur: " + err.message, "error");
+        }
+      }
+    });
   };
 
   if (loading) return <div className="fas fa-spinner fa-spin" style={{ fontSize: "2rem", color: "#4e73df", margin: "5rem auto", display: "block" }}></div>;

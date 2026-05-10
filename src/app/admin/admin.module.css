@@ -150,9 +150,10 @@
   transition: all 0.3s ease;
 }
 
-[data-theme='dark'] .topbar {
-  background: rgba(26, 32, 44, 0.8);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+:global([data-theme='dark']) .topbar {
+  background: rgba(15, 23, 42, 0.85);
+  border-bottom: 1px solid rgba(51, 65, 85, 0.6);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
 }
 
 .topbarLeft {
@@ -485,7 +486,7 @@
 
 .confirmBtn {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #1cc88a, #13855c);
+  background: linear-gradient(135deg, #4e73df, #224abe);
   color: white;
   border: none;
   border-radius: 10px;
@@ -493,12 +494,30 @@
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(28, 200, 138, 0.25);
+  box-shadow: 0 4px 15px rgba(78, 115, 223, 0.25);
 }
 
 .confirmBtn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(28, 200, 138, 0.35);
+  box-shadow: 0 6px 20px rgba(78, 115, 223, 0.35);
+}
+
+.dangerBtn {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #e74a3b, #be2617);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(231, 74, 59, 0.25);
+}
+
+.dangerBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(231, 74, 59, 0.35);
 }
 
 .modalForm {
@@ -745,7 +764,7 @@
 
 .badgeSuccess {
   background: rgba(28, 200, 138, 0.1);
-  color: #1cc88a;
+  color: #4e73df;
   padding: 0.25rem 0.75rem;
   border-radius: 50px;
   font-size: 0.7rem;
@@ -787,4 +806,169 @@
   border-radius: 20px;
   color: #858796;
   text-align: center;
+}
+
+/* ========================
+   DARK MODE — Admin Layout
+   ======================== */
+
+:global([data-theme='dark']) .profileBtn:hover {
+  background: #283548;
+}
+
+:global([data-theme='dark']) .profileName {
+  color: #e2e8f0;
+}
+
+/* Dropdown */
+:global([data-theme='dark']) .dropdownMenu {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+:global([data-theme='dark']) .dropdownItem {
+  color: #cbd5e1;
+}
+
+:global([data-theme='dark']) .dropdownItem:hover {
+  background: rgba(109, 140, 239, 0.1);
+  color: #93b4fd;
+}
+
+:global([data-theme='dark']) .dropdownItem i {
+  color: #6d8cef;
+}
+
+:global([data-theme='dark']) .dropdownDivider {
+  background: #334155;
+}
+
+/* Modal */
+:global([data-theme='dark']) .modal {
+  background: #1e293b;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
+}
+
+:global([data-theme='dark']) .modalBody {
+  background: #1e293b;
+}
+
+:global([data-theme='dark']) .modalText {
+  color: #94a3b8;
+}
+
+:global([data-theme='dark']) .modalIcon {
+  background: rgba(248, 113, 113, 0.12);
+  color: #f87171;
+}
+
+:global([data-theme='dark']) .cancelBtn {
+  background: #283548;
+  color: #94a3b8;
+  border-color: #334155;
+}
+
+:global([data-theme='dark']) .cancelBtn:hover {
+  background: #334155;
+}
+
+/* KPI Cards */
+:global([data-theme='dark']) .kpiCard {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+:global([data-theme='dark']) .kpiCard:hover {
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+  border-color: rgba(109, 140, 239, 0.3);
+}
+
+:global([data-theme='dark']) .kpiLabel {
+  color: #94a3b8;
+}
+
+:global([data-theme='dark']) .kpiValue {
+  color: #f1f5f9;
+}
+
+/* Glass Card */
+:global([data-theme='dark']) .glassCard {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(51, 65, 85, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Table Card */
+:global([data-theme='dark']) .tableCard {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+:global([data-theme='dark']) .table th {
+  background: #1a2537;
+  color: #94a3b8;
+  border-bottom-color: #334155;
+}
+
+:global([data-theme='dark']) .table td {
+  color: #e2e8f0;
+  border-bottom-color: #283548;
+}
+
+:global([data-theme='dark']) .table tbody tr:hover {
+  background: rgba(109, 140, 239, 0.06);
+}
+
+/* Tabs */
+:global([data-theme='dark']) .tabsHeader {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+:global([data-theme='dark']) .tabBtn {
+  color: #94a3b8;
+}
+
+:global([data-theme='dark']) .tabBtnActive {
+  background: #1e293b;
+  color: #6d8cef;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Form Inputs */
+:global([data-theme='dark']) .formInput {
+  background: #0f172a;
+  border-color: #475569;
+  color: #f1f5f9;
+}
+
+:global([data-theme='dark']) .formInput:focus {
+  border-color: #6d8cef;
+  background: #1e293b;
+  box-shadow: 0 0 0 4px rgba(109, 140, 239, 0.12);
+}
+
+/* Badges */
+:global([data-theme='dark']) .badgePrimary {
+  background: rgba(109, 140, 239, 0.15);
+  color: #93b4fd;
+}
+
+:global([data-theme='dark']) .badgeSuccess {
+  background: rgba(52, 211, 153, 0.15);
+  color: #6ee7b7;
+}
+
+/* Empty State */
+:global([data-theme='dark']) .empty-state {
+  background: #1e293b;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+/* Text gradient */
+:global([data-theme='dark']) .text-gradient {
+  background: linear-gradient(135deg, #6d8cef, #38bdf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
