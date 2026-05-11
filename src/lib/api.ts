@@ -27,17 +27,17 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
   } catch (err) {
     console.error("❌ API Fetch Error:", err);
     if (err instanceof Error && (err.message.includes("Failed to fetch") || err.name === "TypeError")) {
-      throw new Error("Impossible de se connecter au serveur. Veuillez vérifier votre connexion internet ou contacter l'administrateur.");
+      throw new Error("Impossible de se connecter au serveur backend. Veuillez vous assurer que l'API est lancée sur http://localhost:8080.");
     }
     throw err;
   }
 
-  if (res.status === 401) {
+  if (res.status === 401 || res.status === 403) {
     if (typeof window !== 'undefined') {
       clearAuth();
       window.location.href = "/connexion";
     }
-    throw new Error("Session expirée. Veuillez vous reconnecter.");
+    throw new Error(res.status === 401 ? "Session expirée. Veuillez vous reconnecter." : "Accès refusé. Veuillez vous reconnecter.");
   }
 
   if (!res.ok) {

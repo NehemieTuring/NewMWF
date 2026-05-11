@@ -1,0 +1,216 @@
+.container {
+  display: flex;
+  align-items: center;
+  --clock-text: #ffffff; /* Forced white for visibility */
+  --clock-accent: #ffffff;
+  --clock-bg: rgba(255, 255, 255, 0.12);
+  --clock-border: rgba(255, 255, 255, 0.2);
+}
+
+:global([data-theme='light']) .container:not(:global(.banner) *) {
+  /* Only use dark text if we are explicitly in light theme AND NOT in a dark banner */
+  --clock-text: #2e3b4e;
+  --clock-accent: #4e73df;
+  --clock-bg: rgba(78, 115, 223, 0.08);
+  --clock-border: rgba(78, 115, 223, 0.2);
+}
+
+.whiteVersion {
+  --clock-text: #ffffff !important;
+  --clock-accent: #ffffff !important;
+  --clock-bg: rgba(255, 255, 255, 0.15) !important;
+  --clock-border: rgba(255, 255, 255, 0.3) !important;
+}
+
+
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: var(--clock-bg);
+  border: 1px solid var(--clock-border);
+  border-radius: 16px;
+  padding: 0.6rem 1.2rem;
+  backdrop-filter: blur(12px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.wrapper::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: shimmer 4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { left: -100%; }
+  50% { left: 100%; }
+}
+
+.wrapper:hover {
+  border-color: var(--clock-accent);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Live dot */
+.liveDot {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+}
+
+.liveDotInner {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #00ff9d;
+  z-index: 1;
+  box-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+}
+
+.liveDotPulse {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(0, 255, 157, 0.4);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(2.5); opacity: 0; }
+}
+
+/* Time block */
+.timeBlock {
+  display: flex;
+  align-items: baseline;
+}
+
+.timeDigits {
+  font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  letter-spacing: 0.05em;
+  color: var(--clock-text);
+}
+
+.hourMin {
+  font-size: 1.55rem; /* Even larger */
+  font-weight: 800;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.seconds {
+  font-size: 1rem;
+  font-weight: 600;
+  opacity: 0.8;
+  margin-left: 2px;
+  animation: blink 1s step-end infinite;
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.2; }
+}
+
+/* Separator */
+.separator {
+  width: 1.5px;
+  height: 28px;
+  background: var(--clock-border);
+  flex-shrink: 0;
+}
+
+/* Date block */
+.dateBlock {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.calendarIcon {
+  font-size: 1rem;
+  color: var(--clock-accent);
+  opacity: 0.8;
+}
+
+.dateText {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.dayName {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--clock-accent);
+  opacity: 0.9;
+}
+
+.fullDate {
+  font-size: 1.1rem; /* Larger */
+  font-weight: 700;
+  color: var(--clock-text);
+  white-space: nowrap;
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Loading skeleton */
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0.6rem 1.2rem;
+  background: var(--clock-bg);
+  border: 1px solid var(--clock-border);
+  border-radius: 16px;
+}
+
+.skeletonLine {
+  width: 100px;
+  height: 12px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(78, 115, 223, 0.08), rgba(78, 115, 223, 0.15), rgba(78, 115, 223, 0.08));
+  background-size: 200% 100%;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.skeletonLineShort {
+  width: 70px;
+  height: 10px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(78, 115, 223, 0.06), rgba(78, 115, 223, 0.12), rgba(78, 115, 223, 0.06));
+  background-size: 200% 100%;
+  animation: skeletonPulse 1.5s ease-in-out 0.2s infinite;
+}
+
+@keyframes skeletonPulse {
+  0%, 100% { background-position: 200% 0; }
+  50% { background-position: -200% 0; }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .dateBlock { display: none; }
+  .separator { display: none; }
+  .wrapper { padding: 0.5rem 0.9rem; }
+  .hourMin { font-size: 1.2rem; }
+}
+
+@media (max-width: 400px) {
+  .seconds { display: none; }
+}

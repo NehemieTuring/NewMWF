@@ -10,6 +10,7 @@ import { treasurerService } from "@/services/treasurerService";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { webSocketService } from "@/services/webSocketService";
+import ServerDateTime from "@/components/ServerDateTime";
 
 export default function MembreDashboard() {
   const { t, locale } = useTranslation();
@@ -112,11 +113,14 @@ export default function MembreDashboard() {
   return (
     <div className={styles.container}>
       {/* Animated Header */}
-      <header className="fade-in-up" style={{ marginBottom: "2rem" }}>
-        <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#2e3b4e", marginBottom: "0.25rem", letterSpacing: "-0.02em" }}>
-          Bonjour, <span className="text-gradient">{profile?.user?.firstName || user?.username}</span> !
-        </h1>
-        <p style={{ color: "#858796", fontSize: "0.95rem" }}>Voici un aperçu de vos activités à la Mutuelle Néhémie.</p>
+      <header className="fade-in-up" style={{ marginBottom: "2rem", display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1rem" }}>
+        <div>
+          <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#2e3b4e", marginBottom: "0.25rem", letterSpacing: "-0.02em" }}>
+            Bonjour, <span className="text-gradient">{profile?.user?.firstName || user?.username}</span> !
+          </h1>
+          <p style={{ color: "#858796", fontSize: "0.95rem" }}>Voici un aperçu de vos activités à la Mutuelle Néhémie.</p>
+        </div>
+        <ServerDateTime />
       </header>
 
       {/* Primary Stats Grid with stagger */}

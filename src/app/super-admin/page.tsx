@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import styles from "./dashboard.module.css";
 import { useTranslation } from "@/context/LanguageContext";
 import { getSuperDashboard, DashboardStats } from "@/services/superAdminService";
+import ServerDateTime from "@/components/ServerDateTime";
 
 export default function SuperAdminDashboard() {
   const { t, locale } = useTranslation();
@@ -55,6 +56,9 @@ export default function SuperAdminDashboard() {
           </div>
           <h2 className={styles.bannerTitle}>{t.superAdmin.tableauDeBord}</h2>
           <p className={styles.bannerSub}>{t.superAdmin.sousTitre}</p>
+        </div>
+        <div style={{ filter: "brightness(1.3)", opacity: 0.95 }}>
+          <ServerDateTime white={true} />
         </div>
       </div>
 

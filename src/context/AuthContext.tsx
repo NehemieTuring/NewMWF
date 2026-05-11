@@ -31,13 +31,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Restore auth from localStorage on mount
+  // Restore auth from localStorage on mount and verify it
   useEffect(() => {
-    const stored = getAuth();
-    if (stored) {
-      setUser(stored);
-    }
-    setLoading(false);
+    const initAuth = async () => {
+      const stored = getAuth();
+      if (stored) {
+        // We have a stored user, but we should verify the token
+        try {
+          const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+          // Try to fetch profile to verify token
+          const res = await fetch(`${API_BASE_URL}/member/profile`, {
+            headers: { Authorization: `Bearer ${stored.token}` }
+          });
+          
+          if (res.ok) {
+            setUser(stored);
+          } else if (res.status === 401 || res.status === 403) {
+            // Token is invalid or unauthorized, clear it
+            console.warn("🔐 Session invalid or unauthorized (Status: " + res.status + "), clearing auth...");
+            clearAuth();
+            setUser(null);
+          } else {
+            // Server error or other issue (500, etc.), keep local data for now but set loading false
+            setUser(stored);
+          }
+        } catch (e) {
+          // Network error, trust localStorage but expect errors later
+          setUser(stored);
+        }
+      }
+      setLoading(false);
+    };
+    
+    initAuth();
   }, []);
 
   // Auto-sync avatar from backend if missing

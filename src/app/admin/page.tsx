@@ -6,6 +6,7 @@ import { useTranslation } from "@/context/LanguageContext";
 import { secretaryService } from "@/services/secretaryService";
 import { useAuth } from "@/context/AuthContext";
 import { useNotification } from "@/context/NotificationContext";
+import ServerDateTime from "@/components/ServerDateTime";
 
 export default function AdminDashboard() {
   const { locale } = useTranslation();
@@ -36,7 +37,11 @@ export default function AdminDashboard() {
     penaltyAmount: 15000
   });
 
+  const [error, setErrorState] = useState<string | null>(null);
+
   async function loadDashboardData() {
+      setLoading(true);
+      setErrorState(null);
       try {
         const [statsData, exercisesData] = await Promise.all([
           secretaryService.getGlobalTransactions(),
@@ -52,6 +57,7 @@ export default function AdminDashboard() {
         }
       } catch (err: any) {
         console.error(err);
+        setErrorState(err.message || "Une erreur est survenue lors du chargement des données.");
       } finally {
         setLoading(false);
       }
@@ -119,17 +125,36 @@ export default function AdminDashboard() {
 
   if (loading) return <div className="fas fa-spinner fa-spin" style={{ fontSize: "2rem", color: "#4e73df", margin: "5rem auto", display: "block" }}></div>;
 
+  if (error) {
+    return (
+      <div style={{ textAlign: 'center', padding: '3rem', background: 'rgba(231, 74, 59, 0.05)', borderRadius: '1rem', margin: '2rem' }}>
+        <i className="fas fa-exclamation-triangle" style={{ fontSize: '3rem', color: '#e74a3b', marginBottom: '1rem' }}></i>
+        <h2 style={{ color: '#2e3b4e' }}>Erreur de connexion</h2>
+        <p style={{ color: '#858796', marginBottom: '1.5rem' }}>{error}</p>
+        <button 
+          onClick={() => loadDashboardData()} 
+          style={{ padding: '0.8rem 2rem', background: '#4e73df', color: 'white', border: 'none', borderRadius: '0.5rem', cursor: 'pointer' }}
+        >
+          Réessayer
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.dashboard}>
-      <header style={{ marginBottom: "2rem" }}>
-        <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#2e3b4e" }}>
-          Tableau de Bord {isSG ? "Secrétaire G." : isTreasurer ? "Trésorier" : "Président"}
-        </h1>
-        <p style={{ color: "#858796" }}>
-          {isSG ? "Gestion opérationnelle et suivi des activités récentes." : 
-           isTreasurer ? "Surveillance financière et état des fonds." : 
-           "Supervision globale et indicateurs de performance."}
-        </p>
+      <header style={{ marginBottom: "2rem", display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1rem" }}>
+        <div>
+          <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#2e3b4e" }}>
+            Tableau de Bord {isSG ? "Secrétaire G." : isTreasurer ? "Trésorier" : "Président"}
+          </h1>
+          <p style={{ color: "#858796" }}>
+            {isSG ? "Gestion opérationnelle et suivi des activités récentes." : 
+             isTreasurer ? "Surveillance financière et état des fonds." : 
+             "Supervision globale et indicateurs de performance."}
+          </p>
+        </div>
+        <ServerDateTime />
       </header>
 
       {/* Primary KPI Grid */}

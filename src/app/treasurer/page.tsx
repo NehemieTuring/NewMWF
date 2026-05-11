@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { treasurerService } from "@/services/treasurerService";
 import styles from "./treasurer.module.css";
 import Link from "next/link";
+import ServerDateTime from "@/components/ServerDateTime";
 
 export default function TreasurerDashboard() {
   const [stats, setStats] = useState<any>(null);
@@ -34,9 +35,12 @@ export default function TreasurerDashboard() {
 
   return (
     <div className={styles.container}>
-      <header style={{ marginBottom: "2.5rem" }}>
-        <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#2e3b4e" }}>Tableau de Bord Trésorier</h1>
-        <p style={{ color: "#858796" }}>Aperçu de la santé financière et outils de gestion globale.</p>
+      <header style={{ marginBottom: "2.5rem", display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1rem" }}>
+        <div>
+          <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#2e3b4e" }}>Tableau de Bord Trésorier</h1>
+          <p style={{ color: "#858796" }}>Aperçu de la santé financière et outils de gestion globale.</p>
+        </div>
+        <ServerDateTime />
       </header>
 
       {/* Primary Stats Grid */}

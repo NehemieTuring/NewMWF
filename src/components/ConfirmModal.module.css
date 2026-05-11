@@ -41,6 +41,7 @@
   cursor: pointer;
   transition: all 0.2s;
   border: none;
+  min-width: 130px;
 }
 
 .btnCancel {
@@ -62,6 +63,13 @@
 .btnConfirm:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 0 2rem 2rem;
 }
 
 .info.btnConfirm { background: var(--gradient-primary); }

@@ -8,10 +8,12 @@ import { useTranslation } from "@/context/LanguageContext";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
 import { useAuth } from "@/context/AuthContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { useNotification } from "@/context/NotificationContext";
 
 export default function SuperAdminLayout({ children }: { children: React.ReactNode }) {
   const { t, locale, setLocale } = useTranslation();
   const { user, loading, logout } = useAuth();
+  const { confirm } = useNotification();
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -31,6 +33,12 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
       title: t.superAdmin.motsDePasse,
       items: [
         { label: t.superAdmin.changerMotDePasse, icon: "fas fa-key", href: "/super-admin/mot-de-passe" },
+      ],
+    },
+    {
+      title: "Développement",
+      items: [
+        { label: "Outils Dev", icon: "fas fa-flask", href: "/super-admin/developpement" },
       ],
     },
   ];
@@ -74,7 +82,19 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
             </Link>
             <button
               className={styles.menuItem}
-              onClick={() => { logout(); router.push("/connexion"); }}
+              onClick={() => { 
+                confirm({
+                  title: t.common.deconnexion,
+                  message: "Êtes-vous sûr de vouloir vous déconnecter du portail Super Admin ?",
+                  confirmText: "Déconnexion",
+                  cancelText: "Annuler",
+                  type: "danger",
+                  onConfirm: () => {
+                    logout(); 
+                    router.push("/connexion"); 
+                  }
+                });
+              }}
             >
               <i className="fas fa-sign-out-alt"></i>
               <span>{t.common.deconnexion}</span>
@@ -146,7 +166,20 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
                       {t.common.monProfil}
                     </Link>
                     <div className={styles.dropdownDivider}></div>
-                    <button className={styles.dropdownItem} onClick={() => { logout(); setProfileOpen(false); router.push("/connexion"); }}>
+                    <button className={styles.dropdownItem} onClick={() => { 
+                      setProfileOpen(false);
+                      confirm({
+                        title: t.common.deconnexion,
+                        message: "Êtes-vous sûr de vouloir vous déconnecter du portail Super Admin ?",
+                        confirmText: "Déconnexion",
+                        cancelText: "Annuler",
+                        type: "danger",
+                        onConfirm: () => {
+                          logout(); 
+                          router.push("/connexion"); 
+                        }
+                      });
+                    }}>
                       <i className="fas fa-sign-out-alt"></i>
                       {t.common.deconnexion}
                     </button>

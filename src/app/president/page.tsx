@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { presidentService } from "@/services/presidentService";
 import styles from "./president-dashboard.module.css";
 import Link from "next/link";
+import ServerDateTime from "@/components/ServerDateTime";
 
 export default function PresidentDashboard() {
   const [data, setData] = useState<{
@@ -100,10 +101,7 @@ export default function PresidentDashboard() {
           <h1>Tableau de Bord Président</h1>
           <p>Bienvenue sur le portail de pilotage de la mutuelle ENSPY</p>
         </div>
-        <div className={styles.dateDisplay}>
-          <i className="fas fa-calendar-alt"></i>
-          {currentExercise ? `Exercice : ${currentExercise.name || currentExercise.year}` : "Session en cours"}
-        </div>
+        <ServerDateTime />
       </header>
 
       {/* Stats Grid */}
