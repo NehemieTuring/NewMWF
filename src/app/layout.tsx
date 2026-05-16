@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { LanguageProvider } from "@/context/LanguageContext";
@@ -7,7 +6,7 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { NotificationProvider } from "@/context/NotificationContext";
 
-const inter = Inter({ subsets: ["latin"] });
+
 
 export const metadata: Metadata = {
   title: "Mutuelle ENSPY - Plateforme de Gestion",
@@ -26,7 +25,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/file.svg" />
       </head>
-      <body className={inter.className}>
+      <body>
         <ThemeProvider>
           <LanguageProvider>
             <AuthProvider>

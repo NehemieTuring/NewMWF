@@ -106,7 +106,14 @@ export default function DeveloppementPage() {
   };
 
   // Quick actions
-  const quickActions = [
+  interface QuickAction {
+    label: string;
+    icon: string;
+    body: Record<string, string>;
+    msg: string;
+  }
+
+  const quickActions: QuickAction[] = [
     { label: "+1 Heure", icon: "fas fa-clock", body: { addHours: "1" }, msg: "✅ +1 heure" },
     { label: "+6 Heures", icon: "fas fa-clock", body: { addHours: "6" }, msg: "✅ +6 heures" },
     { label: "+12 Heures", icon: "fas fa-clock", body: { addHours: "12" }, msg: "✅ +12 heures" },
