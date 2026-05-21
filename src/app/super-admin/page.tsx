@@ -57,9 +57,6 @@ export default function SuperAdminDashboard() {
           <h2 className={styles.bannerTitle}>{t.superAdmin.tableauDeBord}</h2>
           <p className={styles.bannerSub}>{t.superAdmin.sousTitre}</p>
         </div>
-        <div style={{ filter: "brightness(1.3)", opacity: 0.95 }}>
-          <ServerDateTime white={true} />
-        </div>
       </div>
 
       {error && (

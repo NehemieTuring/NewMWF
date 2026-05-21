@@ -40,28 +40,28 @@ export default function AdminDashboard() {
   const [error, setErrorState] = useState<string | null>(null);
 
   async function loadDashboardData() {
-      setLoading(true);
-      setErrorState(null);
-      try {
-        const [statsData, exercisesData] = await Promise.all([
-          secretaryService.getGlobalTransactions(),
-          secretaryService.getExercises()
-        ]);
-        setStats(statsData);
-        setExercises(exercisesData || []);
-        
-        // Auto-select active exercise in form if possible
-        const activeEx = (exercisesData || []).find((e: any) => e.active);
-        if (activeEx) {
-          setSessionForm(prev => ({ ...prev, exercise: { id: activeEx.id } }));
-        }
-      } catch (err: any) {
-        console.error(err);
-        setErrorState(err.message || "Une erreur est survenue lors du chargement des données.");
-      } finally {
-        setLoading(false);
+    setLoading(true);
+    setErrorState(null);
+    try {
+      const [statsData, exercisesData] = await Promise.all([
+        secretaryService.getGlobalTransactions(),
+        secretaryService.getExercises()
+      ]);
+      setStats(statsData);
+      setExercises(exercisesData || []);
+
+      // Auto-select active exercise in form if possible
+      const activeEx = (exercisesData || []).find((e: any) => e.active);
+      if (activeEx) {
+        setSessionForm(prev => ({ ...prev, exercise: { id: activeEx.id } }));
       }
+    } catch (err: any) {
+      console.error(err);
+      setErrorState(err.message || "Une erreur est survenue lors du chargement des données.");
+    } finally {
+      setLoading(false);
     }
+  }
   useEffect(() => {
     loadDashboardData();
   }, []);
@@ -131,8 +131,8 @@ export default function AdminDashboard() {
         <i className="fas fa-exclamation-triangle" style={{ fontSize: '3rem', color: '#e74a3b', marginBottom: '1rem' }}></i>
         <h2 style={{ color: '#2e3b4e' }}>Erreur de connexion</h2>
         <p style={{ color: '#858796', marginBottom: '1.5rem' }}>{error}</p>
-        <button 
-          onClick={() => loadDashboardData()} 
+        <button
+          onClick={() => loadDashboardData()}
           style={{ padding: '0.8rem 2rem', background: '#4e73df', color: 'white', border: 'none', borderRadius: '0.5rem', cursor: 'pointer' }}
         >
           Réessayer
@@ -149,12 +149,11 @@ export default function AdminDashboard() {
             Tableau de Bord {isSG ? "Secrétaire G." : isTreasurer ? "Trésorier" : "Président"}
           </h1>
           <p style={{ color: "#858796" }}>
-            {isSG ? "Gestion opérationnelle et suivi des activités récentes." : 
-             isTreasurer ? "Surveillance financière et état des fonds." : 
-             "Supervision globale et indicateurs de performance."}
+            {isSG ? "Gestion opérationnelle et suivi des activités récentes." :
+              isTreasurer ? "Surveillance financière et état des fonds." :
+                "Supervision globale et indicateurs de performance."}
           </p>
         </div>
-        <ServerDateTime />
       </header>
 
       {/* Primary KPI Grid */}
@@ -210,66 +209,66 @@ export default function AdminDashboard() {
       </div>
 
       <div className={styles.infoGrid} style={{ marginTop: "2rem" }}>
-         {/* Session Status & Quick Actions for SG */}
-         <div className={styles.infoCard} style={{ background: stats?.activeSession ? "linear-gradient(135deg, #1e3a8a, #3b82f6)" : "#f8f9fc", color: stats?.activeSession ? "white" : "#2e3b4e" }}>
-            <div className={styles.infoCardHeader} style={{ color: "inherit" }}>
-               <h3 style={{ color: "inherit" }}><i className="fas fa-history"></i> Session en cours</h3>
-            </div>
-            <div style={{ padding: "1.5rem" }}>
-               {stats?.activeSession ? (
-                 <>
-                    <h2 style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>{stats.activeSession.name || "Session Actuelle"}</h2>
-                    <p style={{ opacity: 0.8, fontSize: "0.9rem" }}>Exercice {stats.activeSession.exerciseYear} - Lancée le {new Date(stats.activeSession.sessionDate).toLocaleDateString()}</p>
-                    {isSG && (
-                      <button 
-                        type="button"
-                        onClick={() => handleCloseSession(stats.activeSession.id)}
-                        className={styles.sessionBtn} 
-                        style={{ marginTop: "2rem", width: "100%", background: "#e74a3b" }}
-                      >
-                         Clôturer la session
-                      </button>
-                    )}
-                 </>
-               ) : (
-                 <div style={{ textAlign: "center", padding: "1rem" }}>
-                    <i className="fas fa-calendar-times" style={{ fontSize: "3rem", opacity: 0.1, marginBottom: "1rem" }}></i>
-                    <p>Aucune session active actuellement.</p>
-                    {isSG && <button className={styles.sessionBtn} style={{ marginTop: "1rem" }} onClick={() => setShowSessionModal(true)}>Démarrer une session</button>}
-                  </div>
-               )}
-            </div>
-         </div>
+        {/* Session Status & Quick Actions for SG */}
+        <div className={styles.infoCard} style={{ background: stats?.activeSession ? "linear-gradient(135deg, #1e3a8a, #3b82f6)" : "#f8f9fc", color: stats?.activeSession ? "white" : "#2e3b4e" }}>
+          <div className={styles.infoCardHeader} style={{ color: "inherit" }}>
+            <h3 style={{ color: "inherit" }}><i className="fas fa-history"></i> Session en cours</h3>
+          </div>
+          <div style={{ padding: "1.5rem" }}>
+            {stats?.activeSession ? (
+              <>
+                <h2 style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>{stats.activeSession.name || "Session Actuelle"}</h2>
+                <p style={{ opacity: 0.8, fontSize: "0.9rem" }}>Exercice {stats.activeSession.exerciseYear} - Lancée le {new Date(stats.activeSession.sessionDate).toLocaleDateString()}</p>
+                {isSG && (
+                  <button
+                    type="button"
+                    onClick={() => handleCloseSession(stats.activeSession.id)}
+                    className={styles.sessionBtn}
+                    style={{ marginTop: "2rem", width: "100%", background: "#e74a3b" }}
+                  >
+                    Clôturer la session
+                  </button>
+                )}
+              </>
+            ) : (
+              <div style={{ textAlign: "center", padding: "1rem" }}>
+                <i className="fas fa-calendar-times" style={{ fontSize: "3rem", opacity: 0.1, marginBottom: "1rem" }}></i>
+                <p>Aucune session active actuellement.</p>
+                {isSG && <button className={styles.sessionBtn} style={{ marginTop: "1rem" }} onClick={() => setShowSessionModal(true)}>Démarrer une session</button>}
+              </div>
+            )}
+          </div>
+        </div>
 
-         {/* Exercise Management Card */}
-         <div className={styles.infoCard} style={{ background: exercises.some(e => e.active) ? "#f8f9fc" : "rgba(78, 115, 223, 0.05)", border: exercises.some(e => e.active) ? "1px solid #edf2f7" : "2px dashed #4e73df88" }}>
-            <div className={styles.infoCardHeader}>
-               <h3><i className="fas fa-calendar-alt"></i> Exercice Annuel</h3>
-               <a href="/admin/parametres" className={styles.viewAllLink}>Tout voir <i className="fas fa-arrow-right"></i></a>
-            </div>
-            <div style={{ padding: "1.5rem" }}>
-               {exercises.find((e: any) => e.active) ? (
-                 <>
-                    <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.5rem" }}>
-                       <div style={{ width: "50px", height: "50px", borderRadius: "15px", background: "rgba(78, 115, 223, 0.1)", color: "#4e73df", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem", fontWeight: 800 }}>
-                          {exercises.find((e: any) => e.active).year}
-                       </div>
-                       <div>
-                          <h4 style={{ margin: 0, color: "#2d3748" }}>Exercice en cours</h4>
-                          <p style={{ margin: 0, fontSize: "0.85rem", color: "#718096" }}>Prêt pour les opérations de l{"'"}année.</p>
-                       </div>
-                    </div>
-                    {isSG && <button className={styles.addBtn} style={{ borderStyle: "solid", background: "#f8f9fc" }} onClick={() => setShowExerciseModal(true)}>Modifier l{"'"}exercice</button>}
-                 </>
-               ) : (
-                 <div style={{ textAlign: "center", padding: "1rem" }}>
-                    <i className="fas fa-calendar-plus" style={{ fontSize: "3rem", opacity: 0.1, marginBottom: "1rem" }}></i>
-                    <p style={{ fontSize: "0.9rem", color: "#718096" }}>Aucun exercice n{"'"}est actif pour le moment.</p>
-                    {isSG && <button className={styles.sessionBtn} style={{ marginTop: "1rem", background: "linear-gradient(135deg, #1cc88a, #16a085)" }} onClick={() => setShowExerciseModal(true)}>Initialiser un Exercice</button>}
-                 </div>
-               )}
-            </div>
-         </div>
+        {/* Exercise Management Card */}
+        <div className={styles.infoCard} style={{ background: exercises.some(e => e.active) ? "#f8f9fc" : "rgba(78, 115, 223, 0.05)", border: exercises.some(e => e.active) ? "1px solid #edf2f7" : "2px dashed #4e73df88" }}>
+          <div className={styles.infoCardHeader}>
+            <h3><i className="fas fa-calendar-alt"></i> Exercice Annuel</h3>
+            <a href="/admin/parametres" className={styles.viewAllLink}>Tout voir <i className="fas fa-arrow-right"></i></a>
+          </div>
+          <div style={{ padding: "1.5rem" }}>
+            {exercises.find((e: any) => e.active) ? (
+              <>
+                <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.5rem" }}>
+                  <div style={{ width: "50px", height: "50px", borderRadius: "15px", background: "rgba(78, 115, 223, 0.1)", color: "#4e73df", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem", fontWeight: 800 }}>
+                    {exercises.find((e: any) => e.active).year}
+                  </div>
+                  <div>
+                    <h4 style={{ margin: 0, color: "#2d3748" }}>Exercice en cours</h4>
+                    <p style={{ margin: 0, fontSize: "0.85rem", color: "#718096" }}>Prêt pour les opérations de l{"'"}année.</p>
+                  </div>
+                </div>
+                {isSG && <button className={styles.addBtn} style={{ borderStyle: "solid", background: "#f8f9fc" }} onClick={() => setShowExerciseModal(true)}>Modifier l{"'"}exercice</button>}
+              </>
+            ) : (
+              <div style={{ textAlign: "center", padding: "1rem" }}>
+                <i className="fas fa-calendar-plus" style={{ fontSize: "3rem", opacity: 0.1, marginBottom: "1rem" }}></i>
+                <p style={{ fontSize: "0.9rem", color: "#718096" }}>Aucun exercice n{"'"}est actif pour le moment.</p>
+                {isSG && <button className={styles.sessionBtn} style={{ marginTop: "1rem", background: "linear-gradient(135deg, #1cc88a, #16a085)" }} onClick={() => setShowExerciseModal(true)}>Initialiser un Exercice</button>}
+              </div>
+            )}
+          </div>
+        </div>
 
       </div>
 
@@ -284,10 +283,10 @@ export default function AdminDashboard() {
             <form onSubmit={handleCreateSession} className={styles.modalBody}>
               <div className={styles.formGroup}>
                 <label>Exercice Relatif</label>
-                <select 
+                <select
                   className={styles.formInput}
                   value={sessionForm.exercise.id}
-                  onChange={e => setSessionForm({...sessionForm, exercise: { id: e.target.value }})}
+                  onChange={e => setSessionForm({ ...sessionForm, exercise: { id: e.target.value } })}
                   required
                 >
                   <option value="">-- Choisir un exercice --</option>
@@ -298,23 +297,23 @@ export default function AdminDashboard() {
               </div>
               <div className={styles.formGroup}>
                 <label>Nom de la session (ex: Janvier)</label>
-                <input 
-                  type="text" 
-                  className={styles.formInput} 
-                  value={sessionForm.name} 
-                  onChange={e => setSessionForm({...sessionForm, name: e.target.value})}
+                <input
+                  type="text"
+                  className={styles.formInput}
+                  value={sessionForm.name}
+                  onChange={e => setSessionForm({ ...sessionForm, name: e.target.value })}
                   placeholder="Ex: Assemblée de Janvier"
-                  required 
+                  required
                 />
               </div>
               <div className={styles.formGroup}>
                 <label>Date de la session</label>
-                <input 
-                  type="date" 
-                  className={styles.formInput} 
-                  value={sessionForm.date} 
-                  onChange={e => setSessionForm({...sessionForm, date: e.target.value})}
-                  required 
+                <input
+                  type="date"
+                  className={styles.formInput}
+                  value={sessionForm.date}
+                  onChange={e => setSessionForm({ ...sessionForm, date: e.target.value })}
+                  required
                 />
               </div>
               <div className={styles.modalActions}>
@@ -338,15 +337,15 @@ export default function AdminDashboard() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
                 <div className={styles.formGroup}>
                   <label>Année</label>
-                  <input type="text" className={styles.formInput} value={exerciseForm.year} onChange={e => setExerciseForm({...exerciseForm, year: e.target.value})} required />
+                  <input type="text" className={styles.formInput} value={exerciseForm.year} onChange={e => setExerciseForm({ ...exerciseForm, year: e.target.value })} required />
                 </div>
                 <div className={styles.formGroup}>
                   <label>Date Début</label>
-                  <input type="date" className={styles.formInput} value={exerciseForm.startDate} onChange={e => setExerciseForm({...exerciseForm, startDate: e.target.value})} required />
+                  <input type="date" className={styles.formInput} value={exerciseForm.startDate} onChange={e => setExerciseForm({ ...exerciseForm, startDate: e.target.value })} required />
                 </div>
                 <div className={styles.formGroup}>
                   <label>Date Fin</label>
-                  <input type="date" className={styles.formInput} value={exerciseForm.endDate} onChange={e => setExerciseForm({...exerciseForm, endDate: e.target.value})} required />
+                  <input type="date" className={styles.formInput} value={exerciseForm.endDate} onChange={e => setExerciseForm({ ...exerciseForm, endDate: e.target.value })} required />
                 </div>
               </div>
               <div className={styles.modalActions}>
@@ -360,35 +359,35 @@ export default function AdminDashboard() {
 
       {/* Transactions Récentes Unifiées */}
       <section style={{ marginTop: "3rem" }}>
-         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-            <h2 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0 }}>Journal des Activités</h2>
-            <a href="/admin/operations" style={{ fontSize: "0.8rem", fontWeight: 700, color: "#4e73df" }}>Accéder au back-office <i className="fas fa-arrow-right"></i></a>
-         </div>
-         <div className={styles.tableCard} style={{ background: "white", borderRadius: "24px", border: "1px solid #e3e6f0", overflow: "hidden" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
-               <thead style={{ background: "#f8f9fc" }}>
-                  <tr>
-                     <th style={{ padding: "1rem 1.5rem", textAlign: "left", fontSize: "0.7rem", fontWeight: 800, color: "#858796", textTransform: "uppercase" }}>Date</th>
-                     <th style={{ padding: "1rem 1.5rem", textAlign: "left", fontSize: "0.7rem", fontWeight: 800, color: "#858796", textTransform: "uppercase" }}>Rôle / Action</th>
-                     <th style={{ padding: "1rem 1.5rem", textAlign: "right", fontSize: "0.7rem", fontWeight: 800, color: "#858796", textTransform: "uppercase" }}>Impact Financier</th>
-                  </tr>
-               </thead>
-               <tbody>
-                  {stats?.recentTransactions?.slice(0, 5).map((tx: any) => (
-                    <tr key={tx.id} style={{ borderBottom: "1px solid #f8f9fc" }}>
-                       <td style={{ padding: "1rem 1.5rem", fontSize: "0.85rem" }}>{new Date(tx.date).toLocaleDateString()}</td>
-                       <td style={{ padding: "1rem 1.5rem" }}>
-                          <span style={{ display: "block", fontWeight: 700, fontSize: "0.9rem" }}>{tx.type}</span>
-                          <span style={{ fontSize: "0.75rem", color: "#858796" }}>{tx.description}</span>
-                       </td>
-                       <td style={{ padding: "1rem 1.5rem", textAlign: "right", fontWeight: 800, color: tx.amount > 0 ? "#1cc88a" : "#e74a3b" }}>
-                          {tx.amount > 0 ? "+" : ""} {tx.amount.toLocaleString()} XAF
-                       </td>
-                    </tr>
-                  ))}
-               </tbody>
-            </table>
-         </div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+          <h2 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0 }}>Journal des Activités</h2>
+          <a href="/admin/operations" style={{ fontSize: "0.8rem", fontWeight: 700, color: "#4e73df" }}>Accéder au back-office <i className="fas fa-arrow-right"></i></a>
+        </div>
+        <div className={styles.tableCard} style={{ background: "white", borderRadius: "24px", border: "1px solid #e3e6f0", overflow: "hidden" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead style={{ background: "#f8f9fc" }}>
+              <tr>
+                <th style={{ padding: "1rem 1.5rem", textAlign: "left", fontSize: "0.7rem", fontWeight: 800, color: "#858796", textTransform: "uppercase" }}>Date</th>
+                <th style={{ padding: "1rem 1.5rem", textAlign: "left", fontSize: "0.7rem", fontWeight: 800, color: "#858796", textTransform: "uppercase" }}>Rôle / Action</th>
+                <th style={{ padding: "1rem 1.5rem", textAlign: "right", fontSize: "0.7rem", fontWeight: 800, color: "#858796", textTransform: "uppercase" }}>Impact Financier</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stats?.recentTransactions?.slice(0, 5).map((tx: any) => (
+                <tr key={tx.id} style={{ borderBottom: "1px solid #f8f9fc" }}>
+                  <td style={{ padding: "1rem 1.5rem", fontSize: "0.85rem" }}>{new Date(tx.date).toLocaleDateString()}</td>
+                  <td style={{ padding: "1rem 1.5rem" }}>
+                    <span style={{ display: "block", fontWeight: 700, fontSize: "0.9rem" }}>{tx.type}</span>
+                    <span style={{ fontSize: "0.75rem", color: "#858796" }}>{tx.description}</span>
+                  </td>
+                  <td style={{ padding: "1rem 1.5rem", textAlign: "right", fontWeight: 800, color: tx.amount > 0 ? "#1cc88a" : "#e74a3b" }}>
+                    {tx.amount > 0 ? "+" : ""} {tx.amount.toLocaleString()} XAF
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
     </div>
   );

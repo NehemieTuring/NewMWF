@@ -26,7 +26,7 @@ export default function PresidentDashboard() {
     exercises: [],
     unreadMessages: 0,
   });
-  
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -34,11 +34,11 @@ export default function PresidentDashboard() {
     async function loadData() {
       try {
         const [
-          transactionsData, 
-          cashboxesData, 
-          helpsData, 
-          loansData, 
-          inRuleData, 
+          transactionsData,
+          cashboxesData,
+          helpsData,
+          loansData,
+          inRuleData,
           notInRuleData,
           exercisesData,
           unreadData
@@ -101,7 +101,6 @@ export default function PresidentDashboard() {
           <h1>Tableau de Bord Président</h1>
           <p>Bienvenue sur le portail de pilotage de la mutuelle ENSPY</p>
         </div>
-        <ServerDateTime />
       </header>
 
       {/* Stats Grid */}
@@ -238,11 +237,10 @@ export default function PresidentDashboard() {
                     <td className={styles.amount}>{loan.amount?.toLocaleString()} FCFA</td>
                     <td>{loan.date ? new Date(loan.date).toLocaleDateString() : "N/A"}</td>
                     <td>
-                      <span className={`${styles.badge} ${
-                        loan.status === "APPROVED" ? styles.badgeSuccess : 
-                        loan.status === "PENDING" ? styles.badgeWarning : 
-                        styles.badgeDanger
-                      }`}>
+                      <span className={`${styles.badge} ${loan.status === "APPROVED" ? styles.badgeSuccess :
+                          loan.status === "PENDING" ? styles.badgeWarning :
+                            styles.badgeDanger
+                        }`}>
                         {loan.status}
                       </span>
                     </td>

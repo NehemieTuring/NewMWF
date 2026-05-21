@@ -81,15 +81,15 @@ export default function MembreDashboard() {
 
   useEffect(() => {
     if (user?.id) {
-        webSocketService.connect(
-            user.id,
-            () => setUnreadCount(prev => prev + 1), // Private msg -> increment
-            () => setUnreadCount(prev => prev + 1), // Group msg -> increment (or handle differently)
-            () => {}, // Update
-            () => {}, // Status
-            (count) => setUnreadCount(count) // Direct unread count update from server
-        );
-        return () => webSocketService.disconnect();
+      webSocketService.connect(
+        user.id,
+        () => setUnreadCount(prev => prev + 1), // Private msg -> increment
+        () => setUnreadCount(prev => prev + 1), // Group msg -> increment (or handle differently)
+        () => { }, // Update
+        () => { }, // Status
+        (count) => setUnreadCount(count) // Direct unread count update from server
+      );
+      return () => webSocketService.disconnect();
     }
   }, [user]);
 
@@ -120,7 +120,6 @@ export default function MembreDashboard() {
           </h1>
           <p style={{ color: "#858796", fontSize: "0.95rem" }}>Voici un aperçu de vos activités à la Mutuelle Néhémie.</p>
         </div>
-        <ServerDateTime />
       </header>
 
       {/* Primary Stats Grid with stagger */}

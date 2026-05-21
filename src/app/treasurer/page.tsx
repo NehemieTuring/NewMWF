@@ -40,7 +40,6 @@ export default function TreasurerDashboard() {
           <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#2e3b4e" }}>Tableau de Bord Trésorier</h1>
           <p style={{ color: "#858796" }}>Aperçu de la santé financière et outils de gestion globale.</p>
         </div>
-        <ServerDateTime />
       </header>
 
       {/* Primary Stats Grid */}
@@ -78,25 +77,25 @@ export default function TreasurerDashboard() {
       <section style={{ marginBottom: "3rem" }}>
         <h2 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "1.5rem", color: "#4e4f5d" }}>Outils de Management</h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "1rem" }}>
-           {quickActions.map((action) => (
-             <Link key={action.label} href={action.href} style={{ background: "white", padding: "1.5rem", borderRadius: "20px", border: "1px solid #e3e6f0", display: "flex", flexDirection: "column", gap: "1rem", transition: "all 0.2s", textDecoration: "none" }}>
-                <div style={{ width: "40px", height: "40px", borderRadius: "10px", background: `${action.color}15`, color: action.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem" }}>
-                   <i className={action.icon}></i>
-                </div>
-                <div>
-                   <span style={{ display: "block", color: "#2e3b4e", fontWeight: 700, fontSize: "0.95rem" }}>{action.label}</span>
-                   <span style={{ display: "block", color: "#858796", fontSize: "0.75rem", marginTop: "0.25rem" }}>Accéder au module</span>
-                </div>
-             </Link>
-           ))}
+          {quickActions.map((action) => (
+            <Link key={action.label} href={action.href} style={{ background: "white", padding: "1.5rem", borderRadius: "20px", border: "1px solid #e3e6f0", display: "flex", flexDirection: "column", gap: "1rem", transition: "all 0.2s", textDecoration: "none" }}>
+              <div style={{ width: "40px", height: "40px", borderRadius: "10px", background: `${action.color}15`, color: action.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem" }}>
+                <i className={action.icon}></i>
+              </div>
+              <div>
+                <span style={{ display: "block", color: "#2e3b4e", fontWeight: 700, fontSize: "0.95rem" }}>{action.label}</span>
+                <span style={{ display: "block", color: "#858796", fontSize: "0.75rem", marginTop: "0.25rem" }}>Accéder au module</span>
+              </div>
+            </Link>
+          ))}
         </div>
       </section>
 
       {/* Recent Transactions Table */}
       <section>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-           <h2 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0, color: "#4e4f5d" }}>Dernières Opérations Globales</h2>
-           <Link href="/treasurer/tresorerie" style={{ fontSize: "0.8rem", fontWeight: 700, color: "#4e73df" }}>Voir tout le journal</Link>
+          <h2 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0, color: "#4e4f5d" }}>Dernières Opérations Globales</h2>
+          <Link href="/treasurer/tresorerie" style={{ fontSize: "0.8rem", fontWeight: 700, color: "#4e73df" }}>Voir tout le journal</Link>
         </div>
         <div className={styles.tableCard}>
           <table className={styles.table}>
@@ -114,7 +113,7 @@ export default function TreasurerDashboard() {
                   <td>{new Date(tx.date).toLocaleDateString()}</td>
                   <td>
                     <span className={`${styles.badge} ${tx.type === 'DEPOSIT' || tx.type === 'REFUND' ? styles.badgeSuccess : styles.badgeDanger}`}>
-                       {tx.type}
+                      {tx.type}
                     </span>
                   </td>
                   <td style={{ color: "#858796" }}>{tx.description}</td>
