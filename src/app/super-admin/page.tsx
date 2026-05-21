@@ -116,7 +116,7 @@ export default function SuperAdminDashboard() {
         <div className={styles.cashboxBody}>
           {stats?.cashboxes && stats.cashboxes.length > 0 ? (
             <div className={styles.cashboxGrid}>
-              {stats.cashboxes.map((cb) => (
+              {stats.cashboxes.map((cb: any) => (
                 <div key={cb.id} className={styles.cashboxCard}>
                   <div className={styles.cashboxName}>{cb.name}</div>
                   <div className={styles.cashboxBalance}>

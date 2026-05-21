@@ -92,7 +92,7 @@ export default function AdminManagementPage() {
 
   async function handleActivate() {
     if (!selectedAdmin) return;
-    console.log(`Attempting to activate administrator ID: ${selectedAdmin.id} (${selectedAdmin.user.email})`);
+    console.log(`Attempting to activate administrator ID: ${selectedAdmin.id} (${selectedAdmin.user?.email})`);
     setSubmitting(true);
     try {
       await activateAdmin(selectedAdmin.id);
@@ -211,9 +211,9 @@ export default function AdminManagementPage() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div className={styles.adminName}>
-                    {admin.user.firstName} {admin.user.name}
+                    {admin.user?.firstName} {admin.user?.name}
                   </div>
-                  <div className={styles.adminEmail}>{admin.user.email}</div>
+                  <div className={styles.adminEmail}>{admin.user?.email}</div>
                 </div>
                 <span className={`${styles.badge} ${admin.active ? styles.badgeActive : styles.badgeInactive}`}>
                   <i className="fas fa-circle" style={{ fontSize: "0.4rem" }}></i>
@@ -229,10 +229,10 @@ export default function AdminManagementPage() {
                   <i className="fas fa-shield-alt"></i>
                   <span className={styles.roleTag}>{getRoleName(admin.adminRole)}</span>
                 </div>
-                {admin.user.tel && (
+                {admin.user?.tel && (
                   <div className={styles.infoRow}>
                     <i className="fas fa-phone"></i>
-                    <span>{admin.user.tel}</span>
+                    <span>{admin.user?.tel}</span>
                   </div>
                 )}
               </div>
@@ -337,7 +337,7 @@ export default function AdminManagementPage() {
               <div className={styles.modalIcon} style={{ color: "var(--success-color, #1cc88a)" }}><i className="fas fa-check-circle"></i></div>
               <p className={styles.warningText}>
                 {t.superAdmin.confirmActivateAdmin}
-                <br /><strong>{selectedAdmin.user.firstName} {selectedAdmin.user.name}</strong>
+                <br /><strong>{selectedAdmin.user?.firstName} {selectedAdmin.user?.name}</strong>
               </p>
               <div className={styles.modalActions}>
                 <button className={styles.cancelBtn} onClick={() => setModal(null)}>
@@ -366,7 +366,7 @@ export default function AdminManagementPage() {
               <div className={styles.modalIcon}><i className="fas fa-ban"></i></div>
               <p className={styles.warningText}>
                 {t.superAdmin.confirmDeactivateAdmin}
-                <br /><strong>{selectedAdmin.user.firstName} {selectedAdmin.user.name}</strong>
+                <br /><strong>{selectedAdmin.user?.firstName} {selectedAdmin.user?.name}</strong>
               </p>
               <div className={styles.modalActions}>
                 <button className={styles.cancelBtn} onClick={() => setModal(null)}>
@@ -395,7 +395,7 @@ export default function AdminManagementPage() {
               <div className={styles.modalIcon}><i className="fas fa-exclamation-triangle"></i></div>
               <p className={styles.warningText}>
                 {t.superAdmin.confirmDeleteAdmin}
-                <br /><strong>{selectedAdmin.user.firstName} {selectedAdmin.user.name}</strong>
+                <br /><strong>{selectedAdmin.user?.firstName} {selectedAdmin.user?.name}</strong>
               </p>
               <div className={styles.modalActions}>
                 <button className={styles.cancelBtn} onClick={() => setModal(null)}>
@@ -424,7 +424,7 @@ export default function AdminManagementPage() {
             <form className={styles.modalBody} onSubmit={handleChangePassword}>
               <div className={styles.infoRow} style={{ marginBottom: "1.25rem", padding: "0.75rem 1rem", background: "rgba(78,115,223,0.05)", borderRadius: "10px" }}>
                 <i className="fas fa-user"></i>
-                <span><strong>{selectedAdmin.user.firstName} {selectedAdmin.user.name}</strong> ({selectedAdmin.user.email})</span>
+                <span><strong>{selectedAdmin.user?.firstName} {selectedAdmin.user?.name}</strong> ({selectedAdmin.user.email})</span>
               </div>
               <div className={styles.formGroup}>
                 <label>{t.superAdmin.nouveauMotDePasse}</label>

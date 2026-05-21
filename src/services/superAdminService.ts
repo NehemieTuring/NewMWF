@@ -2,102 +2,72 @@ import { fetchWithAuth } from "../lib/api";
 
 export interface AdminData {
   id: number;
+  name: string;
+  firstName: string;
+  email: string;
   username: string;
+  password?: string;
   adminRole: string;
+  role?: string;
   active: boolean;
-  createdAt: string;
   user: {
-    id: number;
     name: string;
     firstName: string;
     email: string;
-    tel: string;
-    address: string;
-    type: string;
-    avatar: string | null;
-    createdAt: string;
-    updatedAt: string;
+    tel?: string;
+    [key: string]: any;
   };
 }
 
 export interface DashboardStats {
   totalMembers: number;
-  activeMembers: number;
-  membersInRule: number;
-  membersNotInRule: number;
-  cashboxes: Array<{ id: number; name: string; balance: number }>;
+  totalAdmins: number;
+  totalSavings: number;
+  totalLoans: number;
+  activeExercise?: any;
+  recentTransactions?: any[];
+  [key: string]: any;
 }
 
-// GET /admin/super/dashboard
-export async function getSuperDashboard(): Promise<DashboardStats> {
-  return fetchWithAuth("/admin/super/dashboard");
-}
+// Profil
+export const getProfile = () => fetchWithAuth("/admin/super/profile");
+export const updateProfile = (data: any) => fetchWithAuth(`/admin/super/profile?name=${encodeURIComponent(data.name)}&firstName=${encodeURIComponent(data.firstName)}&username=${encodeURIComponent(data.username)}`, { method: "PUT" });
+export const updatePassword = (newPassword: string) => fetchWithAuth(`/admin/super/profile/password?newPassword=${encodeURIComponent(newPassword)}`, { method: "PUT" });
+export const updateAvatar = (file: File) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  return fetchWithAuth("/admin/super/profile/avatar", { method: "PUT", body: formData });
+};
 
-// GET /admin/super/admins
-export async function getAllAdmins(): Promise<AdminData[]> {
-  return fetchWithAuth("/admin/super/admins");
-}
+// Gestion des administrateurs
+export const getAllAdmins = () => fetchWithAuth("/admin/super/admins");
+export const getAdminById = (id: number) => fetchWithAuth(`/admin/super/admins/${id}`);
+export const createAdmin = (data: any) => fetchWithAuth(`/admin/super/admins?name=${encodeURIComponent(data.name)}&firstName=${encodeURIComponent(data.firstName)}&email=${encodeURIComponent(data.email)}&username=${encodeURIComponent(data.username)}&password=${encodeURIComponent(data.password || "")}&role=${data.adminRole || data.role}`, { method: "POST" });
+export const deactivateAdmin = (id: number) => fetchWithAuth(`/admin/super/admins/${id}/deactivate`, { method: "PUT" });
+export const activateAdmin = (id: number) => fetchWithAuth(`/admin/super/admins/${id}/activate`, { method: "PUT" });
+export const deleteAdmin = (id: number) => fetchWithAuth(`/admin/super/admins/${id}`, { method: "DELETE" });
 
-// GET /admin/super/admins/:id
-export async function getAdminById(id: number): Promise<AdminData> {
-  return fetchWithAuth(`/admin/super/admins/${id}`);
-}
+// Gestion des membres
+export const deleteMember = (id: number) => fetchWithAuth(`/admin/super/members/${id}`, { method: "DELETE" });
 
-// POST /admin/super/admins
-export async function createAdmin(data: {
-  name: string;
-  firstName: string;
-  email: string;
-  username: string;
-  password: string;
-  role: string;
-}): Promise<AdminData> {
-  const params = new URLSearchParams({
-    name: data.name,
-    firstName: data.firstName,
-    email: data.email,
-    username: data.username,
-    password: data.password,
-    role: data.role,
-  });
-  return fetchWithAuth(`/admin/super/admins?${params.toString()}`, {
-    method: "POST",
-  });
-}
+// Sécurité
+export const changeUserPasswordByEmail = (email: string, newPassword: string) => fetchWithAuth(`/admin/super/users/password?email=${encodeURIComponent(email)}&newPassword=${encodeURIComponent(newPassword)}`, { method: "PUT" });
 
-// PUT /admin/super/admins/:id/deactivate
-export async function deactivateAdmin(id: number): Promise<void> {
-  return fetchWithAuth(`/admin/super/admins/${id}/deactivate`, {
-    method: "PUT",
-  });
-}
+// Dashboard
+export const getSuperDashboard = () => fetchWithAuth("/admin/super/dashboard");
 
-// PUT /admin/super/admins/:id/activate
-export async function activateAdmin(id: number): Promise<void> {
-  return fetchWithAuth(`/admin/super/admins/${id}/activate`, {
-    method: "PUT",
-  });
-}
-
-// DELETE /admin/super/admins/:id
-export async function deleteAdmin(id: number): Promise<void> {
-  return fetchWithAuth(`/admin/super/admins/${id}`, {
-    method: "DELETE",
-  });
-}
-
-// DELETE /admin/super/members/:id
-export async function deleteMember(id: number): Promise<void> {
-  return fetchWithAuth(`/admin/super/members/${id}`, {
-    method: "DELETE",
-  });
-}
-
-// PUT /admin/super/users/password
-export async function changeUserPasswordByEmail(email: string, newPassword: string): Promise<void> {
-  const params = new URLSearchParams({ email, newPassword });
-  return fetchWithAuth(`/admin/super/users/password?${params.toString()}`, {
-    method: "PUT",
-  });
-}
-
+export const superAdminService = {
+  getProfile,
+  updateProfile,
+  updatePassword,
+  updateAvatar,
+  getAllAdmins,
+  getAdminById,
+  createAdmin,
+  deactivateAdmin,
+  activateAdmin,
+  deleteAdmin,
+  deleteMember,
+  changeUserPasswordByEmail,
+  getSuperDashboard,
+};

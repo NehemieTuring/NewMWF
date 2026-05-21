@@ -52,14 +52,14 @@ export default function ProfilPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    
+
     // Pour le téléphone, on ne garde que les chiffres et les espaces
     if (name === "tel") {
       const numericValue = value.replace(/[^0-9\s+]/g, "");
       setFormData({ ...formData, [name]: numericValue });
       return;
     }
-    
+
     setFormData({ ...formData, [name]: value });
   };
 
@@ -80,7 +80,7 @@ export default function ProfilPage() {
         if (passwordData.newPassword !== passwordData.confirmPassword) {
           throw new Error("Les nouveaux mots de passe ne correspondent pas.");
         }
-        await secretaryService.updatePassword(passwordData);
+        await secretaryService.updatePassword(passwordData.newPassword);
         setSuccess("Mot de passe mis à jour avec succès !");
         setPasswordData({ oldPassword: "", newPassword: "", confirmPassword: "" });
       }
@@ -163,14 +163,14 @@ export default function ProfilPage() {
         {/* Content Area */}
         <main className={styles.contentCard}>
           <nav className={styles.tabs}>
-            <button 
+            <button
               className={`${styles.tab} ${activeTab === "info" ? styles.activeTab : ""}`}
               onClick={() => setActiveTab("info")}
             >
               <i className="fas fa-info-circle" style={{ marginRight: "8px" }}></i>
               Informations
             </button>
-            <button 
+            <button
               className={`${styles.tab} ${activeTab === "security" ? styles.activeTab : ""}`}
               onClick={() => setActiveTab("security")}
             >
@@ -199,13 +199,13 @@ export default function ProfilPage() {
                   <div className={styles.formGroup}>
                     <label>Nom</label>
                     <div className={styles.inputWrapper}>
-                      <input 
-                        className={styles.input} 
-                        type="text" 
-                        name="name" 
-                        value={formData.name} 
-                        onChange={handleChange} 
-                        required 
+                      <input
+                        className={styles.input}
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
                       />
                       <i className="fas fa-user"></i>
                     </div>
@@ -213,13 +213,13 @@ export default function ProfilPage() {
                   <div className={styles.formGroup}>
                     <label>Prénom</label>
                     <div className={styles.inputWrapper}>
-                      <input 
-                        className={styles.input} 
-                        type="text" 
-                        name="firstName" 
-                        value={formData.firstName} 
-                        onChange={handleChange} 
-                        required 
+                      <input
+                        className={styles.input}
+                        type="text"
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleChange}
+                        required
                       />
                       <i className="fas fa-signature"></i>
                     </div>
@@ -227,13 +227,13 @@ export default function ProfilPage() {
                   <div className={styles.formGroup}>
                     <label>Email</label>
                     <div className={styles.inputWrapper}>
-                      <input 
-                        className={styles.input} 
-                        type="email" 
-                        name="email" 
-                        value={formData.email} 
-                        onChange={handleChange} 
-                        required 
+                      <input
+                        className={styles.input}
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
                       />
                       <i className="fas fa-envelope"></i>
                     </div>
@@ -241,15 +241,15 @@ export default function ProfilPage() {
                   <div className={styles.formGroup}>
                     <label>Téléphone</label>
                     <div className={styles.inputWrapper}>
-                      <input 
-                        className={styles.input} 
-                        type="text" 
-                        name="tel" 
-                        value={formData.tel} 
-                        onChange={handleChange} 
+                      <input
+                        className={styles.input}
+                        type="text"
+                        name="tel"
+                        value={formData.tel}
+                        onChange={handleChange}
                         inputMode="tel"
                         pattern="[0-9\s+]*"
-                        required 
+                        required
                       />
                       <i className="fas fa-phone"></i>
                     </div>
@@ -257,12 +257,12 @@ export default function ProfilPage() {
                   <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                     <label>Identifiant (Username)</label>
                     <div className={styles.inputWrapper}>
-                      <input 
-                        className={styles.input} 
-                        type="text" 
-                        name="username" 
-                        value={formData.username} 
-                        readOnly 
+                      <input
+                        className={styles.input}
+                        type="text"
+                        name="username"
+                        value={formData.username}
+                        readOnly
                         style={{ backgroundColor: "var(--light)", cursor: "not-allowed" }}
                       />
                       <i className="fas fa-id-badge"></i>
@@ -279,13 +279,13 @@ export default function ProfilPage() {
                   <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                     <label>Ancien mot de passe</label>
                     <div className={styles.inputWrapper}>
-                      <input 
-                        className={styles.input} 
-                        type="password" 
-                        name="oldPassword" 
-                        value={passwordData.oldPassword} 
-                        onChange={handlePasswordChange} 
-                        required 
+                      <input
+                        className={styles.input}
+                        type="password"
+                        name="oldPassword"
+                        value={passwordData.oldPassword}
+                        onChange={handlePasswordChange}
+                        required
                       />
                       <i className="fas fa-lock"></i>
                     </div>
@@ -293,13 +293,13 @@ export default function ProfilPage() {
                   <div className={styles.formGroup}>
                     <label>Nouveau mot de passe</label>
                     <div className={styles.inputWrapper}>
-                      <input 
-                        className={styles.input} 
-                        type="password" 
-                        name="newPassword" 
-                        value={passwordData.newPassword} 
-                        onChange={handlePasswordChange} 
-                        required 
+                      <input
+                        className={styles.input}
+                        type="password"
+                        name="newPassword"
+                        value={passwordData.newPassword}
+                        onChange={handlePasswordChange}
+                        required
                       />
                       <i className="fas fa-key"></i>
                     </div>
@@ -307,13 +307,13 @@ export default function ProfilPage() {
                   <div className={styles.formGroup}>
                     <label>Confirmer nouveau mot de passe</label>
                     <div className={styles.inputWrapper}>
-                      <input 
-                        className={styles.input} 
-                        type="password" 
-                        name="confirmPassword" 
-                        value={passwordData.confirmPassword} 
-                        onChange={handlePasswordChange} 
-                        required 
+                      <input
+                        className={styles.input}
+                        type="password"
+                        name="confirmPassword"
+                        value={passwordData.confirmPassword}
+                        onChange={handlePasswordChange}
+                        required
                       />
                       <i className="fas fa-shield-check"></i>
                     </div>

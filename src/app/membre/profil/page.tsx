@@ -6,6 +6,7 @@ import { useTranslation } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import { memberService } from "@/services/memberService";
 import { secretaryService } from "@/services/secretaryService";
+import { superAdminService } from "@/services/superAdminService";
 import { useNotification } from "@/context/NotificationContext";
 
 type Tab = "infos" | "securite";
@@ -60,12 +61,16 @@ export default function MemberProfilPage() {
       showToast("Les mots de passe ne correspondent pas", "error");
       return;
     }
-    try {
-      const role = authUser?.role?.toUpperCase() || "";
-      const subRole = authUser?.subRole?.toUpperCase() || "";
-      const isOperationalAdmin = role.includes("ADMIN") && !!subRole;
+    const role = authUser?.role?.toUpperCase() || "";
+    const subRole = authUser?.subRole?.toUpperCase() || "";
+    const isSuperAdmin = role === "SUPER_ADMIN";
+    const isOperationalAdmin = role.includes("ADMIN") && !!subRole;
 
-      if (isOperationalAdmin) {
+    try {
+
+      if (isSuperAdmin) {
+        await superAdminService.updatePassword(newPassword);
+      } else if (isOperationalAdmin) {
         await secretaryService.updatePassword(newPassword);
       } else {
         await memberService.updatePassword(newPassword);
@@ -77,11 +82,9 @@ export default function MemberProfilPage() {
     } catch (err: any) {
       // Fallback logic
       try {
-        const role = authUser?.role?.toUpperCase() || "";
-        const subRole = authUser?.subRole?.toUpperCase() || "";
-        const isOperationalAdmin = role.includes("ADMIN") && !!subRole;
-
-        if (isOperationalAdmin) {
+        if (isSuperAdmin) {
+          await memberService.updatePassword(newPassword);
+        } else if (isOperationalAdmin) {
           await memberService.updatePassword(newPassword);
         } else {
           await secretaryService.updatePassword(newPassword);
@@ -134,25 +137,19 @@ export default function MemberProfilPage() {
   };
 
   const handleSaveProfile = async () => {
-    try {
-      const role = authUser?.role?.toUpperCase() || "";
-      const subRole = authUser?.subRole?.toUpperCase() || "";
-      const isOperationalAdmin = role.includes("ADMIN") && !!subRole;
+    const role = authUser?.role?.toUpperCase() || "";
+    const subRole = authUser?.subRole?.toUpperCase() || "";
+    const isSuperAdmin = role === "SUPER_ADMIN";
+    const isOperationalAdmin = role.includes("ADMIN") && !!subRole;
 
-      try {
-        if (isOperationalAdmin) {
-          await secretaryService.updateProfile({ ...editData, username: userData?.username || "" });
-        } else {
-          await memberService.updateProfile({ ...editData, username: userData?.username || "" });
-        }
-      } catch (err: any) {
-        if (err.message?.includes("403") || err.message?.includes("400")) {
-          if (isOperationalAdmin) {
-            await memberService.updateProfile({ ...editData, username: userData?.username || "" });
-          } else {
-            await secretaryService.updateProfile({ ...editData, username: userData?.username || "" });
-          }
-        } else throw err;
+    try {
+
+      if (isSuperAdmin) {
+        await superAdminService.updateProfile({ ...editData, username: userData?.username || "" });
+      } else if (isOperationalAdmin) {
+        await secretaryService.updateProfile({ ...editData, username: userData?.username || "" });
+      } else {
+        await memberService.updateProfile({ ...editData, username: userData?.username || "" });
       }
 
       showToast("Profil mis à jour avec succès", "success");
@@ -160,13 +157,10 @@ export default function MemberProfilPage() {
 
       // Refresh data
       let data;
-      try {
-        data = isOperationalAdmin ? await secretaryService.getProfile() : await memberService.getProfile();
-      } catch (e: any) {
-        if (e.message?.includes("403") || e.message?.includes("400")) {
-          data = isOperationalAdmin ? await memberService.getProfile() : await secretaryService.getProfile();
-        } else throw e;
-      }
+      if (isSuperAdmin) data = await superAdminService.getProfile();
+      else if (isOperationalAdmin) data = await secretaryService.getProfile();
+      else data = await memberService.getProfile();
+
       setProfileData(data);
     } catch (err: any) {
       showToast(err.message || "Erreur lors de la mise à jour", "error");
@@ -189,38 +183,27 @@ export default function MemberProfilPage() {
       return;
     }
 
-    try {
-      const role = authUser?.role?.toUpperCase() || "";
-      const subRole = authUser?.subRole?.toUpperCase() || "";
-      const isOperationalAdmin = role.includes("ADMIN") && !!subRole;
+    const role = authUser?.role?.toUpperCase() || "";
+    const subRole = authUser?.subRole?.toUpperCase() || "";
+    const isSuperAdmin = role === "SUPER_ADMIN";
+    const isOperationalAdmin = role.includes("ADMIN") && !!subRole;
 
-      try {
-        if (isOperationalAdmin) {
-          await secretaryService.updateAvatar(file);
-        } else {
-          await memberService.updateAvatar(file);
-        }
-      } catch (err: any) {
-        if (err.message?.includes("403") || err.message?.includes("400")) {
-          if (isOperationalAdmin) {
-            await memberService.updateAvatar(file);
-          } else {
-            await secretaryService.updateAvatar(file);
-          }
-        } else throw err;
+    try {
+      if (isSuperAdmin) {
+        await superAdminService.updateAvatar(file);
+      } else if (isOperationalAdmin) {
+        await secretaryService.updateAvatar(file);
+      } else {
+        await memberService.updateAvatar(file);
       }
 
       showToast("Photo de profil mise à jour avec succès", "success");
 
-      // Refresh profile data to get the absolute source of truth with fallback
+      // Refresh profile data
       let data;
-      try {
-        data = isOperationalAdmin ? await secretaryService.getProfile() : await memberService.getProfile();
-      } catch (e: any) {
-        if (e.message?.includes("403") || e.message?.includes("400")) {
-          data = isOperationalAdmin ? await memberService.getProfile() : await secretaryService.getProfile();
-        } else throw e;
-      }
+      if (isSuperAdmin) data = await superAdminService.getProfile();
+      else if (isOperationalAdmin) data = await secretaryService.getProfile();
+      else data = await memberService.getProfile();
       setProfileData(data);
 
       // Sync global AuthContext
