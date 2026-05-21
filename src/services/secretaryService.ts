@@ -67,8 +67,8 @@ export const secretaryService = {
 
   // Profil propre
   getProfile: () => fetchWithAuth("/admin/profile"),
-  updateProfile: (data: any) => fetchWithAuth("/admin/profile", { method: "PUT", body: JSON.stringify(data) }),
-  updatePassword: (data: any) => fetchWithAuth("/admin/profile/password", { method: "PUT", body: JSON.stringify(data) }),
+  updateProfile: (data: any) => fetchWithAuth(`/admin/profile?name=${encodeURIComponent(data.name)}&firstName=${encodeURIComponent(data.firstName)}&username=${encodeURIComponent(data.username)}`, { method: "PUT" }),
+  updatePassword: (newPassword: string) => fetchWithAuth(`/admin/profile/password?newPassword=${encodeURIComponent(newPassword)}`, { method: "PUT" }),
   updateAvatar: (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -77,7 +77,7 @@ export const secretaryService = {
 
   // Agape
   getAgapes: () => fetchWithAuth("/admin/agapes"),
-  createAgape: (data: { title: string, description: string, amount: number, date: string, sessionId: string }) => 
+  createAgape: (data: { title: string, description: string, amount: number, date: string, sessionId: string }) =>
     fetchWithAuth(`/admin/agapes?title=${encodeURIComponent(data.title)}&description=${encodeURIComponent(data.description)}&amount=${data.amount}&date=${data.date}&sessionId=${data.sessionId}`, { method: "POST" }),
   disburseHelp: (helpId: number) => fetchWithAuth(`/admin/helps/${helpId}/disburse`, { method: "POST" }),
 };

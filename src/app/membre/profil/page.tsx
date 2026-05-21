@@ -17,7 +17,7 @@ export default function MemberProfilPage() {
   const [activeTab, setActiveTab] = useState<Tab>("infos");
   const [profileData, setProfileData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  
+
   // Password states
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -33,7 +33,7 @@ export default function MemberProfilPage() {
         const subRole = authUser?.subRole?.toUpperCase() || "";
         // Operational admins (SG, President, Treasurer) have a subRole and should use secretaryService
         const isOperationalAdmin = role.includes("ADMIN") && !!subRole;
-        
+
         let data;
         try {
           // Try preferred endpoint first
@@ -61,12 +61,37 @@ export default function MemberProfilPage() {
       return;
     }
     try {
-      await memberService.updatePassword(newPassword);
+      const role = authUser?.role?.toUpperCase() || "";
+      const subRole = authUser?.subRole?.toUpperCase() || "";
+      const isOperationalAdmin = role.includes("ADMIN") && !!subRole;
+
+      if (isOperationalAdmin) {
+        await secretaryService.updatePassword(newPassword);
+      } else {
+        await memberService.updatePassword(newPassword);
+      }
+
       showToast("Mot de passe mis à jour avec succès", "success");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err: any) {
-      showToast(err.message || "Erreur lors de la mise à jour", "error");
+      // Fallback logic
+      try {
+        const role = authUser?.role?.toUpperCase() || "";
+        const subRole = authUser?.subRole?.toUpperCase() || "";
+        const isOperationalAdmin = role.includes("ADMIN") && !!subRole;
+
+        if (isOperationalAdmin) {
+          await memberService.updatePassword(newPassword);
+        } else {
+          await secretaryService.updatePassword(newPassword);
+        }
+        showToast("Mot de passe mis à jour avec succès", "success");
+        setNewPassword("");
+        setConfirmPassword("");
+      } catch (innerErr: any) {
+        showToast(err.message || "Erreur lors de la mise à jour", "error");
+      }
     }
   };
 
@@ -88,7 +113,7 @@ export default function MemberProfilPage() {
   const displayTel = userData?.tel || (authUser as any)?.tel || "Non renseigné";
   const memberAddress = memberData?.address || "Non renseignée";
   const inscriptionDate = memberData?.inscriptionDate;
-  
+
   // Backend often uses 'avatar' field for the photo URL
   const userPhoto = userData?.avatar || userData?.photoUrl;
   const initials = (displayFirstName?.[0] || "") + (displayName?.[0] || userData?.username?.[0] || "U");
@@ -132,7 +157,7 @@ export default function MemberProfilPage() {
 
       showToast("Profil mis à jour avec succès", "success");
       setEditMode(false);
-      
+
       // Refresh data
       let data;
       try {
@@ -151,7 +176,7 @@ export default function MemberProfilPage() {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
+
     // Validate file type
     if (!file.type.startsWith('image/')) {
       showToast("Veuillez sélectionner une image valide", "error");
@@ -184,9 +209,9 @@ export default function MemberProfilPage() {
           }
         } else throw err;
       }
-      
+
       showToast("Photo de profil mise à jour avec succès", "success");
-      
+
       // Refresh profile data to get the absolute source of truth with fallback
       let data;
       try {
@@ -202,10 +227,10 @@ export default function MemberProfilPage() {
       if (data) {
         if (data.role) localStorage.setItem("auth_role", data.role);
         if (data.subRole) localStorage.setItem("auth_sub_role", data.subRole);
-        
+
         const avatarUrl = data.avatar || (data as any).photoUrl || data?.user?.avatar || data?.user?.photoUrl;
         if (avatarUrl) localStorage.setItem("auth_avatar", avatarUrl);
-        
+
         updateUser({ avatar: avatarUrl });
       }
     } catch (err: any) {
@@ -217,12 +242,12 @@ export default function MemberProfilPage() {
     <div className={styles.container}>
       {/* Profile Header */}
       <header className="fade-in-up" style={{ marginBottom: "2.5rem", display: "flex", alignItems: "center", gap: "2rem" }}>
-        <div 
+        <div
           className={styles.avatarContainer}
           onClick={() => document.getElementById('avatarInput')?.click()}
           style={{
             width: "100px", height: "100px", borderRadius: "24px",
-            background: userPhoto 
+            background: userPhoto
               ? `url(${userPhoto.startsWith('http') ? userPhoto : 'http://localhost:8080' + userPhoto}) center/cover`
               : "linear-gradient(135deg, #4e73df, #2193b0)",
             color: "white", display: "flex", alignItems: "center", justifyContent: "center",
@@ -234,12 +259,12 @@ export default function MemberProfilPage() {
           <div className={styles.avatarOverlay}>
             <i className="fas fa-camera"></i>
           </div>
-          <input 
-            type="file" 
-            id="avatarInput" 
-            hidden 
-            accept="image/*" 
-            onChange={handleFileChange} 
+          <input
+            type="file"
+            id="avatarInput"
+            hidden
+            accept="image/*"
+            onChange={handleFileChange}
           />
         </div>
         <div>
@@ -259,13 +284,13 @@ export default function MemberProfilPage() {
 
       <div className={styles.tabsContainer}>
         <div className={styles.tabsHeader}>
-          <button 
+          <button
             className={`${styles.tabBtn} ${activeTab === "infos" ? styles.tabBtnActive : ""}`}
             onClick={() => setActiveTab("infos")}
           >
             <i className="fas fa-info-circle"></i> Informations
           </button>
-          <button 
+          <button
             className={`${styles.tabBtn} ${activeTab === "securite" ? styles.tabBtnActive : ""}`}
             onClick={() => setActiveTab("securite")}
           >
@@ -287,18 +312,18 @@ export default function MemberProfilPage() {
                   )}
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-                  <FieldRow label="Nom" value={displayName} editMode={editMode} editValue={editData.name} onChange={(v) => setEditData({...editData, name: v})} />
-                  <FieldRow label="Prénom" value={displayFirstName} editMode={editMode} editValue={editData.firstName} onChange={(v) => setEditData({...editData, firstName: v})} />
+                  <FieldRow label="Nom" value={displayName} editMode={editMode} editValue={editData.name} onChange={(v) => setEditData({ ...editData, name: v })} />
+                  <FieldRow label="Prénom" value={displayFirstName} editMode={editMode} editValue={editData.firstName} onChange={(v) => setEditData({ ...editData, firstName: v })} />
                   <FieldRow label="Adresse Email" value={displayEmail} />
-                  <FieldRow 
-                    label="N° de téléphone" 
-                    value={displayTel} 
-                    editMode={editMode} 
-                    editValue={editData.tel} 
+                  <FieldRow
+                    label="N° de téléphone"
+                    value={displayTel}
+                    editMode={editMode}
+                    editValue={editData.tel}
                     onChange={(v) => {
                       const numericValue = v.replace(/[^0-9\s+]/g, "");
-                      setEditData({...editData, tel: numericValue});
-                    }} 
+                      setEditData({ ...editData, tel: numericValue });
+                    }}
                     inputMode="tel"
                     pattern="[0-9\s+]*"
                   />
@@ -319,7 +344,7 @@ export default function MemberProfilPage() {
                 <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
                   <FieldRow label="Rôle" value={getRoleLabel()} valueColor="#4e73df" />
                   <FieldRow label="Date d'inscription" value={inscriptionDate ? new Date(inscriptionDate).toLocaleDateString() : "—"} />
-                  <FieldRow label="Adresse de résidence" value={memberAddress} editMode={editMode} editValue={editData.address} onChange={(v) => setEditData({...editData, address: v})} />
+                  <FieldRow label="Adresse de résidence" value={memberAddress} editMode={editMode} editValue={editData.address} onChange={(v) => setEditData({ ...editData, address: v })} />
                 </div>
               </div>
             </div>
@@ -332,9 +357,9 @@ export default function MemberProfilPage() {
                 <form onSubmit={handleUpdatePassword} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
                   <div>
                     <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.5rem", color: "var(--text-dark)" }}>Nouveau mot de passe</label>
-                    <input 
-                      type="password" 
-                      className={styles.input} 
+                    <input
+                      type="password"
+                      className={styles.input}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="••••••••"
@@ -343,9 +368,9 @@ export default function MemberProfilPage() {
                   </div>
                   <div>
                     <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.5rem", color: "var(--text-dark)" }}>Confirmer le mot de passe</label>
-                    <input 
-                      type="password" 
-                      className={styles.input} 
+                    <input
+                      type="password"
+                      className={styles.input}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="••••••••"
@@ -380,9 +405,9 @@ function FieldRow({ label, value, editMode, editValue, onChange, valueColor, inp
     <div>
       <label style={{ display: "block", fontSize: "0.72rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.4rem" }}>{label}</label>
       {editMode && onChange ? (
-        <input 
-          value={editValue} 
-          onChange={e => onChange(e.target.value)} 
+        <input
+          value={editValue}
+          onChange={e => onChange(e.target.value)}
           inputMode={inputMode}
           pattern={pattern}
           style={{ width: "100%", padding: "0.75rem 1rem", borderRadius: "12px", border: "2px solid var(--border-color)", outline: "none", fontSize: "0.95rem", transition: "border-color 0.2s", background: "var(--white)", color: "var(--text-dark)" }}

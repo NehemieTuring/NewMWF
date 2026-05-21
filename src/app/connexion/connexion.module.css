@@ -8,7 +8,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 .page::after {
@@ -18,7 +18,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(15, 23, 42, 0.4); /* Dark overlay for readability */
+  background: rgba(15, 23, 42, 0.4);
+  /* Dark overlay for readability */
   backdrop-filter: blur(2px);
   z-index: 0;
 }
@@ -36,14 +37,17 @@
   justify-content: space-between;
   padding: 1rem 2.5rem;
   z-index: 100;
-  background: transparent;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.4s ease;
 }
 
 .navbar:hover {
-  background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .navBrand {
@@ -140,7 +144,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-top: 80px;
+  padding-top: 100px;
+  padding-bottom: 2rem;
   z-index: 1;
   position: relative;
 }
@@ -174,14 +179,20 @@
   cursor: pointer;
 }
 
-.roleCard:nth-child(1) { animation-delay: 0.1s; }
-.roleCard:nth-child(2) { animation-delay: 0.25s; }
+.roleCard:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.roleCard:nth-child(2) {
+  animation-delay: 0.25s;
+}
 
 @keyframes cardEntry {
   from {
     opacity: 0;
     transform: translateY(30px) scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -268,8 +279,17 @@
 }
 
 @keyframes ringPulse {
-  0%, 100% { transform: scale(1); opacity: 0.5; }
-  50% { transform: scale(1.12); opacity: 0.15; }
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: scale(1.12);
+    opacity: 0.15;
+  }
 }
 
 .roleCard:hover .iconRing {
@@ -399,8 +419,13 @@
 }
 
 @keyframes modalFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .modal {
@@ -420,6 +445,7 @@
     opacity: 0;
     transform: translateY(30px) scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
