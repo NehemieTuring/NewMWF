@@ -26,7 +26,7 @@ export default function EmpruntsPage() {
     loadLoans();
   }, []);
 
-  const filtered = loans.filter(e => 
+  const filtered = loans.filter(e =>
     `${e.member?.user?.firstName} ${e.member?.user?.name} ${e.member?.username}`.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -97,76 +97,82 @@ export default function EmpruntsPage() {
       {/* Search */}
       <div className={styles.searchBar}>
         <i className="fas fa-search"></i>
-        <input 
-          type="text" 
-          placeholder={t.membres.rechercher} 
+        <input
+          type="text"
+          placeholder={t.membres.rechercher}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
-      {/* Loans Grid */}
-      <div className={styles.grid}>
-        {filtered.map((e) => {
-          const total = e.requestedAmount || 0;
-          const remaining = e.remainingBalance || 0;
-          const refunded = total - remaining;
-          const progress = total > 0 ? Math.round((refunded / total) * 100) : 0;
-          return (
-            <div key={e.id} className={styles.card}>
-              <div className={styles.cardHeader}>
-                <div className={styles.memberAvatar}>
-                  {e.member?.user?.firstName?.[0]}{e.member?.user?.name?.[0]}
-                </div>
-                <div className={styles.memberInfo}>
-                  <h3>{e.member?.user?.firstName} {e.member?.user?.name}</h3>
-                  <span className={`${styles.badge} ${e.status === "ACTIVE" ? styles.badgeActive : styles.badgeCompleted}`}>
-                    <i className={`fas fa-${e.status === "ACTIVE" ? "clock" : "check-circle"}`}></i>
-                    {e.status === "ACTIVE" ? t.dashboard.active : t.dashboard.termine}
-                  </span>
-                </div>
-              </div>
-              <div className={styles.cardBody}>
-                <div className={styles.loanStats}>
-                  <div className={styles.loanStat}>
-                    <i className="fas fa-money-bill-wave"></i>
-                    <div>
-                      <span>{t.emprunts.total}</span>
-                      <strong>{formatAmount(total)} XAF</strong>
-                    </div>
-                  </div>
-                  <div className={styles.loanStat}>
-                    <i className="fas fa-hourglass-half"></i>
-                    <div>
-                      <span>{t.emprunts.restant}</span>
+      {/* Loans Table */}
+      {filtered.length > 0 && (
+        <div className={styles.tableCard}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th style={{ width: "60px" }}></th>
+                <th>Membre</th>
+                <th>Montant Emprunté</th>
+                <th>Reste à Payer</th>
+                <th>Progression</th>
+                <th>Statut</th>
+                <th style={{ textAlign: "right" }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((e) => {
+                const total = e.requestedAmount || 0;
+                const remaining = e.remainingBalance || 0;
+                const refunded = total - remaining;
+                const progress = total > 0 ? Math.round((refunded / total) * 100) : 0;
+
+                return (
+                  <tr key={e.id}>
+                    <td>
+                      <div className={styles.memberAvatar} style={{ width: "40px", height: "40px", fontSize: "0.8rem", borderRadius: "10px" }}>
+                        {e.member?.user?.firstName?.[0]}{e.member?.user?.name?.[0]}
+                      </div>
+                    </td>
+                    <td>
+                      <div style={{ display: "flex", flexDirection: "column" }}>
+                        <span style={{ fontWeight: 700, color: "#2d3748" }}>{e.member?.user?.firstName} {e.member?.user?.name}</span>
+                        <span style={{ fontSize: "0.75rem", color: "#a0aec0" }}>{e.member?.username}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <strong style={{ color: "#2d3748" }}>{formatAmount(total)} XAF</strong>
+                    </td>
+                    <td>
                       <strong className={styles.remaining}>{formatAmount(remaining)} XAF</strong>
-                    </div>
-                  </div>
-                </div>
-                <div className={styles.progressContainer}>
-                  <div className={styles.progressText}>
-                    <span>Remboursement</span>
-                    <span className={styles.progressPercent}>{progress}%</span>
-                  </div>
-                  <div className={styles.progressBar}>
-                    <div className={styles.progressFill} style={{ width: `${progress}%` }}></div>
-                  </div>
-                </div>
-              </div>
-              <div className={styles.cardFooter}>
-                <a href={`/admin/emprunts/${e.id}`} className={styles.detailsBtn}>
-                  <i className="fas fa-eye"></i> {t.dashboard.details}
-                </a>
-                {e.status === "ACTIVE" && (
-                  <button className={styles.refundBtn}>
-                    <i className="fas fa-undo"></i> {t.emprunts.remboursement}
-                  </button>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+                    </td>
+                    <td>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                        <div className={styles.progressMini}>
+                          <div className={styles.progressMiniFill} style={{ width: `${progress}%` }}></div>
+                        </div>
+                        <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "#4e73df" }}>{progress}%</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span className={`${styles.badge} ${e.status === "ACTIVE" ? styles.badgeActive : styles.badgeCompleted}`}>
+                        {e.status === "ACTIVE" ? t.dashboard.active : t.dashboard.termine}
+                      </span>
+                    </td>
+                    <td>
+                      <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem" }}>
+                        <a href={`/admin/emprunts/${e.id}`} className={styles.detailsBtn} style={{ padding: "0.5rem 0.75rem", fontSize: "0.75rem" }}>
+                          <i className="fas fa-eye"></i>Détails
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Empty State */}
       {filtered.length === 0 && (

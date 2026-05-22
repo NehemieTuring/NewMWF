@@ -101,12 +101,13 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleCloseSession = async (id: number) => {
+  const handleCloseSession = async (id: number, sessionName: string) => {
     confirm({
       title: "Clôturer la séance",
-      message: "Voulez-vous clôturer la séance en cours ? Cette action mettra fin à toutes les opérations de cette session.",
+      message: `Voulez-vous clôturer la séance "${sessionName}" en cours ? Cette action mettra fin à toutes les opérations de cette session.`,
       type: "warning",
       confirmText: "Clôturer maintenant",
+      requiredConfirmValue: sessionName,
       onConfirm: async () => {
         try {
           await secretaryService.closeSession(id);
@@ -222,7 +223,7 @@ export default function AdminDashboard() {
                 {isSG && (
                   <button
                     type="button"
-                    onClick={() => handleCloseSession(stats.activeSession.id)}
+                    onClick={() => handleCloseSession(stats.activeSession.id, stats.activeSession.name || "Session Actuelle")}
                     className={styles.sessionBtn}
                     style={{ marginTop: "2rem", width: "100%", background: "#e74a3b" }}
                   >
@@ -258,7 +259,26 @@ export default function AdminDashboard() {
                     <p style={{ margin: 0, fontSize: "0.85rem", color: "#718096" }}>Prêt pour les opérations de l{"'"}année.</p>
                   </div>
                 </div>
-                {isSG && <button className={styles.addBtn} style={{ borderStyle: "solid", background: "#f8f9fc" }} onClick={() => setShowExerciseModal(true)}>Modifier l{"'"}exercice</button>}
+                {isSG && (
+                  <button
+                    className={styles.addBtn}
+                    style={{ borderStyle: "solid", background: "#f8f9fc" }}
+                    onClick={() => {
+                      const activeEx = exercises.find((e: any) => e.active);
+                      if (activeEx) {
+                        setExerciseForm({
+                          ...exerciseForm,
+                          year: activeEx.year.toString(),
+                          startDate: activeEx.startDate,
+                          endDate: activeEx.endDate,
+                        });
+                      }
+                      setShowExerciseModal(true);
+                    }}
+                  >
+                    Modifier l{"'"}exercice
+                  </button>
+                )}
               </>
             ) : (
               <div style={{ textAlign: "center", padding: "1rem" }}>
@@ -337,11 +357,11 @@ export default function AdminDashboard() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
                 <div className={styles.formGroup}>
                   <label>Année</label>
-                  <input type="text" className={styles.formInput} value={exerciseForm.year} onChange={e => setExerciseForm({ ...exerciseForm, year: e.target.value })} required />
+                  <input type="text" className={styles.formInput} value={exerciseForm.year} readOnly style={{ backgroundColor: "#f8f9fc", cursor: "not-allowed" }} required />
                 </div>
                 <div className={styles.formGroup}>
                   <label>Date Début</label>
-                  <input type="date" className={styles.formInput} value={exerciseForm.startDate} onChange={e => setExerciseForm({ ...exerciseForm, startDate: e.target.value })} required />
+                  <input type="date" className={styles.formInput} value={exerciseForm.startDate} readOnly style={{ backgroundColor: "#f8f9fc", cursor: "not-allowed" }} required />
                 </div>
                 <div className={styles.formGroup}>
                   <label>Date Fin</label>
@@ -373,18 +393,34 @@ export default function AdminDashboard() {
               </tr>
             </thead>
             <tbody>
-              {stats?.recentTransactions?.slice(0, 5).map((tx: any) => (
-                <tr key={tx.id} style={{ borderBottom: "1px solid #f8f9fc" }}>
-                  <td style={{ padding: "1rem 1.5rem", fontSize: "0.85rem" }}>{new Date(tx.date).toLocaleDateString()}</td>
-                  <td style={{ padding: "1rem 1.5rem" }}>
-                    <span style={{ display: "block", fontWeight: 700, fontSize: "0.9rem" }}>{tx.type}</span>
-                    <span style={{ fontSize: "0.75rem", color: "#858796" }}>{tx.description}</span>
-                  </td>
-                  <td style={{ padding: "1rem 1.5rem", textAlign: "right", fontWeight: 800, color: tx.amount > 0 ? "#1cc88a" : "#e74a3b" }}>
-                    {tx.amount > 0 ? "+" : ""} {tx.amount.toLocaleString()} XAF
-                  </td>
-                </tr>
-              ))}
+              {stats?.recentTransactions?.slice(0, 5).map((tx: any) => {
+                const translateType = (type: string) => {
+                  const mapping: any = {
+                    "SAVING_DEPOSIT": "Dépôt d'épargne",
+                    "SAVING_WITHDRAWAL": "Retrait d'épargne",
+                    "BORROWING_LOAN": "Prêt accordé",
+                    "LOAN_REFUND": "Remboursement prêt",
+                    "SOLIDARITY_PAYMENT": "Cotisation Solidarité",
+                    "AGAPE": "Agape",
+                    "INSCRIPTION": "Frais d'inscription",
+                    "PENALTY": "Pénalité"
+                  };
+                  return mapping[type] || type;
+                };
+
+                return (
+                  <tr key={tx.id} style={{ borderBottom: "1px solid #f8f9fc" }}>
+                    <td style={{ padding: "1rem 1.5rem", fontSize: "0.85rem" }}>{new Date(tx.date).toLocaleDateString()}</td>
+                    <td style={{ padding: "1rem 1.5rem" }}>
+                      <span style={{ display: "block", fontWeight: 700, fontSize: "0.9rem" }}>{translateType(tx.type)}</span>
+                      <span style={{ fontSize: "0.75rem", color: "#858796" }}>{tx.description}</span>
+                    </td>
+                    <td style={{ padding: "1rem 1.5rem", textAlign: "right", fontWeight: 800, color: tx.amount > 0 ? "#1cc88a" : "#e74a3b" }}>
+                      {tx.amount > 0 ? "+" : ""} {tx.amount.toLocaleString()} XAF
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

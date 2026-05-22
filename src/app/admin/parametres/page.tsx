@@ -11,7 +11,7 @@ export default function StructuralAdminPage() {
   const [activeTab, setActiveTab] = useState<Tab>("sessions");
   const [loading, setLoading] = useState(true);
   const { showToast, confirm } = useNotification();
-  
+
   // Data states
   const [sessions, setSessions] = useState<any[]>([]);
   const [exercises, setExercises] = useState<any[]>([]);
@@ -20,6 +20,12 @@ export default function StructuralAdminPage() {
   // Modals state
   const [showExerciseModal, setShowExerciseModal] = useState(false);
   const [showSessionModal, setShowSessionModal] = useState(false);
+  const [showCloseExerciseModal, setShowCloseExerciseModal] = useState(false);
+  const [exerciseToClose, setExerciseToClose] = useState<any>(null);
+  const [confirmExerciseName, setConfirmExerciseName] = useState("");
+  const [showCloseSessionModal, setShowCloseSessionModal] = useState(false);
+  const [sessionToClose, setSessionToClose] = useState<any>(null);
+  const [confirmSessionName, setConfirmSessionName] = useState("");
 
   // Form states
   const [exerciseForm, setExerciseForm] = useState({
@@ -40,22 +46,22 @@ export default function StructuralAdminPage() {
   });
 
   async function loadStructure() {
-      setLoading(true);
-      try {
-        const [sessionsData, exercisesData, helpData] = await Promise.all([
-          secretaryService.getSessions(),
-          secretaryService.getExercises(),
-          secretaryService.getHelpTypes()
-        ]);
-        setSessions(sessionsData || []);
-        setExercises(exercisesData || []);
-        setHelpTypes(helpData || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+    setLoading(true);
+    try {
+      const [sessionsData, exercisesData, helpData] = await Promise.all([
+        secretaryService.getSessions(),
+        secretaryService.getExercises(),
+        secretaryService.getHelpTypes()
+      ]);
+      setSessions(sessionsData || []);
+      setExercises(exercisesData || []);
+      setHelpTypes(helpData || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
+  }
   useEffect(() => {
     loadStructure();
   }, []);
@@ -90,44 +96,58 @@ export default function StructuralAdminPage() {
     }
   };
 
-  const handleCloseExercise = async (ex: any) => {
-    const exerciseName = ex.name || `Exercice ${ex.year}`;
-    const confirmName = window.prompt(`⚠️ Attention : La clôture est définitive. \n\nPour confirmer la clôture de l'exercice "${exerciseName}", veuillez saisir son nom exactement :`);
-    
-    if (confirmName !== exerciseName) {
-      if (confirmName !== null) {
-        showToast("Le nom saisi ne correspond pas. Clôture annulée.", "error");
-      }
+  const handleCloseExercise = (ex: any) => {
+    setExerciseToClose(ex);
+    setConfirmExerciseName("");
+    setShowCloseExerciseModal(true);
+  };
+
+  const confirmAndCloseExercise = async () => {
+    const exerciseName = exerciseToClose.name || `Exercice ${exerciseToClose.year}`;
+
+    if (confirmExerciseName !== exerciseName) {
+      showToast("Le nom saisi ne correspond pas exactement.", "error");
       return;
     }
 
     try {
-      await secretaryService.closeExercise(ex.id);
+      setLoading(true);
+      await secretaryService.closeExercise(exerciseToClose.id);
+      setShowCloseExerciseModal(false);
       loadStructure();
       showToast("L'exercice a été clôturé avec succès.", "success");
     } catch (err: any) {
       console.error(err);
       showToast("Erreur lors de la clôture de l'exercice.", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleCloseSession = async (id: number) => {
-    confirm({
-      title: "Clôturer la séance",
-      message: "Voulez-vous vraiment clôturer cette séance ? Toute opération ultérieure sur cette séance sera impossible.",
-      type: "warning",
-      confirmText: "Clôturer définitivement",
-      onConfirm: async () => {
-        try {
-          await secretaryService.closeSession(id);
-          loadStructure();
-          showToast("La séance a été clôturée avec succès.", "success");
-        } catch (err: any) {
-          console.error(err);
-          showToast("Erreur lors de la clôture de la séance.", "error");
-        }
-      }
-    });
+  const handleCloseSession = (session: any) => {
+    setSessionToClose(session);
+    setConfirmSessionName("");
+    setShowCloseSessionModal(true);
+  };
+
+  const confirmAndCloseSession = async () => {
+    const sessionName = sessionToClose.name || `Session #${sessionToClose.sessionNumber}`;
+    if (confirmSessionName !== sessionName) {
+      showToast("Le nom saisi ne correspond pas exactement.", "error");
+      return;
+    }
+    try {
+      setLoading(true);
+      await secretaryService.closeSession(sessionToClose.id);
+      setShowCloseSessionModal(false);
+      loadStructure();
+      showToast("La séance a été clôturée avec succès.", "success");
+    } catch (err: any) {
+      console.error(err);
+      showToast("Erreur lors de la clôture de la séance.", "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleEditExercise = (ex: any) => {
@@ -157,9 +177,9 @@ export default function StructuralAdminPage() {
           <p style={{ color: "#718096", fontSize: "1.05rem", fontWeight: 500 }}>Pilotez les exercices annuels et gérez les sessions de la mutuelle.</p>
         </div>
         <div style={{ display: "flex", gap: "0.75rem" }}>
-           <div className={styles.sidebarBadge} style={{ background: "rgba(78, 115, 223, 0.1)", color: "#4e73df", padding: "0.5rem 1rem" }}>
-              <i className="fas fa-microchip"></i> Mode Administrateur
-           </div>
+          <div className={styles.sidebarBadge} style={{ background: "rgba(78, 115, 223, 0.1)", color: "#4e73df", padding: "0.5rem 1rem" }}>
+            <i className="fas fa-microchip"></i> Mode Administrateur
+          </div>
         </div>
       </header>
 
@@ -209,137 +229,194 @@ export default function StructuralAdminPage() {
         <div className={styles.tabContent}>
           {activeTab === "sessions" && (
             <div className="fade-in">
-               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-                  <div>
-                    <h3 style={{ margin: 0, fontSize: "1.4rem", fontWeight: 800, color: "#2d3748" }}>Calendrier des Sessions</h3>
-                    <p style={{ color: "#718096", fontSize: "0.9rem" }}>Gérez les rencontres mensuelles et les clôtures.</p>
-                  </div>
-                  <button className={styles.confirmBtn} style={{ background: "linear-gradient(135deg, #4e73df, #224abe)", padding: "0.85rem 1.5rem" }} onClick={() => setShowSessionModal(true)}>
-                    <i className="fas fa-plus"></i> Créer une session
-                  </button>
-               </div>
-               
-               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "1.5rem" }}>
-                  {sessions.length === 0 ? (
-                    <div className="empty-state" style={{ gridColumn: "1 / -1", padding: "4rem" }}>
-                       <i className="fas fa-calendar-times" style={{ fontSize: "3rem", opacity: 0.2, marginBottom: "1rem" }}></i>
-                       <p>Aucune session enregistrée pour le moment.</p>
-                    </div>
-                  ) : sessions.map(s => (
-                    <div key={s.id} className={styles.staggerDelayed} style={{ background: "white", padding: "1.75rem", borderRadius: "24px", border: "1px solid #e2e8f0", position: "relative", boxShadow: "0 4px 12px rgba(0,0,0,0.03)", overflow: "hidden" }}>
-                       {s.status === "ACTIVE" && (
-                         <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "4px", background: "linear-gradient(90deg, #4e73df, #224abe)" }}></div>
-                       )}
-                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1.25rem" }}>
-                          <div style={{ width: "48px", height: "48px", borderRadius: "14px", background: (s.state === "OPEN" || s.state === "SAVING") ? "rgba(78, 115, 223, 0.1)" : "#f7fafc", display: "flex", alignItems: "center", justifyContent: "center", color: (s.state === "OPEN" || s.state === "SAVING") ? "#4e73df" : "#a0aec0", fontSize: "1.2rem" }}>
-                             <i className="fas fa-calendar-check"></i>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: "1.4rem", fontWeight: 800, color: "#2d3748" }}>Calendrier des Sessions</h3>
+                  <p style={{ color: "#718096", fontSize: "0.9rem" }}>Gérez les rencontres mensuelles et les clôtures.</p>
+                </div>
+                <button
+                  className={styles.confirmBtn}
+                  style={{ background: "linear-gradient(135deg, #4e73df, #224abe)", padding: "0.85rem 1.5rem" }}
+                  onClick={() => {
+                    const activeSession = sessions.find(s => (s.state === "OPEN" || s.state === "SAVING"));
+                    if (activeSession) {
+                      showToast(`La session "${activeSession.name || 'actuelle'}" est déjà ouverte. Veuillez la clôturer avant d'en créer une nouvelle.`, "warning");
+                      return;
+                    }
+                    setShowSessionModal(true);
+                  }}
+                >
+                  <i className="fas fa-plus"></i> Créer une session
+                </button>
+              </div>
+
+              <div className={styles.tableCard} style={{ border: "1px solid #e2e8f0", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th style={{ width: "60px" }}>N°</th>
+                      <th>Nom de la Session</th>
+                      <th>Date</th>
+                      <th>Statut</th>
+                      <th style={{ textAlign: "right" }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sessions.length === 0 ? (
+                      <tr><td colSpan={5} style={{ textAlign: "center", padding: "3rem", color: "#a0aec0" }}>Aucune session enregistrée.</td></tr>
+                    ) : sessions.map(s => (
+                      <tr key={s.id}>
+                        <td>
+                          <div style={{ width: "32px", height: "32px", borderRadius: "8px", background: "rgba(78, 115, 223, 0.1)", color: "#4e73df", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "0.8rem" }}>
+                            {s.sessionNumber}
                           </div>
-                          <span style={{ padding: "0.35rem 0.85rem", borderRadius: "50px", fontSize: "0.7rem", fontWeight: 800, background: (s.state === "OPEN" || s.state === "SAVING") ? "rgba(78, 115, 223, 0.1)" : "#f7fafc", color: (s.state === "OPEN" || s.state === "SAVING") ? "#4e73df" : "#718096", border: "1px solid rgba(0,0,0,0.05)", height: "fit-content" }}>
-                             {(s.state === "OPEN" || s.state === "SAVING") ? "EN COURS" : "CLÔTURÉE"}
+                        </td>
+                        <td style={{ fontWeight: 700, color: "#1a365d" }}>{s.name || `Session #${s.sessionNumber}`}</td>
+                        <td style={{ color: "#718096", fontSize: "0.9rem" }}>
+                          {new Date(s.date).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}
+                        </td>
+                        <td>
+                          <span style={{
+                            padding: "0.35rem 0.85rem",
+                            borderRadius: "50px",
+                            fontSize: "0.7rem",
+                            fontWeight: 800,
+                            background: (s.state === "OPEN" || s.state === "SAVING") ? "rgba(28, 200, 138, 0.12)" : "#f7fafc",
+                            color: (s.state === "OPEN" || s.state === "SAVING") ? "#1cc88a" : "#718096",
+                            border: "1px solid rgba(0,0,0,0.02)"
+                          }}>
+                            {(s.state === "OPEN" || s.state === "SAVING") ? "OUVERTE" : "CLÔTURÉE"}
                           </span>
-                       </div>
-                       <h4 style={{ margin: "0 0 0.5rem 0", fontSize: "1.1rem", fontWeight: 800, color: "#1a365d" }}>{s.name || `Session #${s.sessionNumber}`}</h4>
-                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#718096", fontSize: "0.85rem", marginBottom: "1.75rem" }}>
-                          <i className="far fa-clock"></i>
-                          <span>Tenu le {new Date(s.date).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}</span>
-                       </div>
-                       <div style={{ display: "flex", gap: "0.75rem" }}>
-                          <button 
-                            type="button"
-                            onClick={() => window.location.href = `/admin/sessions/${s.id}`}
-                            className={styles.cancelBtn} 
-                            style={{ flex: 1, padding: "0.75rem", borderRadius: "12px", fontSize: "0.85rem" }}
-                          >
-                            Détails
-                          </button>
-                          {(s.state === "OPEN" || s.state === "SAVING") && (
-                             <button 
-                               type="button"
-                               onClick={() => handleCloseSession(s.id)}
-                               className={styles.confirmBtn} 
-                               style={{ flex: 1.5, padding: "0.75rem", background: "linear-gradient(135deg, #e74a3b, #c0392b)", borderRadius: "12px", fontSize: "0.85rem" }}
-                             >
-                               Clôturer
-                             </button>
-                          )}
-                       </div>
-                    </div>
-                  ))}
-               </div>
+                        </td>
+                        <td style={{ textAlign: "right" }}>
+                          <div style={{ display: "flex", gap: "0.25rem", justifyContent: "flex-end" }}>
+                            <button
+                              onClick={() => window.location.href = `/admin/sessions/${s.id}`}
+                              style={{ background: "none", border: "none", color: "#4e73df", cursor: "pointer", fontSize: "1.1rem", padding: "0.5rem" }}
+                              title="Détails"
+                            >
+                              <i className="fas fa-eye"></i>
+                            </button>
+                            {(s.state === "OPEN" || s.state === "SAVING") && (
+                              <button
+                                onClick={() => handleCloseSession(s)}
+                                style={{ background: "none", border: "none", color: "#e74a3b", cursor: "pointer", fontSize: "1.1rem", padding: "0.5rem" }}
+                                title="Clôturer"
+                              >
+                                <i className="fas fa-lock"></i>
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
           {activeTab === "exercices" && (
             <div className="fade-in">
-               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-                  <div>
-                    <h3 style={{ margin: 0, fontSize: "1.4rem", fontWeight: 800, color: "#2d3748" }}>Exercices Annuels</h3>
-                    <p style={{ color: "#718096", fontSize: "0.9rem" }}>Historique et configuration des cycles de la mutuelle.</p>
-                  </div>
-                  <button className={styles.confirmBtn} style={{ background: "linear-gradient(135deg, #4e73df, #224abe)", padding: "0.85rem 1.5rem" }} onClick={() => setShowExerciseModal(true)}>
-                    <i className="fas fa-plus"></i> Nouvel Exercice
-                  </button>
-               </div>
-               
-               <div className={styles.tableCard} style={{ border: "1px solid #e2e8f0", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
-                  <table className={styles.table}>
-                     <thead>
-                        <tr>
-                          <th>Année Active</th>
-                          <th>Période</th>
-                          <th>Statut Cycle</th>
-                          <th style={{ textAlign: "right" }}>Actions</th>
-                        </tr>
-                     </thead>
-                     <tbody>
-                        {exercises.length === 0 ? (
-                          <tr><td colSpan={4} style={{ textAlign: "center", padding: "3rem", color: "#a0aec0" }}>Aucun exercice configuré.</td></tr>
-                        ) : exercises.map(ex => (
-                          <tr key={ex.id}>
-                             <td>
-                                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                                   <div style={{ padding: "0.5rem", borderRadius: "8px", background: "rgba(78, 115, 223, 0.1)", color: "#4e73df", fontWeight: 800 }}>{ex.year}</div>
-                                   <span style={{ fontWeight: 700 }}>{ex.name || `Exercice ${ex.year}`}</span>
-                                </div>
-                             </td>
-                             <td style={{ color: "#718096" }}>
-                                {new Date(ex.startDate).toLocaleDateString()} - {new Date(ex.endDate).toLocaleDateString()}
-                             </td>
-                             <td>
-                               <span className={ex.active ? styles.badgeSuccess : styles.badgePrimary}>
-                                 {ex.active ? "ACTIF" : "ARCHIVÉ"}
-                               </span>
-                             </td>
-                             <td style={{ textAlign: "right" }}>
-                                {ex.active && (
-                                  <button 
-                                    onClick={() => handleCloseExercise(ex)}
-                                    style={{ background: "none", border: "none", color: "#e74a3b", cursor: "pointer", fontSize: "1.1rem", padding: "0.5rem" }} 
-                                    title="Clôturer l'exercice"
-                                  >
-                                     <i className="fas fa-lock"></i>
-                                  </button>
-                                )}
-                                <button 
-                                  onClick={() => handleEditExercise(ex)}
-                                  style={{ background: "none", border: "none", color: "#4e73df", cursor: "pointer", fontSize: "1.1rem", padding: "0.5rem" }} 
-                                  title="Modifier"
-                                >
-                                   <i className="fas fa-edit"></i>
-                                </button>
-                                <button 
-                                  onClick={() => showToast("Génération du rapport en cours...", "info")}
-                                  style={{ background: "none", border: "none", color: "#718096", cursor: "pointer", fontSize: "1.1rem", padding: "0.5rem" }} 
-                                  title="Rapport"
-                                >
-                                   <i className="fas fa-file-alt"></i>
-                                </button>
-                             </td>
-                          </tr>
-                        ))}
-                     </tbody>
-                  </table>
-               </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: "1.4rem", fontWeight: 800, color: "#2d3748" }}>Exercices Annuels</h3>
+                  <p style={{ color: "#718096", fontSize: "0.9rem" }}>Historique et configuration des cycles de la mutuelle.</p>
+                </div>
+                <button
+                  className={styles.confirmBtn}
+                  style={{ background: "linear-gradient(135deg, #4e73df, #224abe)", padding: "0.85rem 1.5rem" }}
+                  onClick={() => {
+                    const activeExercise = exercises.find(e => e.active);
+                    if (activeExercise) {
+                      showToast(`L'exercice ${activeExercise.year} est déjà actif. Veuillez le clôturer avant d'en créer un nouveau.`, "warning");
+                      return;
+                    }
+                    setShowExerciseModal(true);
+                  }}
+                >
+                  <i className="fas fa-plus"></i> Nouvel Exercice
+                </button>
+              </div>
+
+              <div className={styles.tableCard} style={{ border: "1px solid #e2e8f0", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>Année Active</th>
+                      <th>Période</th>
+                      <th>Statut Cycle</th>
+                      <th style={{ textAlign: "right" }}>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {exercises.length === 0 ? (
+                      <tr><td colSpan={4} style={{ textAlign: "center", padding: "3rem", color: "#a0aec0" }}>Aucun exercice configuré.</td></tr>
+                    ) : exercises.map(ex => (
+                      <tr key={ex.id}>
+                        <td>
+                          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                            <div style={{ padding: "0.5rem", borderRadius: "8px", background: "rgba(78, 115, 223, 0.1)", color: "#4e73df", fontWeight: 800 }}>{ex.year}</div>
+                            <span style={{ fontWeight: 700 }}>{ex.name || `Exercice ${ex.year}`}</span>
+                          </div>
+                        </td>
+                        <td style={{ color: "#718096" }}>
+                          {new Date(ex.startDate).toLocaleDateString()} - {new Date(ex.endDate).toLocaleDateString()}
+                        </td>
+                        <td>
+                          <span className={ex.active ? styles.badgeSuccess : styles.badgePrimary}>
+                            {ex.active ? "ACTIF" : "ARCHIVÉ"}
+                          </span>
+                        </td>
+                        <td style={{ textAlign: "right" }}>
+                          {ex.active && (
+                            <button
+                              onClick={() => handleCloseExercise(ex)}
+                              style={{ background: "none", border: "none", color: "#e74a3b", cursor: "pointer", fontSize: "1.1rem", padding: "0.5rem" }}
+                              title="Clôturer l'exercice"
+                            >
+                              <i className="fas fa-lock"></i>
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleEditExercise(ex)}
+                            style={{ background: "none", border: "none", color: "#4e73df", cursor: "pointer", fontSize: "1.1rem", padding: "0.5rem" }}
+                            title="Modifier"
+                          >
+                            <i className="fas fa-edit"></i>
+                          </button>
+                          {!ex.active && (
+                            <button
+                              onClick={() => {
+                                secretaryService.calculateRefueling(ex.id)
+                                  .then(() => showToast("Renflouement calculé avec succès.", "success"))
+                                  .catch((err: any) => {
+                                    if (err.message?.includes("already calculated")) {
+                                      showToast("Le renflouement a déjà été effectué pour cet exercice.", "info");
+                                    } else {
+                                      showToast("Erreur lors du calcul du renflouement.", "error");
+                                    }
+                                  });
+                              }}
+                              style={{ background: "none", border: "none", color: "#1cc88a", cursor: "pointer", fontSize: "1.1rem", padding: "0.5rem" }}
+                              title="Calculer le Renflouement"
+                            >
+                              <i className="fas fa-hand-holding-usd"></i>
+                            </button>
+                          )}
+                          <button
+                            onClick={() => showToast("Génération du rapport en cours...", "info")}
+                            style={{ background: "none", border: "none", color: "#718096", cursor: "pointer", fontSize: "1.1rem", padding: "0.5rem" }}
+                            title="Rapport"
+                          >
+                            <i className="fas fa-file-alt"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
@@ -361,42 +438,42 @@ export default function StructuralAdminPage() {
               <div className={styles.formGrid}>
                 <div className={styles.formField}>
                   <label>Année</label>
-                  <input 
-                    type="number" 
-                    className={styles.formInput} 
-                    value={exerciseForm.year} 
-                    onChange={e => setExerciseForm({...exerciseForm, year: parseInt(e.target.value)})}
-                    required 
+                  <input
+                    type="number"
+                    className={styles.formInput}
+                    value={exerciseForm.year}
+                    onChange={e => setExerciseForm({ ...exerciseForm, year: parseInt(e.target.value) })}
+                    required
                   />
                 </div>
                 <div className={styles.formField}>
                   <label>Nom de l{"'"}Exercice</label>
-                  <input 
-                    type="text" 
-                    className={styles.formInput} 
-                    value={exerciseForm.name} 
-                    onChange={e => setExerciseForm({...exerciseForm, name: e.target.value})}
-                    required 
+                  <input
+                    type="text"
+                    className={styles.formInput}
+                    value={exerciseForm.name}
+                    onChange={e => setExerciseForm({ ...exerciseForm, name: e.target.value })}
+                    required
                   />
                 </div>
                 <div className={styles.formField}>
                   <label>Date Début</label>
-                  <input 
-                    type="date" 
-                    className={styles.formInput} 
-                    value={exerciseForm.startDate} 
-                    onChange={e => setExerciseForm({...exerciseForm, startDate: e.target.value})}
-                    required 
+                  <input
+                    type="date"
+                    className={styles.formInput}
+                    value={exerciseForm.startDate}
+                    onChange={e => setExerciseForm({ ...exerciseForm, startDate: e.target.value })}
+                    required
                   />
                 </div>
                 <div className={styles.formField}>
                   <label>Date Fin</label>
-                  <input 
-                    type="date" 
-                    className={styles.formInput} 
-                    value={exerciseForm.endDate} 
-                    onChange={e => setExerciseForm({...exerciseForm, endDate: e.target.value})}
-                    required 
+                  <input
+                    type="date"
+                    className={styles.formInput}
+                    value={exerciseForm.endDate}
+                    onChange={e => setExerciseForm({ ...exerciseForm, endDate: e.target.value })}
+                    required
                   />
                 </div>
               </div>
@@ -421,10 +498,10 @@ export default function StructuralAdminPage() {
               <div className={styles.formGrid}>
                 <div className={styles.formField} style={{ gridColumn: "span 2" }}>
                   <label>Choisir l{"'"}Exercice</label>
-                  <select 
+                  <select
                     className={styles.formInput}
                     value={sessionForm.exercise.id}
-                    onChange={e => setSessionForm({...sessionForm, exercise: { id: e.target.value }})}
+                    onChange={e => setSessionForm({ ...sessionForm, exercise: { id: e.target.value ? Number(e.target.value) : "" } as any })}
                     required
                   >
                     <option value="">-- Sélectionner l{"'"}exercice --</option>
@@ -435,23 +512,23 @@ export default function StructuralAdminPage() {
                 </div>
                 <div className={styles.formField} style={{ gridColumn: "span 2" }}>
                   <label>Nom de la Session (ex: Janvier)</label>
-                  <input 
-                    type="text" 
-                    className={styles.formInput} 
-                    value={sessionForm.name} 
-                    onChange={e => setSessionForm({...sessionForm, name: e.target.value})}
+                  <input
+                    type="text"
+                    className={styles.formInput}
+                    value={sessionForm.name}
+                    onChange={e => setSessionForm({ ...sessionForm, name: e.target.value })}
                     placeholder="Entrez le mois ou le nom"
-                    required 
+                    required
                   />
                 </div>
                 <div className={styles.formField} style={{ gridColumn: "span 2" }}>
                   <label>Date de la Session</label>
-                  <input 
-                    type="date" 
-                    className={styles.formInput} 
-                    value={sessionForm.date} 
-                    onChange={e => setSessionForm({...sessionForm, date: e.target.value})}
-                    required 
+                  <input
+                    type="date"
+                    className={styles.formInput}
+                    value={sessionForm.date}
+                    onChange={e => setSessionForm({ ...sessionForm, date: e.target.value })}
+                    required
                   />
                 </div>
               </div>
@@ -460,6 +537,132 @@ export default function StructuralAdminPage() {
                 <button type="submit" className={`${styles.confirmBtn} ${styles.confirmActionBtn}`}>Ouvrir la Session</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL CLÔTURE EXERCICE */}
+      {showCloseExerciseModal && exerciseToClose && (
+        <div className={styles.modalOverlay}>
+          <div className={`${styles.modal} fade-in-up`} style={{ maxWidth: "500px", borderTop: "5px solid #e74a3b" }}>
+            <div className={styles.modalHeader}>
+              <h3 style={{ color: "#e74a3b" }}>
+                <i className="fas fa-exclamation-triangle"></i> Clôture Définitive
+              </h3>
+              <button className={styles.modalClose} onClick={() => setShowCloseExerciseModal(false)}>
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <div className={styles.modalBody} style={{ padding: "1.5rem" }}>
+              <p style={{ color: "#2d3748", fontWeight: 600, marginBottom: "1rem" }}>
+                Attention : La clôture de l{"'"}exercice est une action irréversible. Toutes les données seront archivées.
+              </p>
+              <div
+                style={{
+                  background: "#fff5f5",
+                  padding: "1rem",
+                  borderRadius: "12px",
+                  border: "1px solid #feb2b2",
+                  marginBottom: "1.5rem",
+                  fontSize: "0.9rem",
+                  color: "#c53030"
+                }}
+              >
+                Pour confirmer la clôture de l{"'"}exercice <strong style={{ textDecoration: "underline" }}>{exerciseToClose.name || `Exercice ${exerciseToClose.year}`}</strong>, veuillez saisir son nom exactement :
+              </div>
+              <div className={styles.formField}>
+                <input
+                  type="text"
+                  className={styles.formInput}
+                  placeholder="Saisissez le nom ici..."
+                  value={confirmExerciseName}
+                  onChange={(e) => setConfirmExerciseName(e.target.value)}
+                  autoFocus
+                />
+              </div>
+            </div>
+            <div className={styles.modalActions} style={{ padding: "1rem 1.5rem 1.5rem" }}>
+              <button type="button" className={styles.cancelBtn} onClick={() => setShowCloseExerciseModal(false)}>
+                Annuler
+              </button>
+              <button
+                type="button"
+                className={styles.confirmBtn}
+                style={{
+                  background: confirmExerciseName === (exerciseToClose.name || `Exercice ${exerciseToClose.year}`)
+                    ? "linear-gradient(135deg, #e74a3b, #c0392b)"
+                    : "#cbd5e0",
+                  cursor: confirmExerciseName === (exerciseToClose.name || `Exercice ${exerciseToClose.year}`) ? "pointer" : "not-allowed"
+                }}
+                disabled={confirmExerciseName !== (exerciseToClose.name || `Exercice ${exerciseToClose.year}`)}
+                onClick={confirmAndCloseExercise}
+              >
+                Confirmer la clôture
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL CLÔTURE SESSION */}
+      {showCloseSessionModal && sessionToClose && (
+        <div className={styles.modalOverlay}>
+          <div className={`${styles.modal} fade-in-up`} style={{ maxWidth: "500px", borderTop: "5px solid #e74a3b" }}>
+            <div className={styles.modalHeader}>
+              <h3 style={{ color: "#e74a3b" }}>
+                <i className="fas fa-exclamation-triangle"></i> Clôture de Séance
+              </h3>
+              <button className={styles.modalClose} onClick={() => setShowCloseSessionModal(false)}>
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <div className={styles.modalBody} style={{ padding: "1.5rem" }}>
+              <p style={{ color: "#2d3748", fontWeight: 600, marginBottom: "1rem" }}>
+                Attention : La clôture de cette séance est irréversible. Aucune opération ne pourra plus être effectuée sur cette séance.
+              </p>
+              <div
+                style={{
+                  background: "#fff5f5",
+                  padding: "1rem",
+                  borderRadius: "12px",
+                  border: "1px solid #feb2b2",
+                  marginBottom: "1.5rem",
+                  fontSize: "0.9rem",
+                  color: "#c53030"
+                }}
+              >
+                Pour confirmer la clôture de la séance <strong style={{ textDecoration: "underline" }}>{sessionToClose.name || `Session #${sessionToClose.sessionNumber}`}</strong>, veuillez saisir son nom exactement :
+              </div>
+              <div className={styles.formField}>
+                <input
+                  type="text"
+                  className={styles.formInput}
+                  placeholder="Saisissez le nom ici..."
+                  value={confirmSessionName}
+                  onChange={(e) => setConfirmSessionName(e.target.value)}
+                  autoFocus
+                />
+              </div>
+            </div>
+            <div className={styles.modalActions} style={{ padding: "1rem 1.5rem 1.5rem" }}>
+              <button type="button" className={styles.cancelBtn} onClick={() => setShowCloseSessionModal(false)}>
+                Annuler
+              </button>
+              <button
+                type="button"
+                className={styles.confirmBtn}
+                style={{
+                  background: confirmSessionName === (sessionToClose.name || `Session #${sessionToClose.sessionNumber}`)
+                    ? "linear-gradient(135deg, #e74a3b, #c0392b)"
+                    : "#cbd5e0",
+                  cursor: confirmSessionName === (sessionToClose.name || `Session #${sessionToClose.sessionNumber}`) ? "pointer" : "not-allowed"
+                }}
+                disabled={confirmSessionName !== (sessionToClose.name || `Session #${sessionToClose.sessionNumber}`)}
+                onClick={confirmAndCloseSession}
+              >
+                Confirmer la clôture
+              </button>
+            </div>
           </div>
         </div>
       )}

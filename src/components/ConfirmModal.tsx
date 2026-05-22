@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./ConfirmModal.module.css";
 
 interface ConfirmModalProps {
@@ -12,6 +12,7 @@ interface ConfirmModalProps {
   confirmText?: string;
   cancelText?: string;
   type?: "danger" | "info" | "success" | "warning";
+  requiredConfirmValue?: string;
 }
 
 export default function ConfirmModal({
@@ -22,8 +23,17 @@ export default function ConfirmModal({
   onCancel,
   confirmText = "Confirmer",
   cancelText = "Annuler",
-  type = "info"
+  type = "info",
+  requiredConfirmValue
 }: ConfirmModalProps) {
+  const [inputValue, setInputValue] = useState("");
+
+  useEffect(() => {
+    if (isOpen) {
+      setInputValue("");
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const getIcon = () => {
@@ -34,6 +44,8 @@ export default function ConfirmModal({
       default: return "fa-info-circle";
     }
   };
+
+  const isConfirmDisabled = requiredConfirmValue ? inputValue !== requiredConfirmValue : false;
 
   return (
     <div className="modal-overlay" onClick={onCancel}>
@@ -49,14 +61,45 @@ export default function ConfirmModal({
             <div className={`${styles.icon} ${styles[type]}`}>
               <i className={`fas ${getIcon()}`}></i>
             </div>
-            <p className={styles.message}>{message}</p>
+            <div className={styles.messageContainer}>
+              <p className={styles.message}>{message}</p>
+
+              {requiredConfirmValue && (
+                <div className={styles.inputWrapper} style={{ marginTop: '1.5rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.85rem', color: '#858796', marginBottom: '0.5rem' }}>
+                    Veuillez saisir <strong>{requiredConfirmValue}</strong> pour confirmer :
+                  </label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    placeholder={requiredConfirmValue}
+                    autoFocus
+                    style={{
+                      width: '100%',
+                      padding: '0.8rem',
+                      borderRadius: '0.5rem',
+                      border: '1px solid #d1d3e2',
+                      fontSize: '1rem'
+                    }}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <div className={styles.modalFooter}>
           <button type="button" className={`${styles.btn} ${styles.btnCancel}`} onClick={onCancel}>
             {cancelText}
           </button>
-          <button type="button" className={`${styles.btn} ${styles[type]} ${styles.btnConfirm}`} onClick={onConfirm}>
+          <button
+            type="button"
+            className={`${styles.btn} ${styles[type]} ${styles.btnConfirm}`}
+            onClick={onConfirm}
+            disabled={isConfirmDisabled}
+            style={{ opacity: isConfirmDisabled ? 0.5 : 1, cursor: isConfirmDisabled ? 'not-allowed' : 'pointer' }}
+          >
             {confirmText}
           </button>
         </div>

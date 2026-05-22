@@ -16,6 +16,7 @@ interface ConfirmOptions {
   confirmText?: string;
   cancelText?: string;
   type?: "danger" | "info" | "success" | "warning";
+  requiredConfirmValue?: string;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -30,6 +31,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     confirmText?: string;
     cancelText?: string;
     type?: "danger" | "info" | "success" | "warning";
+    requiredConfirmValue?: string;
   } | null>(null);
 
   const showToast = useCallback((message: string, type: ToastType = "info") => {
@@ -48,6 +50,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       confirmText: options.confirmText,
       cancelText: options.cancelText,
       type: options.type || "info",
+      requiredConfirmValue: options.requiredConfirmValue,
     });
   }, []);
 
@@ -71,6 +74,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           confirmText={confirmState.confirmText}
           cancelText={confirmState.cancelText}
           type={confirmState.type}
+          requiredConfirmValue={confirmState.requiredConfirmValue}
         />
       )}
     </NotificationContext.Provider>

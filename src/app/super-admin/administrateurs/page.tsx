@@ -13,7 +13,7 @@ import {
   AdminData,
 } from "@/services/superAdminService";
 
-type ModalType = "add" | "delete" | "deactivate" | "activate" | "password" | null;
+type ModalType = "add" | "delete" | "password" | null;
 
 export default function AdminManagementPage() {
   const { t } = useTranslation();
@@ -90,41 +90,6 @@ export default function AdminManagementPage() {
     }
   }
 
-  async function handleActivate() {
-    if (!selectedAdmin) return;
-    console.log(`Attempting to activate administrator ID: ${selectedAdmin.id} (${selectedAdmin.user?.email})`);
-    setSubmitting(true);
-    try {
-      await activateAdmin(selectedAdmin.id);
-      console.log("Administrator activated successfully.");
-      showToast("success", t.superAdmin.succes);
-      setModal(null);
-      loadAdmins();
-    } catch (err: unknown) {
-      console.error("Error activating administrator:", err);
-      showToast("error", err instanceof Error ? err.message : t.superAdmin.erreur);
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  async function handleDeactivate() {
-    if (!selectedAdmin) return;
-    console.log(`Attempting to deactivate administrator ID: ${selectedAdmin.id} (${selectedAdmin.user.email})`);
-    setSubmitting(true);
-    try {
-      await deactivateAdmin(selectedAdmin.id);
-      console.log("Administrator deactivated successfully.");
-      showToast("success", t.superAdmin.succes);
-      setModal(null);
-      loadAdmins();
-    } catch (err: unknown) {
-      console.error("Error deactivating administrator:", err);
-      showToast("error", err instanceof Error ? err.message : t.superAdmin.erreur);
-    } finally {
-      setSubmitting(false);
-    }
-  }
 
   async function handleDelete() {
     if (!selectedAdmin) return;
@@ -202,59 +167,60 @@ export default function AdminManagementPage() {
           <p>{t.superAdmin.aucunAdmin}</p>
         </div>
       ) : (
-        <div className={styles.grid}>
-          {admins.map((admin) => (
-            <div key={admin.id} className={styles.card}>
-              <div className={styles.cardHeader}>
-                <div className={styles.avatar}>
-                  <i className="fas fa-user-shield"></i>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div className={styles.adminName}>
-                    {admin.user?.firstName} {admin.user?.name}
-                  </div>
-                  <div className={styles.adminEmail}>{admin.user?.email}</div>
-                </div>
-                <span className={`${styles.badge} ${admin.active ? styles.badgeActive : styles.badgeInactive}`}>
-                  <i className="fas fa-circle" style={{ fontSize: "0.4rem" }}></i>
-                  {admin.active ? t.superAdmin.actif : t.superAdmin.inactif}
-                </span>
-              </div>
-              <div className={styles.cardBody}>
-                <div className={styles.infoRow}>
-                  <i className="fas fa-id-badge"></i>
-                  <span>{admin.username}</span>
-                </div>
-                <div className={styles.infoRow}>
-                  <i className="fas fa-shield-alt"></i>
-                  <span className={styles.roleTag}>{getRoleName(admin.adminRole)}</span>
-                </div>
-                {admin.user?.tel && (
-                  <div className={styles.infoRow}>
-                    <i className="fas fa-phone"></i>
-                    <span>{admin.user?.tel}</span>
-                  </div>
-                )}
-              </div>
-              <div className={styles.cardFooter}>
-                <button className={`${styles.actionBtn} ${styles.btnPassword}`} onClick={() => openModal("password", admin)}>
-                  <i className="fas fa-key"></i> {t.superAdmin.changerMotDePasse}
-                </button>
-                {admin.active ? (
-                  <button className={`${styles.actionBtn} ${styles.btnDeactivate}`} onClick={() => openModal("deactivate", admin)}>
-                    <i className="fas fa-ban"></i> {t.superAdmin.desactiverAdmin}
-                  </button>
-                ) : (
-                  <button className={`${styles.actionBtn} ${styles.btnActivate}`} onClick={() => openModal("activate", admin)}>
-                    <i className="fas fa-check-circle"></i> {t.superAdmin.activerAdmin}
-                  </button>
-                )}
-                <button className={`${styles.actionBtn} ${styles.btnDelete}`} onClick={() => openModal("delete", admin)}>
-                  <i className="fas fa-trash"></i>
-                </button>
-              </div>
-            </div>
-          ))}
+        <div className={styles.tableCard}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>{t.admin.administrateurs}</th>
+                <th>{t.superAdmin.usernameAdmin}</th>
+                <th>{t.superAdmin.roleAdmin}</th>
+                <th>{t.dashboard.statut}</th>
+                <th style={{ textAlign: "right" }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {admins.map((admin) => (
+                <tr key={admin.id}>
+                  <td>
+                    <div className={styles.adminIdentity}>
+                      <div className={styles.tableAvatar}>
+                        <i className="fas fa-user-shield"></i>
+                      </div>
+                      <div>
+                        <div className={styles.adminNameTable}>
+                          {admin.user?.firstName} {admin.user?.name}
+                        </div>
+                        <div className={styles.adminEmailTable}>{admin.user?.email}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span className={styles.usernameText}>{admin.username}</span>
+                  </td>
+                  <td>
+                    <span className={styles.roleBadge}>{getRoleName(admin.adminRole)}</span>
+                  </td>
+                  <td>
+                    <span className={`${styles.badge} ${admin.active ? styles.badgeActive : styles.badgeInactive}`}>
+                      <i className="fas fa-circle" style={{ fontSize: "0.4rem" }}></i>
+                      {admin.active ? t.superAdmin.actif : t.superAdmin.inactif}
+                    </span>
+                  </td>
+                  <td style={{ textAlign: "right" }}>
+                    <div className={styles.tableActions}>
+                      <button className={styles.iconBtn} onClick={() => openModal("password", admin)} title={t.superAdmin.changerMotDePasse}>
+                        <i className="fas fa-key"></i>
+                      </button>
+                      {/* Retrait des boutons d'activation/désactivation selon la demande utilisateur */}
+                      <button className={`${styles.iconBtn} ${styles.btnDeleteIcon}`} onClick={() => openModal("delete", admin)} title={t.superAdmin.supprimerAdmin}>
+                        <i className="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 
@@ -323,63 +289,6 @@ export default function AdminManagementPage() {
         </div>
       )}
 
-      {/* Activate Modal */}
-      {modal === "activate" && selectedAdmin && (
-        <div className={styles.modalOverlay} onClick={() => setModal(null)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h3>{t.superAdmin.confirmerActivation}</h3>
-              <button className={styles.modalClose} onClick={() => setModal(null)}>
-                <i className="fas fa-times"></i>
-              </button>
-            </div>
-            <div className={styles.modalBody}>
-              <div className={styles.modalIcon} style={{ color: "var(--success-color, #1cc88a)" }}><i className="fas fa-check-circle"></i></div>
-              <p className={styles.warningText}>
-                {t.superAdmin.confirmActivateAdmin}
-                <br /><strong>{selectedAdmin.user?.firstName} {selectedAdmin.user?.name}</strong>
-              </p>
-              <div className={styles.modalActions}>
-                <button className={styles.cancelBtn} onClick={() => setModal(null)}>
-                  {t.dashboard.annuler}
-                </button>
-                <button className={`${styles.submitBtn}`} style={{ backgroundColor: "var(--success-color, #1cc88a)" }} onClick={handleActivate} disabled={submitting}>
-                  {submitting ? "..." : t.superAdmin.confirmer}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Deactivate Modal */}
-      {modal === "deactivate" && selectedAdmin && (
-        <div className={styles.modalOverlay} onClick={() => setModal(null)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h3>{t.superAdmin.confirmerDesactivation}</h3>
-              <button className={styles.modalClose} onClick={() => setModal(null)}>
-                <i className="fas fa-times"></i>
-              </button>
-            </div>
-            <div className={styles.modalBody}>
-              <div className={styles.modalIcon}><i className="fas fa-ban"></i></div>
-              <p className={styles.warningText}>
-                {t.superAdmin.confirmDeactivateAdmin}
-                <br /><strong>{selectedAdmin.user?.firstName} {selectedAdmin.user?.name}</strong>
-              </p>
-              <div className={styles.modalActions}>
-                <button className={styles.cancelBtn} onClick={() => setModal(null)}>
-                  {t.dashboard.annuler}
-                </button>
-                <button className={`${styles.submitBtn} ${styles.dangerBtn}`} onClick={handleDeactivate} disabled={submitting}>
-                  {submitting ? "..." : t.superAdmin.confirmer}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Delete Modal */}
       {modal === "delete" && selectedAdmin && (

@@ -35,12 +35,6 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
         { label: t.superAdmin.changerMotDePasse, icon: "fas fa-key", href: "/super-admin/mot-de-passe" },
       ],
     },
-    {
-      title: "Développement",
-      items: [
-        { label: "Outils Dev", icon: "fas fa-flask", href: "/super-admin/developpement" },
-      ],
-    },
   ];
 
   return (
@@ -82,7 +76,7 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
             </Link>
             <button
               className={styles.menuItem}
-              onClick={() => { 
+              onClick={() => {
                 confirm({
                   title: t.common.deconnexion,
                   message: "Êtes-vous sûr de vouloir vous déconnecter du portail Super Admin ?",
@@ -90,8 +84,8 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
                   cancelText: "Annuler",
                   type: "danger",
                   onConfirm: () => {
-                    logout(); 
-                    router.push("/connexion"); 
+                    logout();
+                    router.push("/connexion");
                   }
                 });
               }}
@@ -149,10 +143,10 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
 
               <div className={styles.profileDropdown}>
                 <button className={styles.profileBtn} onClick={() => setProfileOpen(!profileOpen)}>
-                  <div className={styles.avatarPlaceholder} style={{ 
-                    background: user?.avatar 
-                      ? `url(${user.avatar.startsWith('http') ? user.avatar : 'http://localhost:8080' + user.avatar}) center/cover` 
-                      : undefined 
+                  <div className={styles.avatarPlaceholder} style={{
+                    background: user?.avatar
+                      ? `url(${user.avatar.startsWith('http') ? user.avatar : 'http://localhost:8080' + user.avatar}) center/cover`
+                      : undefined
                   }}>
                     {!user?.avatar && <i className="fas fa-crown"></i>}
                   </div>
@@ -166,7 +160,7 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
                       {t.common.monProfil}
                     </Link>
                     <div className={styles.dropdownDivider}></div>
-                    <button className={styles.dropdownItem} onClick={() => { 
+                    <button className={styles.dropdownItem} onClick={() => {
                       setProfileOpen(false);
                       confirm({
                         title: t.common.deconnexion,
@@ -175,8 +169,8 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
                         cancelText: "Annuler",
                         type: "danger",
                         onConfirm: () => {
-                          logout(); 
-                          router.push("/connexion"); 
+                          logout();
+                          router.push("/connexion");
                         }
                       });
                     }}>

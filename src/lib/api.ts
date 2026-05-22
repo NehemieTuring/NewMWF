@@ -5,7 +5,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/a
 export async function fetchWithAuth(endpoint: string, options: RequestInit = {}) {
   const auth = typeof window !== 'undefined' ? getAuth() : null;
   const token = auth?.token;
-  
+
   const headers: any = {
     ...options.headers,
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -43,21 +43,22 @@ export async function fetchWithAuth(endpoint: string, options: RequestInit = {})
   if (!res.ok) {
     const errorData = await res.json().catch(() => null);
     let message = errorData?.message || `Erreur ${res.status}`;
-    
+
     // Check for common internal server errors or SQL errors
     if (res.status === 500) {
       if (message.includes("JDBC") || message.includes("SQL") || message.includes("column")) {
         message = "Le serveur rencontre une erreur de synchronisation avec la base de données. Veuillez redémarrer l'application backend.";
       } else {
-        message = "Une erreur interne du serveur est survenue. Veuillez réessayer plus tard.";
+        // message = "Une erreur interne du serveur est survenue. Veuillez réessayer plus tard.";
+        console.warn("⚠️ REAL SERVER ERROR:", message);
       }
     }
-    
+
     throw new Error(message);
   }
 
   if (res.status === 204) return null;
-  
+
   const text = await res.text();
   return text ? JSON.parse(text) : null;
 }

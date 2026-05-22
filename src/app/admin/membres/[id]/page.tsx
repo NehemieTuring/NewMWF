@@ -94,7 +94,7 @@ export default function MemberDetailsPage() {
           <div className={styles.titleSection}>
             <h1 className={styles.title}>{member.user?.firstName} {member.user?.name}</h1>
             <p className={styles.subtitle}>
-              <i className="fas fa-id-card"></i> Matricule: <strong>{member.username}</strong> | 
+              <i className="fas fa-user-tag"></i> Nom d'utilisateur: <strong>{member.username}</strong> |
               <i className="fas fa-calendar-check" style={{ marginLeft: '0.75rem' }}></i> Membre depuis le {new Date(member.createdAt).toLocaleDateString()}
             </p>
           </div>
@@ -103,15 +103,6 @@ export default function MemberDetailsPage() {
           <button className={styles.editBtn} onClick={() => router.push(`/admin/membres/modifier/${id}`)}>
             <i className="fas fa-user-edit"></i> Modifier le profil
           </button>
-          {member.active ? (
-            <button className={styles.deactivateBtn} onClick={handleDeactivate}>
-              <i className="fas fa-user-slash"></i> Désactiver le membre
-            </button>
-          ) : (
-            <button className={styles.activateBtn} onClick={handleActivate}>
-              <i className="fas fa-user-check"></i> Activer le membre
-            </button>
-          )}
         </div>
       </header>
 
@@ -158,9 +149,9 @@ export default function MemberDetailsPage() {
                   <tr key={saving.id}>
                     <td>{saving.createdAt ? new Date(saving.createdAt).toLocaleDateString() : 'N/A'}</td>
                     <td>
-                       <span className={saving.type === 'INFLOW' ? styles.badgeSuccess : styles.badgeDanger}>
-                          {saving.type === 'INFLOW' ? 'DÉPÔT' : 'RETRAIT'}
-                       </span>
+                      <span className={saving.type === 'INFLOW' ? styles.badgeSuccess : styles.badgeDanger}>
+                        {saving.type === 'INFLOW' ? 'DÉPÔT' : 'RETRAIT'}
+                      </span>
                     </td>
                     <td className={styles.amount} style={{ fontWeight: 800 }}>
                       {saving.type === 'INFLOW' ? '+' : '-'} {formatAmount(saving.amount)} FCFA

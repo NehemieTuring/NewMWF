@@ -63,42 +63,60 @@ export default function MembresPage() {
       </div>
 
       {filtered.length > 0 ? (
-        <div className={styles.grid}>
-          {filtered.map((member) => (
-            <div key={member.id} className={styles.card}>
-              <div className={styles.cardHeader}>
-                <div className={styles.avatar}>
-                  {member.user?.firstName?.[0]}{member.user?.name?.[0]}
-                </div>
-                <div className={styles.memberInfo}>
-                  <h3>{member.user?.firstName} {member.user?.name}</h3>
-                  <span className={`${styles.badge} ${member.active ? styles.badgeActive : styles.badgeInactive}`}>
-                    <i className="fas fa-circle" style={{ fontSize: "0.4rem" }}></i>
-                    {member.active ? t.membres.actif : t.membres.inactif}
-                  </span>
-                </div>
-              </div>
-              <div className={styles.cardBody}>
-                <div className={styles.stat}>
-                  <i className="fas fa-id-badge"></i>
-                  <span>Matricule: <strong>{member.username}</strong></span>
-                </div>
-                <div className={styles.stat}>
-                  <i className="fas fa-phone"></i>
-                  <span>{member.user?.tel}</span>
-                </div>
-                <div className={styles.stat}>
-                  <i className="fas fa-piggy-bank"></i>
-                  <span>{t.membres.epargne}: <strong className={styles.savingsValue}>{formatAmount(member.savingsTotal)} XAF</strong></span>
-                </div>
-              </div>
-              <div className={styles.cardFooter}>
-                <a href={`/admin/membres/${member.id}`} className={styles.viewBtn}>
-                  <i className="fas fa-eye"></i> {t.membres.details}
-                </a>
-              </div>
-            </div>
-          ))}
+        <div className={styles.tableCard} style={{ background: "white", borderRadius: "20px", border: "1px solid #e3e6f0", overflow: "hidden", padding: "0.5rem" }}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th style={{ width: "60px" }}></th>
+                <th>Membre</th>
+                <th>Nom d'utilisateur</th>
+                <th>Téléphone</th>
+                <th>Épargne</th>
+                <th>Statut</th>
+                <th style={{ textAlign: "right" }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((member) => (
+                <tr key={member.id}>
+                  <td>
+                    <div className={styles.avatar} style={{ width: "40px", height: "40px", fontSize: "0.8rem", borderRadius: "10px" }}>
+                      {member.user?.firstName?.[0]}{member.user?.name?.[0]}
+                    </div>
+                  </td>
+                  <td>
+                    <div style={{ display: "flex", flexDirection: "column" }}>
+                      <span style={{ fontWeight: 700, color: "#2e3b4e" }}>{member.user?.firstName} {member.user?.name}</span>
+                      <span style={{ fontSize: "0.75rem", color: "#858796" }}>{member.user?.email || "Pas d'email"}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <code style={{ background: "#f8f9fc", padding: "0.2rem 0.5rem", borderRadius: "4px", fontSize: "0.85rem", color: "#4e73df" }}>
+                      {member.username}
+                    </code>
+                  </td>
+                  <td style={{ fontSize: "0.9rem", color: "#4a5568" }}>
+                    {member.user?.tel || "N/A"}
+                  </td>
+                  <td>
+                    <strong className={styles.savingsValue}>{formatAmount(member.savingsTotal)} XAF</strong>
+                  </td>
+                  <td>
+                    <span className={`${styles.badge} ${member.calculatedStatus === 'EN_REGLE' ? styles.badgeActive : (member.calculatedStatus === 'INACTIF' ? styles.badgeInactive : styles.badgePending)}`}>
+                      {member.calculatedStatus === 'EN_REGLE' ? 'En Règle' : (member.calculatedStatus === 'INACTIF' ? 'Inactif' : 'Insolvable')}
+                    </span>
+                  </td>
+                  <td>
+                    <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                      <a href={`/admin/membres/${member.id}`} className={styles.viewBtn} style={{ padding: "0.5rem 1rem", minWidth: "auto" }}>
+                        <i className="fas fa-eye"></i> {t.membres.details}
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       ) : (
         <div className={styles.emptyState}>
@@ -106,7 +124,7 @@ export default function MembresPage() {
             <i className="fas fa-users"></i>
           </div>
           <h3>{members.length === 0 ? "Aucun membre inscrit" : "Aucun résultat trouvé"}</h3>
-          <p>{members.length === 0 ? "Commencez par inscrire un nouveau membre à la mutuelle." : "Essayez de rechercher avec un autre nom ou matricule."}</p>
+          <p>{members.length === 0 ? "Commencez par inscrire un nouveau membre à la mutuelle." : "Essayez de rechercher avec un autre nom ou identifiant."}</p>
           {members.length === 0 && (
             <a href="/admin/membres/nouveau" className={styles.addBtn}>
               <i className="fas fa-plus"></i> Inscrire le premier membre

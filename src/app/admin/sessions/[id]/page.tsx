@@ -12,7 +12,7 @@ export default function SessionDetailsPage() {
   const router = useRouter();
   const { t, locale } = useTranslation();
   const { showToast } = useNotification();
-  
+
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -69,10 +69,14 @@ export default function SessionDetailsPage() {
     <div className={styles.page}>
       <header className={styles.header}>
         <div className={styles.titleSection}>
-          <h1 className={styles.title}>Bilan de Session</h1>
-          <p className={styles.subtitle}>Consultez l'activité financière détaillée de cette session</p>
+          <h1 className={styles.title}>Bilan : {data.sessionName || "Session"}</h1>
+          <p className={styles.subtitle}>
+            {data.sessionDate ? `Séance du ${new Date(data.sessionDate).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}` : "Consultez l'activité financière détaillée de cette session"}
+            {data.exerciseYear ? ` — Exercice ${data.exerciseYear}` : ""}
+            {data.sessionState ? ` — ${data.sessionState === "OPEN" || data.sessionState === "SAVING" ? "🟢 Ouverte" : "🔒 Clôturée"}` : ""}
+          </p>
         </div>
-        <button type="button" className={styles.backBtn} onClick={() => router.push("/admin/sessions")}>
+        <button type="button" className={styles.backBtn} onClick={() => router.push("/admin/parametres")}>
           <i className="fas fa-chevron-left"></i> Retour aux sessions
         </button>
       </header>
