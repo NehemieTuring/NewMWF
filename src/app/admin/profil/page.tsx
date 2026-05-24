@@ -29,6 +29,10 @@ export default function ProfilPage() {
     confirmPassword: "",
   });
 
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   useEffect(() => {
     async function loadProfile() {
       try {
@@ -281,13 +285,21 @@ export default function ProfilPage() {
                     <div className={styles.inputWrapper}>
                       <input
                         className={styles.input}
-                        type="password"
+                        type={showOldPassword ? "text" : "password"}
                         name="oldPassword"
                         value={passwordData.oldPassword}
                         onChange={handlePasswordChange}
                         required
+                        style={{ paddingRight: "45px" }}
                       />
                       <i className="fas fa-lock"></i>
+                      <button
+                        type="button"
+                        onClick={() => setShowOldPassword(!showOldPassword)}
+                        style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", zIndex: 5 }}
+                      >
+                        <i className={`fas ${showOldPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
+                      </button>
                     </div>
                   </div>
                   <div className={styles.formGroup}>
@@ -295,13 +307,21 @@ export default function ProfilPage() {
                     <div className={styles.inputWrapper}>
                       <input
                         className={styles.input}
-                        type="password"
+                        type={showNewPassword ? "text" : "password"}
                         name="newPassword"
                         value={passwordData.newPassword}
                         onChange={handlePasswordChange}
                         required
+                        style={{ paddingRight: "45px" }}
                       />
                       <i className="fas fa-key"></i>
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", zIndex: 5 }}
+                      >
+                        <i className={`fas ${showNewPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
+                      </button>
                     </div>
                   </div>
                   <div className={styles.formGroup}>
@@ -309,13 +329,21 @@ export default function ProfilPage() {
                     <div className={styles.inputWrapper}>
                       <input
                         className={styles.input}
-                        type="password"
+                        type={showConfirmPassword ? "text" : "password"}
                         name="confirmPassword"
                         value={passwordData.confirmPassword}
                         onChange={handlePasswordChange}
                         required
+                        style={{ paddingRight: "45px" }}
                       />
                       <i className="fas fa-shield-check"></i>
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", zIndex: 5 }}
+                      >
+                        <i className={`fas ${showConfirmPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
+                      </button>
                     </div>
                   </div>
                 </div>

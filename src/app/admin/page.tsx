@@ -28,7 +28,9 @@ export default function AdminDashboard() {
   });
 
   const [exerciseForm, setExerciseForm] = useState({
+    id: null as number | null,
     year: new Date().getFullYear().toString(),
+    name: `Exercice ${new Date().getFullYear()}`,
     startDate: `${new Date().getFullYear()}-01-01`,
     endDate: `${new Date().getFullYear()}-12-31`,
     interestRate: 3.0,
@@ -54,6 +56,17 @@ export default function AdminDashboard() {
       const activeEx = (exercisesData || []).find((e: any) => e.active);
       if (activeEx) {
         setSessionForm(prev => ({ ...prev, exercise: { id: activeEx.id } }));
+        setExerciseForm({
+          id: activeEx.id,
+          year: activeEx.year,
+          name: activeEx.name || `Exercice ${activeEx.year}`,
+          startDate: activeEx.startDate,
+          endDate: activeEx.endDate,
+          interestRate: activeEx.interestRate,
+          solidarityAmount: activeEx.solidarityAmount,
+          agapeAmount: activeEx.agapeAmount,
+          penaltyAmount: activeEx.penaltyAmount
+        });
       }
     } catch (err: any) {
       console.error(err);
@@ -69,13 +82,23 @@ export default function AdminDashboard() {
   const handleCreateExercise = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await secretaryService.createExercise(exerciseForm);
+      if (exerciseForm.id) {
+        await secretaryService.updateExercise(exerciseForm.id, exerciseForm as any);
+        showToast("L'exercice financier a été mis à jour avec succès !", "success");
+      } else {
+        await secretaryService.createExercise(exerciseForm);
+        showToast("L'exercice financier a été créé avec succès !", "success");
+      }
       setShowExerciseModal(false);
       loadDashboardData();
-      showToast("L'exercice financier a été créé avec succès !", "success");
     } catch (err: any) {
       console.error(err);
-      showToast("Nous n'avons pas pu créer l'exercice. " + (err.message || "Veuillez vérifier les informations saisies."), "error");
+      const msg = err.message || "";
+      if (msg.includes("déjà été créé") || msg.includes("existe déjà")) {
+        showToast(`Conflit : L'année ${exerciseForm.year} est déjà associée à un exercice existant.`, "error");
+      } else {
+        showToast("Erreur lors de l'enregistrement : " + (err.message || "Veuillez vérifier les informations."), "error");
+      }
     }
   };
 
@@ -176,7 +199,7 @@ export default function AdminDashboard() {
             <i className="fas fa-shield-alt"></i>
           </div>
           <div className={styles.statContent}>
-            <span className={styles.statLabel}>Fonds Social Cumulé</span>
+            <span className={styles.statLabel}>Fond social</span>
             <div className={styles.statValueContainer}>
               <span className={styles.statValue}>{formatAmount(stats?.totalSocialFunds)}</span>
               <span className={styles.statUnit}>XAF</span>
@@ -357,11 +380,35 @@ export default function AdminDashboard() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
                 <div className={styles.formGroup}>
                   <label>Année</label>
-                  <input type="text" className={styles.formInput} value={exerciseForm.year} readOnly style={{ backgroundColor: "#f8f9fc", cursor: "not-allowed" }} required />
+                  <input
+                    type="number"
+                    className={styles.formInput}
+                    value={exerciseForm.year}
+                    onChange={e => setExerciseForm({ ...exerciseForm, year: e.target.value })}
+                    required
+                    disabled={!!exerciseForm.id}
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Nom de l{"'"}exercice</label>
+                  <input
+                    type="text"
+                    className={styles.formInput}
+                    value={exerciseForm.name}
+                    onChange={e => setExerciseForm({ ...exerciseForm, name: e.target.value })}
+                    required
+                  />
                 </div>
                 <div className={styles.formGroup}>
                   <label>Date Début</label>
-                  <input type="date" className={styles.formInput} value={exerciseForm.startDate} readOnly style={{ backgroundColor: "#f8f9fc", cursor: "not-allowed" }} required />
+                  <input
+                    type="date"
+                    className={styles.formInput}
+                    value={exerciseForm.startDate}
+                    onChange={e => setExerciseForm({ ...exerciseForm, startDate: e.target.value })}
+                    required
+                    disabled={!!exerciseForm.id}
+                  />
                 </div>
                 <div className={styles.formGroup}>
                   <label>Date Fin</label>

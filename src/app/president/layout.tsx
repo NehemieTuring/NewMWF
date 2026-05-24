@@ -14,7 +14,7 @@ export default function PresidentLayout({ children }: { children: React.ReactNod
   const { user, loading, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
@@ -88,6 +88,10 @@ export default function PresidentLayout({ children }: { children: React.ReactNod
                 <i className="fas fa-user-circle"></i>
                 <span>{t.common.monProfil}</span>
               </Link>
+              <Link href="/president/parametres" className={styles.menuItem}>
+                <i className="fas fa-cog"></i>
+                <span>{t.admin.parametres}</span>
+              </Link>
               <button className={styles.menuItem} onClick={() => setShowLogout(true)}>
                 <i className="fas fa-sign-out-alt"></i>
                 <span>{t.common.deconnexion}</span>
@@ -129,10 +133,10 @@ export default function PresidentLayout({ children }: { children: React.ReactNod
 
               <div className={styles.profileDropdown}>
                 <button className={styles.profileBtn} onClick={() => setProfileOpen(!profileOpen)}>
-                  <div className={styles.avatarPlaceholder} style={{ 
-                    background: user?.avatar 
-                      ? `url(${user.avatar.startsWith('http') ? user.avatar : 'http://localhost:8080' + user.avatar}) center/cover` 
-                      : undefined 
+                  <div className={styles.avatarPlaceholder} style={{
+                    background: user?.avatar
+                      ? `url(${user.avatar.startsWith('http') ? user.avatar : 'http://localhost:8080' + user.avatar}) center/cover`
+                      : undefined
                   }}>
                     {!user?.avatar && <i className="fas fa-user-tie"></i>}
                   </div>

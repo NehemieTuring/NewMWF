@@ -29,10 +29,10 @@ export const treasurerService = {
   getExerciseBilan: (exerciseId: number) => fetchWithAuth(`/treasurer/dashboard/exercises/${exerciseId}`),
   getSessionBilan: (sessionId: number) => fetchWithAuth(`/treasurer/dashboard/sessions/${sessionId}`),
   getDailyReport: () => fetchWithAuth("/treasurer/reports/daily"),
-  
+
   // Expenses
   getAllExpenses: () => fetchWithAuth("/treasurer/expenses"),
-  recordExpenditure: (amount: number, reason: string, category: string, receiptUrl?: string) => 
+  recordExpenditure: (amount: number, reason: string, category: string, receiptUrl?: string) =>
     fetchWithAuth(`/treasurer/expenditure?amount=${amount}&reason=${encodeURIComponent(reason)}&category=${encodeURIComponent(category)}${receiptUrl ? `&receiptUrl=${encodeURIComponent(receiptUrl)}` : ""}`, { method: "POST" }),
   deleteExpense: (id: number) => fetchWithAuth(`/treasurer/expenses/${id}`, { method: "DELETE" }),
 

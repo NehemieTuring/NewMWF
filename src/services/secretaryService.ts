@@ -10,6 +10,11 @@ export const secretaryService = {
   activateMember: (id: number) => fetchWithAuth(`/admin/members/${id}/activate`, { method: "PUT" }),
   getMemberStatus: (id: number) => fetchWithAuth(`/admin/members/${id}/status`),
   getMemberDebts: (id: number) => fetchWithAuth(`/admin/members/${id}/debts`),
+  importMembersCsv: (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return fetchWithAuth("/admin/members/import-csv", { method: "POST", body: formData });
+  },
 
   // Solidarité
   paySolidarity: (memberId: number, amount: number) => fetchWithAuth(`/admin/solidarity/payments?memberId=${memberId}&amount=${amount}`, { method: "POST" }),
@@ -35,6 +40,8 @@ export const secretaryService = {
   createHelp: (typeId: number, beneficiaryId: number, amount: number) => fetchWithAuth(`/admin/helps?typeId=${typeId}&beneficiaryId=${beneficiaryId}&amount=${amount}`, { method: "POST" }),
   getHelpTypes: () => fetchWithAuth("/admin/helps/types"),
   createHelpType: (name: string, description: string, amount: number) => fetchWithAuth(`/admin/helps/types?name=${encodeURIComponent(name)}&description=${encodeURIComponent(description)}&amount=${amount}`, { method: "POST" }),
+  updateHelpType: (id: number, data: any) => fetchWithAuth(`/admin/helps/types/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+  deleteHelpType: (id: number) => fetchWithAuth(`/admin/helps/types/${id}`, { method: "DELETE" }),
 
   // Sessions et Exercices
   getExercises: () => fetchWithAuth("/admin/exercises"),

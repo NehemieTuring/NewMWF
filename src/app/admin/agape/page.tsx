@@ -17,7 +17,7 @@ export default function AgapePage() {
   const [form, setForm] = useState({
     title: "",
     description: "",
-    amount: "",
+    amount: "45000",
     date: new Date().toISOString().split("T")[0],
     sessionId: ""
   });
@@ -62,7 +62,7 @@ export default function AgapePage() {
       setForm({
         title: "",
         description: "",
-        amount: "",
+        amount: "45000",
         date: new Date().toISOString().split("T")[0],
         sessionId: ""
       });

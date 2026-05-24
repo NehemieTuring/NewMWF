@@ -21,6 +21,18 @@ export default function GlobalOperationsPage() {
   const [selectedMemberId, setSelectedMemberId] = useState("");
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
+  const [refundType, setRefundType] = useState<"LOAN" | "SOLIDARITY">("LOAN");
+  const [memberDebts, setMemberDebts] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (selectedMemberId && selectedOp === "remboursement") {
+      treasurerService.getMemberDebts(Number(selectedMemberId))
+        .then(setMemberDebts)
+        .catch(err => console.error("Error fetching debts", err));
+    } else {
+      setMemberDebts([]);
+    }
+  }, [selectedMemberId, selectedOp]);
 
   async function loadData() {
     try {
@@ -55,6 +67,35 @@ export default function GlobalOperationsPage() {
     const member = members.find(m => m.id === Number(selectedMemberId));
     const opLabel = actions.find(a => a.type === selectedOp)?.label;
 
+    if (selectedOp === "remboursement") {
+      const numAmount = Number(amount);
+      let limit = 0;
+      let limitLabel = "";
+
+      if (refundType === "LOAN") {
+        limit = memberDebts.filter(d => d.type === "LOAN").reduce((acc, d) => acc + d.amount, 0);
+        limitLabel = "dette de prêt";
+      } else {
+        // La dette "SOLIDARITY" est le pivot qui inclut le renflouement sur le backend
+        const solidarityEntry = memberDebts.find(d => d.type === "SOLIDARITY");
+        const refuelingEntries = memberDebts.filter(d => d.type === "REFUELING");
+
+        // Si on a une entrée master SOLIDARITY, c'est elle qui fait foi
+        if (solidarityEntry) {
+          limit = solidarityEntry.amount;
+        } else {
+          // Sinon on somme les renflouements (cas rare où la dette globale n'est pas encore créée)
+          limit = refuelingEntries.reduce((acc, d) => acc + d.amount, 0);
+        }
+        limitLabel = "dette de solidarité/renflouement";
+      }
+
+      if (numAmount > limit) {
+        showToast(`Opération refusée : Le montant (${numAmount.toLocaleString()} XAF) excède la ${limitLabel} (${limit.toLocaleString()} XAF).`, "error");
+        return;
+      }
+    }
+
     showConfirm({
       title: `Confirmer ${opLabel}`,
       message: `Voulez-vous enregistrer cette opération de ${amount} XAF pour ${member?.user?.firstName} ${member?.user?.name} ? (Session: ${activeSession.name || activeSession.sessionNumber})`,
@@ -66,8 +107,13 @@ export default function GlobalOperationsPage() {
             await treasurerService.addMemberSaving(Number(selectedMemberId), Number(amount));
             showToast("Épargne enregistrée avec succès", "success");
           } else if (selectedOp === "remboursement") {
-            await treasurerService.addRefund(Number(selectedMemberId), Number(amount));
-            showToast("Remboursement enregistré", "success");
+            if (refundType === "LOAN") {
+              await treasurerService.addRefund(Number(selectedMemberId), Number(amount));
+              showToast("Remboursement de prêt enregistré", "success");
+            } else {
+              await treasurerService.paySolidarity(Number(selectedMemberId), Number(amount));
+              showToast("Paiement Solidarité/Renflouement enregistré", "success");
+            }
           } else if (selectedOp === "emprunt") {
             await treasurerService.addLoan(Number(selectedMemberId), Number(amount));
             showToast("Prêt accordé et décaissé avec succès", "success");
@@ -91,8 +137,7 @@ export default function GlobalOperationsPage() {
 
   const actions = [
     { type: "epargne" as OperationType, label: "Collecter Épargne", icon: "fas fa-piggy-bank", color: "#1cc88a", desc: "Enregistrer un versement d'épargne d'un membre." },
-    { type: "remboursement" as OperationType, label: "Remboursement Prêt", icon: "fas fa-hand-holding-usd", color: "#4e73df", desc: "Enregistrer le remboursement partiel ou total d'un emprunt." },
-    { type: "solidarite" as OperationType, label: "Fonds de Solidarité", icon: "fas fa-hand-holding-heart", color: "#f6c23e", desc: "Paiement de la cotisation solidarité / aides." },
+    { type: "remboursement" as OperationType, label: "Remboursement de Dette", icon: "fas fa-hand-holding-usd", color: "#4e73df", desc: "Payer un prêt en cours ou une cotisation de solidarité (renflouement)." },
     { type: "emprunt" as OperationType, label: "Accorder un Prêt", icon: "fas fa-exchange-alt", color: "#36b9cc", desc: "Valider et décaisser un nouvel emprunt pour un membre." },
   ];
 
@@ -175,7 +220,7 @@ export default function GlobalOperationsPage() {
                 >
                   <option value="">-- Choisir un membre --</option>
                   {members.map(m => (
-                    <option key={m.id} value={m.id}>{m.user?.firstName} {m.user?.name}</option>
+                    <option key={m.id} value={m.id}>{m.user?.firstName} {m.user?.name} (@{m.username})</option>
                   ))}
                 </select>
               </div>
@@ -191,6 +236,31 @@ export default function GlobalOperationsPage() {
                   required
                 />
               </div>
+
+              {selectedOp === "remboursement" && (
+                <div style={{ marginBottom: "1.5rem" }}>
+                  <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#4e73df", marginBottom: "0.5rem" }}>Que remboursez-vous ?</label>
+                  <div style={{ display: "flex", gap: "1rem" }}>
+                    <label style={{ flex: 1, cursor: "pointer" }}>
+                      <input type="radio" name="refundType" checked={refundType === "LOAN"} onChange={() => setRefundType("LOAN")} style={{ marginRight: "0.5rem" }} />
+                      Un Prêt (Emprunt)
+                    </label>
+                    <label style={{ flex: 1, cursor: "pointer" }}>
+                      <input type="radio" name="refundType" checked={refundType === "SOLIDARITY"} onChange={() => setRefundType("SOLIDARITY")} style={{ marginRight: "0.5rem" }} />
+                      Solidarité / Renflouement
+                    </label>
+                  </div>
+                  {selectedMemberId && (
+                    <div style={{ marginTop: "0.5rem", fontSize: "0.8rem", color: "#e74a3b", fontWeight: 600 }}>
+                      {refundType === "LOAN" ? (
+                        <>Dette de prêt actuelle : {(memberDebts.filter(d => d.type === "LOAN").reduce((acc, d) => acc + d.amount, 0)).toLocaleString()} XAF</>
+                      ) : (
+                        <>Dette Solidarité/Renflouement : {(memberDebts.find(d => d.type === "SOLIDARITY")?.amount || memberDebts.filter(d => d.type === "REFUELING").reduce((acc, d) => acc + d.amount, 0)).toLocaleString()} XAF</>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div style={{ marginBottom: "2rem" }}>
                 <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#4e73df", marginBottom: "0.5rem" }}>Note / Observation</label>

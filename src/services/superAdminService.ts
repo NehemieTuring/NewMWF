@@ -46,6 +46,11 @@ export const createAdmin = (data: any) => fetchWithAuth(`/admin/super/admins?nam
 export const deactivateAdmin = (id: number) => fetchWithAuth(`/admin/super/admins/${id}/deactivate`, { method: "PUT" });
 export const activateAdmin = (id: number) => fetchWithAuth(`/admin/super/admins/${id}/activate`, { method: "PUT" });
 export const deleteAdmin = (id: number) => fetchWithAuth(`/admin/super/admins/${id}`, { method: "DELETE" });
+export const importAdminsCsv = (file: File) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  return fetchWithAuth("/admin/super/admins/import-csv", { method: "POST", body: formData });
+};
 
 // Gestion des membres
 export const deleteMember = (id: number) => fetchWithAuth(`/admin/super/members/${id}`, { method: "DELETE" });
@@ -67,6 +72,7 @@ export const superAdminService = {
   deactivateAdmin,
   activateAdmin,
   deleteAdmin,
+  importAdminsCsv,
   deleteMember,
   changeUserPasswordByEmail,
   getSuperDashboard,

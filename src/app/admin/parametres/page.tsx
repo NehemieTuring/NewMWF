@@ -29,14 +29,15 @@ export default function StructuralAdminPage() {
 
   // Form states
   const [exerciseForm, setExerciseForm] = useState({
+    id: null as number | null,
     year: new Date().getFullYear(),
     name: `Exercice ${new Date().getFullYear()}`,
     startDate: `${new Date().getFullYear()}-01-01`,
     endDate: `${new Date().getFullYear()}-12-31`,
     interestRate: 3.0,
-    solidarityAmount: 15000,
-    agapeAmount: 10000,
-    penaltyAmount: 1000
+    solidarityAmount: 150000.0,
+    agapeAmount: 45000,
+    penaltyAmount: 15000
   });
 
   const [sessionForm, setSessionForm] = useState({
@@ -69,13 +70,23 @@ export default function StructuralAdminPage() {
   const handleCreateExercise = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await secretaryService.createExercise(exerciseForm);
+      if (exerciseForm.id) {
+        await secretaryService.updateExercise(exerciseForm.id, exerciseForm as any);
+        showToast("L'exercice a été mis à jour avec succès.", "success");
+      } else {
+        await secretaryService.createExercise(exerciseForm);
+        showToast("L'exercice annuel a été initialisé avec succès.", "success");
+      }
       setShowExerciseModal(false);
       loadStructure();
-      showToast("L'exercice annuel a été initialisé avec succès.", "success");
     } catch (err: any) {
       console.error(err);
-      showToast(err.message || "Erreur lors de l'initialisation de l'exercice financier.", "error");
+      const msg = err.message || "";
+      if (msg.includes("déjà été créé") || msg.includes("existe déjà")) {
+        showToast(`Impossible de créer cet exercice : l'année ${exerciseForm.year} est déjà utilisée par un autre exercice.`, "error");
+      } else {
+        showToast(err.message || "Erreur lors de l'enregistrement de l'exercice financier.", "error");
+      }
     }
   };
 
@@ -112,10 +123,19 @@ export default function StructuralAdminPage() {
 
     try {
       setLoading(true);
-      await secretaryService.closeExercise(exerciseToClose.id);
+      const result = await secretaryService.closeExercise(exerciseToClose.id);
       setShowCloseExerciseModal(false);
       loadStructure();
-      showToast("L'exercice a été clôturé avec succès.", "success");
+
+      // Afficher les détails du renflouement si disponibles
+      if (result && result.membersCharged) {
+        showToast(
+          `Exercice clôturé ! Renflouement: ${result.membersCharged} membres chargés de ${Number(result.amountPerMember).toLocaleString()} XAF chacun (total: ${Number(result.totalTarget).toLocaleString()} XAF).`,
+          "success"
+        );
+      } else {
+        showToast(result?.message || "L'exercice a été clôturé avec succès.", "success");
+      }
     } catch (err: any) {
       console.error(err);
       showToast("Erreur lors de la clôture de l'exercice.", "error");
@@ -152,14 +172,15 @@ export default function StructuralAdminPage() {
 
   const handleEditExercise = (ex: any) => {
     setExerciseForm({
+      id: ex.id,
       year: ex.year,
       name: ex.name || `Exercice ${ex.year}`,
       startDate: ex.startDate,
       endDate: ex.endDate,
       interestRate: ex.interestRate || 3.0,
-      solidarityAmount: ex.solidarityAmount || 15000,
-      agapeAmount: ex.agapeAmount || 10000,
-      penaltyAmount: ex.penaltyAmount || 1000
+      solidarityAmount: ex.solidarityAmount || 150000.0,
+      agapeAmount: ex.agapeAmount || 45000,
+      penaltyAmount: ex.penaltyAmount || 15000
     });
     setShowExerciseModal(true);
   };
@@ -332,6 +353,17 @@ export default function StructuralAdminPage() {
                       showToast(`L'exercice ${activeExercise.year} est déjà actif. Veuillez le clôturer avant d'en créer un nouveau.`, "warning");
                       return;
                     }
+                    setExerciseForm({
+                      id: null,
+                      year: new Date().getFullYear(),
+                      name: `Exercice ${new Date().getFullYear()}`,
+                      startDate: `${new Date().getFullYear()}-01-01`,
+                      endDate: `${new Date().getFullYear()}-12-31`,
+                      interestRate: 3.0,
+                      solidarityAmount: 150000.0,
+                      agapeAmount: 45000,
+                      penaltyAmount: 15000
+                    });
                     setShowExerciseModal(true);
                   }}
                 >
@@ -385,25 +417,7 @@ export default function StructuralAdminPage() {
                           >
                             <i className="fas fa-edit"></i>
                           </button>
-                          {!ex.active && (
-                            <button
-                              onClick={() => {
-                                secretaryService.calculateRefueling(ex.id)
-                                  .then(() => showToast("Renflouement calculé avec succès.", "success"))
-                                  .catch((err: any) => {
-                                    if (err.message?.includes("already calculated")) {
-                                      showToast("Le renflouement a déjà été effectué pour cet exercice.", "info");
-                                    } else {
-                                      showToast("Erreur lors du calcul du renflouement.", "error");
-                                    }
-                                  });
-                              }}
-                              style={{ background: "none", border: "none", color: "#1cc88a", cursor: "pointer", fontSize: "1.1rem", padding: "0.5rem" }}
-                              title="Calculer le Renflouement"
-                            >
-                              <i className="fas fa-hand-holding-usd"></i>
-                            </button>
-                          )}
+
                           <button
                             onClick={() => showToast("Génération du rapport en cours...", "info")}
                             style={{ background: "none", border: "none", color: "#718096", cursor: "pointer", fontSize: "1.1rem", padding: "0.5rem" }}
@@ -442,18 +456,18 @@ export default function StructuralAdminPage() {
                     type="number"
                     className={styles.formInput}
                     value={exerciseForm.year}
-                    onChange={e => setExerciseForm({ ...exerciseForm, year: parseInt(e.target.value) })}
+                    onChange={e => setExerciseForm({ ...exerciseForm, year: parseInt(e.target.value) || 0 })}
                     required
+                    disabled={!!exerciseForm.id}
                   />
                 </div>
                 <div className={styles.formField}>
-                  <label>Nom de l{"'"}Exercice</label>
+                  <label>Nom de l{"'"}Exercice (facultatif)</label>
                   <input
                     type="text"
                     className={styles.formInput}
                     value={exerciseForm.name}
                     onChange={e => setExerciseForm({ ...exerciseForm, name: e.target.value })}
-                    required
                   />
                 </div>
                 <div className={styles.formField}>

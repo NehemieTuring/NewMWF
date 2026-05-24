@@ -22,6 +22,8 @@ export default function MemberProfilPage() {
   // Password states
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Editable fields
   const [editMode, setEditMode] = useState(false);
@@ -340,25 +342,45 @@ export default function MemberProfilPage() {
                 <form onSubmit={handleUpdatePassword} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
                   <div>
                     <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.5rem", color: "var(--text-dark)" }}>Nouveau mot de passe</label>
-                    <input
-                      type="password"
-                      className={styles.input}
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="••••••••"
-                      required
-                    />
+                    <div style={{ position: "relative" }}>
+                      <input
+                        type={showNewPassword ? "text" : "password"}
+                        className={styles.input}
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="••••••••"
+                        style={{ paddingRight: "3rem" }}
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowNewPassword(!showNewPassword)}
+                        style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: "8px" }}
+                      >
+                        <i className={`fas ${showNewPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
+                      </button>
+                    </div>
                   </div>
                   <div>
                     <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.5rem", color: "var(--text-dark)" }}>Confirmer le mot de passe</label>
-                    <input
-                      type="password"
-                      className={styles.input}
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="••••••••"
-                      required
-                    />
+                    <div style={{ position: "relative" }}>
+                      <input
+                        type={showConfirmPassword ? "text" : "password"}
+                        className={styles.input}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="••••••••"
+                        style={{ paddingRight: "3rem" }}
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: "8px" }}
+                      >
+                        <i className={`fas ${showConfirmPassword ? "fa-eye-slash" : "fa-eye"}`}></i>
+                      </button>
+                    </div>
                   </div>
                   <button type="submit" className={styles.confirmBtn} style={{ marginTop: "0.5rem", justifyContent: "center", background: "linear-gradient(135deg, #4e73df, #224abe)", boxShadow: "0 4px 15px rgba(78,115,223,0.25)" }}>
                     <i className="fas fa-lock"></i> Enregistrer le nouveau mot de passe

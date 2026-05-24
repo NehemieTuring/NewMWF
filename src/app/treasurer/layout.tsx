@@ -14,7 +14,7 @@ export default function TreasurerLayout({ children }: { children: React.ReactNod
   const { user, loading, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
@@ -79,6 +79,10 @@ export default function TreasurerLayout({ children }: { children: React.ReactNod
               <Link href="/treasurer/profil" className={styles.menuItem}>
                 <i className="fas fa-user-circle"></i>
                 <span>{t.common.monProfil}</span>
+              </Link>
+              <Link href="/treasurer/parametres" className={styles.menuItem}>
+                <i className="fas fa-cog"></i>
+                <span>{t.admin.parametres}</span>
               </Link>
               <button className={styles.menuItem} onClick={() => setShowLogout(true)}>
                 <i className="fas fa-sign-out-alt"></i>

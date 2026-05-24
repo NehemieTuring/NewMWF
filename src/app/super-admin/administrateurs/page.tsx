@@ -10,13 +10,15 @@ import {
   activateAdmin,
   deleteAdmin,
   changeUserPasswordByEmail,
+  importAdminsCsv,
   AdminData,
 } from "@/services/superAdminService";
+import { useRef } from "react";
 
 type ModalType = "add" | "delete" | "password" | null;
 
 export default function AdminManagementPage() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const [admins, setAdmins] = useState<AdminData[]>([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState<ModalType>(null);
@@ -24,7 +26,11 @@ export default function AdminManagementPage() {
   const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [showAddPassword, setShowAddPassword] = useState(false);
-  const [showChangePassword, setShowChangePassword] = useState(false)
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [showCsvModal, setShowCsvModal] = useState(false);
+  const [csvUploading, setCsvUploading] = useState(false);
+  const [csvResult, setCsvResult] = useState<any>(null);
+  const csvInputRef = useRef<HTMLInputElement>(null);
 
   // Form state for adding admin
   const [addForm, setAddForm] = useState({
@@ -136,6 +142,23 @@ export default function AdminManagementPage() {
     }
   }
 
+  async function handleCsvUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCsvUploading(true);
+    setCsvResult(null);
+    try {
+      const result = await importAdminsCsv(file);
+      setCsvResult(result);
+      loadAdmins();
+    } catch (err: any) {
+      setCsvResult({ error: true, message: err.message || "Erreur lors de l'import." });
+    } finally {
+      setCsvUploading(false);
+      if (csvInputRef.current) csvInputRef.current.value = "";
+    }
+  }
+
   if (loading) {
     return (
       <div className={styles.page}>
@@ -154,10 +177,20 @@ export default function AdminManagementPage() {
           <h1 className={styles.title}>{t.superAdmin.gestionAdmins}</h1>
           <p className={styles.subtitle}>{admins.length} {t.admin.administrateurs.toLowerCase()}</p>
         </div>
-        <button className={styles.addBtn} onClick={() => openModal("add")}>
-          <i className="fas fa-plus"></i>
-          {t.superAdmin.ajouterAdmin}
-        </button>
+        <div style={{ display: "flex", gap: "0.75rem" }}>
+          <button
+            className={styles.addBtn}
+            style={{ background: "linear-gradient(135deg, #1cc88a, #13a56d)" }}
+            onClick={() => { setCsvResult(null); setShowCsvModal(true); }}
+          >
+            <i className="fas fa-file-csv"></i>
+            {locale === "fr" ? "Importer CSV" : "Import CSV"}
+          </button>
+          <button className={styles.addBtn} onClick={() => openModal("add")}>
+            <i className="fas fa-plus"></i>
+            {t.superAdmin.ajouterAdmin}
+          </button>
+        </div>
       </div>
 
       {/* Admin Cards Grid */}
@@ -195,7 +228,7 @@ export default function AdminManagementPage() {
                     </div>
                   </td>
                   <td>
-                    <span className={styles.usernameText}>{admin.username}</span>
+                    <span className={styles.usernameText}>@{admin.username}</span>
                   </td>
                   <td>
                     <span className={styles.roleBadge}>{getRoleName(admin.adminRole)}</span>
@@ -364,6 +397,82 @@ export default function AdminManagementPage() {
         <div className={`${styles.toast} ${toast.type === "success" ? styles.toastSuccess : styles.toastError}`}>
           <i className={`fas ${toast.type === "success" ? "fa-check-circle" : "fa-exclamation-circle"}`}></i>
           {toast.message}
+        </div>
+      )}
+
+      {/* CSV Import Modal */}
+      {showCsvModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowCsvModal(false)}>
+          <div className={styles.modal} style={{ maxWidth: "600px" }} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader} style={{ background: "linear-gradient(135deg, #1cc88a, #13a56d)", color: "white" }}>
+              <h3 style={{ color: "white" }}><i className="fas fa-file-csv"></i> {locale === "fr" ? "Importer des administrateurs via CSV" : "Import administrators via CSV"}</h3>
+              <button className={styles.modalClose} style={{ color: "white" }} onClick={() => setShowCsvModal(false)}>
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <div className={styles.modalBody} style={{ padding: "1.5rem" }}>
+              {/* Format instructions */}
+              <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "12px", padding: "1rem", marginBottom: "1.5rem" }}>
+                <p style={{ fontWeight: 700, fontSize: "0.85rem", color: "#166534", marginBottom: "0.5rem" }}>
+                  <i className="fas fa-info-circle"></i> {locale === "fr" ? "Format du fichier CSV" : "CSV File Format"}
+                </p>
+                <p style={{ fontSize: "0.8rem", color: "#15803d", margin: 0, lineHeight: 1.6 }}>
+                  {locale === "fr" ? "En-tête requis :" : "Required header:"} <code style={{ background: "#dcfce7", padding: "0.1rem 0.3rem", borderRadius: 4 }}>nom;prenom;email;username;password;role</code><br />
+                  <strong>{locale === "fr" ? "Champs obligatoires :" : "Required fields:"}</strong> <code>username</code>, <code>password</code>, <code>role</code><br />
+                  <strong>{locale === "fr" ? "Rôles valides :" : "Valid roles:"}</strong> <code>SECRETAIRE_GENERALE</code>, <code>PRESIDENT</code>, <code>TRESORIER</code>
+                </p>
+              </div>
+
+              {/* Upload zone */}
+              <label htmlFor="csv-admin-input" style={{
+                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                border: "2px dashed #cbd5e1", borderRadius: "16px", padding: "2rem", cursor: "pointer",
+                transition: "all 0.2s", background: "#fafbfc", marginBottom: "1rem"
+              }}>
+                {csvUploading ? (
+                  <>
+                    <i className="fas fa-spinner fa-spin" style={{ fontSize: "2rem", color: "#1cc88a", marginBottom: "0.75rem" }}></i>
+                    <span style={{ fontWeight: 600, color: "#4a5568" }}>{locale === "fr" ? "Import en cours..." : "Importing..."}</span>
+                  </>
+                ) : (
+                  <>
+                    <i className="fas fa-cloud-upload-alt" style={{ fontSize: "2rem", color: "#94a3b8", marginBottom: "0.75rem" }}></i>
+                    <span style={{ fontWeight: 600, color: "#4a5568" }}>{locale === "fr" ? "Cliquez ou déposez votre fichier CSV" : "Click or drop your CSV file"}</span>
+                    <span style={{ fontSize: "0.75rem", color: "#94a3b8", marginTop: "0.25rem" }}>{locale === "fr" ? "Format accepté : .csv" : "Accepted format: .csv"}</span>
+                  </>
+                )}
+              </label>
+              <input ref={csvInputRef} id="csv-admin-input" type="file" accept=".csv" style={{ display: "none" }} onChange={handleCsvUpload} />
+
+              {/* Results */}
+              {csvResult && !csvResult.error && (
+                <div style={{ marginTop: "1rem" }}>
+                  <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
+                    <div style={{ flex: 1, background: "#f0fdf4", borderRadius: "10px", padding: "0.75rem 1rem", textAlign: "center" }}>
+                      <div style={{ fontSize: "1.5rem", fontWeight: 800, color: "#16a34a" }}>{csvResult.successCount}</div>
+                      <div style={{ fontSize: "0.75rem", color: "#15803d" }}>{locale === "fr" ? "Réussis" : "Success"}</div>
+                    </div>
+                    <div style={{ flex: 1, background: csvResult.errorCount > 0 ? "#fef2f2" : "#f8fafc", borderRadius: "10px", padding: "0.75rem 1rem", textAlign: "center" }}>
+                      <div style={{ fontSize: "1.5rem", fontWeight: 800, color: csvResult.errorCount > 0 ? "#dc2626" : "#94a3b8" }}>{csvResult.errorCount}</div>
+                      <div style={{ fontSize: "0.75rem", color: csvResult.errorCount > 0 ? "#b91c1c" : "#94a3b8" }}>{locale === "fr" ? "Erreurs" : "Errors"}</div>
+                    </div>
+                  </div>
+                  {csvResult.details?.filter((d: any) => d.status === "error").length > 0 && (
+                    <div style={{ maxHeight: "150px", overflow: "auto", fontSize: "0.8rem", color: "#dc2626", background: "#fef2f2", borderRadius: "8px", padding: "0.75rem" }}>
+                      {csvResult.details.filter((d: any) => d.status === "error").map((d: any, i: number) => (
+                        <div key={i}>Ligne {d.line} ({d.username}): {d.message}</div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              {csvResult?.error && (
+                <div style={{ marginTop: "1rem", background: "#fef2f2", borderRadius: "10px", padding: "1rem", color: "#dc2626", fontSize: "0.85rem" }}>
+                  <i className="fas fa-exclamation-circle"></i> {csvResult.message}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>

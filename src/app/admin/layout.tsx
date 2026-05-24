@@ -14,7 +14,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { user, loading, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
@@ -65,9 +65,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <aside className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ""}`}>
           <div className={styles.sidebarHeader}>
             <Link href="/admin" className={styles.sidebarLogo} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
-              <div className={styles.avatarPlaceholder} style={{ 
+              <div className={styles.avatarPlaceholder} style={{
                 width: "60px", height: "60px", fontSize: "1.5rem",
-                overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' 
+                overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center'
               }}>
                 {(() => {
                   const photo = user?.avatar || (user as any)?.photoUrl;
@@ -107,6 +107,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <i className="fas fa-user-circle"></i>
                 <span>{t.common.monProfil}</span>
               </Link>
+              <Link href="/admin/parametres-globaux" className={styles.menuItem}>
+                <i className="fas fa-cog"></i>
+                <span>{t.admin.parametres}</span>
+              </Link>
               <button className={styles.menuItem} onClick={() => setShowLogout(true)}>
                 <i className="fas fa-sign-out-alt"></i>
                 <span>{t.common.deconnexion}</span>
@@ -141,15 +145,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </button>
                 {langOpen && (
                   <div className={styles.dropdownMenu}>
-                    <button 
-                      className={styles.dropdownItem} 
+                    <button
+                      className={styles.dropdownItem}
                       onClick={() => { setLocale("fr"); setLangOpen(false); }}
                       style={{ background: "none", border: "none", width: "100%", cursor: "pointer" }}
                     >
                       Français
                     </button>
-                    <button 
-                      className={styles.dropdownItem} 
+                    <button
+                      className={styles.dropdownItem}
                       onClick={() => { setLocale("en"); setLangOpen(false); }}
                       style={{ background: "none", border: "none", width: "100%", cursor: "pointer" }}
                     >

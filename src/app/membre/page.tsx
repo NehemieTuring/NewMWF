@@ -93,7 +93,8 @@ export default function MembreDashboard() {
     }
   }, [user]);
 
-  const totalDebtAmount = Array.isArray(debts) ? debts.reduce((sum, d) => sum + (d.amount || 0), 0) : (debts?.totalDebts || 0);
+  const solidarityDebt = Array.isArray(debts) ? debts.filter(d => d.type === "SOLIDARITY" || d.type === "REFUELING").reduce((sum, d) => sum + (d.amount || 0), 0) : 0;
+  const loanDebt = Array.isArray(debts) ? debts.filter(d => d.type === "LOAN").reduce((sum, d) => sum + (d.amount || 0), 0) : 0;
 
   function formatAmount(n: number) {
     return (n || 0).toLocaleString(locale === "fr" ? "fr-FR" : "en-US");
@@ -148,11 +149,21 @@ export default function MembreDashboard() {
 
         <div className={styles.statCard}>
           <div className={styles.statIcon} style={{ background: "rgba(246,194,62,0.1)", color: "#f6c23e" }}>
-            <i className="fas fa-file-invoice-dollar"></i>
+            <i className="fas fa-sync-alt"></i>
           </div>
           <div className={styles.statInfo}>
-            <span className={styles.statLabel}>Dettes Totales</span>
-            <span className={styles.statValue}>{formatAmount(totalDebtAmount)} <small>XAF</small></span>
+            <span className={styles.statLabel}>Dette Renflouement</span>
+            <span className={styles.statValue}>{formatAmount(solidarityDebt)} <small>XAF</small></span>
+          </div>
+        </div>
+
+        <div className={styles.statCard}>
+          <div className={styles.statIcon} style={{ background: "rgba(231,74,59,0.1)", color: "#e74a3b" }}>
+            <i className="fas fa-hand-holding-usd"></i>
+          </div>
+          <div className={styles.statInfo}>
+            <span className={styles.statLabel}>Dette d'Emprunt</span>
+            <span className={styles.statValue}>{formatAmount(loanDebt)} <small>XAF</small></span>
           </div>
         </div>
 
@@ -234,15 +245,6 @@ export default function MembreDashboard() {
             }}>
               <i className="fas fa-hand-holding-usd" style={{ fontSize: "1.1rem" }}></i>
               Demander un emprunt
-            </Link>
-            <Link href="/membre/finances" style={{
-              background: "white", color: "#4e73df", border: "2px solid rgba(78,115,223,0.2)",
-              padding: "1.15rem 1.25rem", borderRadius: "14px",
-              textDecoration: "none", fontWeight: 600, display: "flex", alignItems: "center", gap: "0.75rem",
-              transition: "all 0.3s ease"
-            }}>
-              <i className="fas fa-plus-circle" style={{ fontSize: "1.1rem" }}></i>
-              Faire une épargne
             </Link>
             <Link href="/membre/aides" style={{
               background: "#f8f9fc", color: "#2e3b4e",
