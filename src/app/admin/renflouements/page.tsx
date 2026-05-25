@@ -92,16 +92,34 @@ export default function AdminRenflouementsPage() {
         <div className={styles.refuelingDetails}>
           <div className={styles.summaryGrid}>
             <div className={styles.statBox}>
-              <span>Dépenses Totales</span>
-              <h3>{formatAmount(refueling.totalOutflows)} XAF</h3>
+              <i className="fas fa-bullseye" style={{ color: '#4e73df', fontSize: '1.2rem' }}></i>
+              <span>Cible du Fonds Social</span>
+              <h3>{formatAmount(refueling.fundTarget)} XAF</h3>
+              <small style={{ color: '#64748b' }}>({refueling.eligibleMemberCount} membres × 150 000)</small>
             </div>
             <div className={styles.statBox}>
-              <span>Membres Éligibles</span>
+              <i className="fas fa-vault" style={{ color: '#1cc88a', fontSize: '1.2rem' }}></i>
+              <span>Solde Réel Actuel</span>
+              <h3>{formatAmount(refueling.currentBalance)} XAF</h3>
+              <small style={{ color: '#64748b' }}>Caisse Solidarité</small>
+            </div>
+            <div className={styles.statBox}>
+              <i className="fas fa-exclamation-triangle" style={{ color: '#e74a3b', fontSize: '1.2rem' }}></i>
+              <span>Manque à combler (Déficit)</span>
+              <h3 style={{ color: '#e74a3b' }}>{formatAmount(refueling.totalOutflows)} XAF</h3>
+              <small style={{ color: '#64748b' }}>À répartir entre les membres</small>
+            </div>
+            <div className={styles.statBox}>
+              <i className="fas fa-user-friends" style={{ color: '#f6c23e', fontSize: '1.2rem' }}></i>
+              <span>Nombre de Débiteurs</span>
               <h3>{refueling.eligibleMemberCount} membres</h3>
+              <small style={{ color: '#64748b' }}>Membres présents au début</small>
             </div>
             <div className={styles.statBox}>
-              <span>Montant / Membre</span>
+              <i className="fas fa-donate" style={{ color: '#4e73df', fontSize: '1.2rem' }}></i>
+              <span>Dette par Membre</span>
               <h3>{formatAmount(refueling.amountPerMember)} XAF</h3>
+              <small style={{ color: '#64748b' }}>Calcul: Déficit / Nb Membres</small>
             </div>
           </div>
 
@@ -112,7 +130,8 @@ export default function AdminRenflouementsPage() {
                 <span style={{ fontWeight: 700, color: '#1e293b' }}>Détails du Renflouement</span>
               </div>
               <span className={`${styles.statusBadge} ${styles['status' + (refueling.status || 'PENDING')]}`}>
-                {refueling.status === 'DISTRIBUTED' ? 'Distribué' : 'En attente'}
+                {refueling.status === 'DISTRIBUTED' ? 'Distribué' :
+                  refueling.status === 'NO_REFUELING_NEEDED' ? 'Aucun besoin' : 'En attente'}
               </span>
             </div>
             <div className={styles.cardBody}>

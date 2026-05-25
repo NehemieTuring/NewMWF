@@ -4,8 +4,15 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .header {
@@ -46,7 +53,7 @@
   background: white;
   padding: 2rem;
   border-radius: 20px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   margin-bottom: 2rem;
 }
 
@@ -117,12 +124,12 @@
 
 .statBox {
   background: white;
-  padding: 2rem;
+  padding: 1.5rem 2rem;
   border-radius: 20px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
   border-left: 5px solid #4e73df;
   transition: transform 0.3s ease;
 }
@@ -131,8 +138,26 @@
   transform: translateY(-5px);
 }
 
-.statBox:nth-child(2) { border-left-color: #1cc88a; }
-.statBox:nth-child(3) { border-left-color: #f6c23e; }
+.statBox:nth-child(2) {
+  border-left-color: #1cc88a;
+}
+
+.statBox:nth-child(3) {
+  border-left-color: #e74a3b;
+}
+
+.statBox:nth-child(4) {
+  border-left-color: #f6c23e;
+}
+
+.statBox:nth-child(5) {
+  border-left-color: #36b9cc;
+}
+
+.statusNO_REFUELING_NEEDED {
+  background: #e0f2fe;
+  color: #0369a1;
+}
 
 .statBox span {
   font-size: 0.875rem;
@@ -152,7 +177,7 @@
   background: white;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   margin-bottom: 2rem;
 }
 
@@ -173,8 +198,15 @@
   text-transform: uppercase;
 }
 
-.statusDISTRIBUTED { background: #d1fae5; color: #065f46; }
-.statusPENDING { background: #fef3c7; color: #92400e; }
+.statusDISTRIBUTED {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.statusPENDING {
+  background: #fef3c7;
+  color: #92400e;
+}
 
 .cardBody {
   padding: 2rem;
@@ -188,7 +220,9 @@
   margin-bottom: 1rem;
 }
 
-.infoRow i { color: #4e73df; }
+.infoRow i {
+  color: #4e73df;
+}
 
 .actions {
   display: flex;

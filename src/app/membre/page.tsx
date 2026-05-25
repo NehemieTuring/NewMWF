@@ -246,15 +246,7 @@ export default function MembreDashboard() {
               <i className="fas fa-hand-holding-usd" style={{ fontSize: "1.1rem" }}></i>
               Demander un emprunt
             </Link>
-            <Link href="/membre/aides" style={{
-              background: "#f8f9fc", color: "#2e3b4e",
-              padding: "1.15rem 1.25rem", borderRadius: "14px",
-              textDecoration: "none", fontWeight: 600, display: "flex", alignItems: "center", gap: "0.75rem",
-              transition: "all 0.3s ease"
-            }}>
-              <i className="fas fa-heart" style={{ fontSize: "1.1rem", color: "#e74a3b" }}></i>
-              Contribuer à une aide
-            </Link>
+
             <Link href="/membre/profil" style={{
               background: "#f8f9fc", color: "#2e3b4e",
               padding: "1.15rem 1.25rem", borderRadius: "14px",
