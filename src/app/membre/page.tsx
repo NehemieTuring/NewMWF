@@ -211,7 +211,7 @@ export default function MembreDashboard() {
                       </div>
                       <div>
                         <h4 style={{ fontSize: "0.9rem", margin: 0, fontWeight: 700 }}>{help.helpType?.name}</h4>
-                        <small style={{ color: "#858796" }}>{help.member?.user?.firstName} {help.member?.user?.name}</small>
+                        <small style={{ color: "#858796", fontWeight: 600 }}>AIDE DE {help.member?.user?.firstName} {help.member?.user?.name}</small>
                       </div>
                     </div>
                     <span style={{ fontSize: "0.8rem", fontWeight: 800, color: "#1cc88a", background: "rgba(28,200,138,0.08)", padding: "0.2rem 0.6rem", borderRadius: "8px", height: "fit-content" }}>{progress}%</span>

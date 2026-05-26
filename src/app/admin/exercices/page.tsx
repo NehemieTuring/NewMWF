@@ -16,7 +16,13 @@ export default function ExercicesPage() {
 
   // States for Creation Modal
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newExercise, setNewExercise] = useState({ year: new Date().getFullYear().toString(), interestRate: 5 });
+  const [newExercise, setNewExercise] = useState({
+    year: new Date().getFullYear().toString(),
+    interestRate: 5,
+    solidarityAmount: 150000,
+    agapeAmount: 45000,
+    penaltyAmount: 15000
+  });
   const [creating, setCreating] = useState(false);
 
   // States for Closure Confirmation
@@ -152,13 +158,13 @@ export default function ExercicesPage() {
       {/* Creation Modal */}
       {showCreateModal && (
         <div className="modal-overlay">
-          <div className="modal-content">
+          <div className="modal-content" style={{ maxWidth: '600px' }}>
             <header className="modal-header">
               <h3>{t.exercices.creer}</h3>
               <button className="modal-close" onClick={() => setShowCreateModal(false)}>&times;</button>
             </header>
-            <div className="modal-body">
-              <div className="form-group">
+            <div className="modal-body" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+              <div className={styles.formGroup}>
                 <label className="form-label">{t.exercices.annee}</label>
                 <input
                   type="text"
@@ -167,13 +173,40 @@ export default function ExercicesPage() {
                   onChange={(e) => setNewExercise({ ...newExercise, year: e.target.value })}
                 />
               </div>
-              <div className="form-group">
+              <div className={styles.formGroup}>
                 <label className="form-label">{t.exercices.taux}</label>
                 <input
                   type="number"
                   className="form-input"
                   value={newExercise.interestRate}
                   onChange={(e) => setNewExercise({ ...newExercise, interestRate: parseInt(e.target.value) })}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label className="form-label">Montant Solidarité</label>
+                <input
+                  type="number"
+                  className="form-input"
+                  value={newExercise.solidarityAmount}
+                  onChange={(e) => setNewExercise({ ...newExercise, solidarityAmount: parseInt(e.target.value) })}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label className="form-label">Montant Agape</label>
+                <input
+                  type="number"
+                  className="form-input"
+                  value={newExercise.agapeAmount}
+                  onChange={(e) => setNewExercise({ ...newExercise, agapeAmount: parseInt(e.target.value) })}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label className="form-label">Pénalité Assemblée</label>
+                <input
+                  type="number"
+                  className="form-input"
+                  value={newExercise.penaltyAmount}
+                  onChange={(e) => setNewExercise({ ...newExercise, penaltyAmount: parseInt(e.target.value) })}
                 />
               </div>
             </div>

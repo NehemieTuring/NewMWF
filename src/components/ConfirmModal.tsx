@@ -13,6 +13,7 @@ interface ConfirmModalProps {
   cancelText?: string;
   type?: "danger" | "info" | "success" | "warning";
   requiredConfirmValue?: string;
+  isLoading?: boolean;
 }
 
 export default function ConfirmModal({
@@ -24,7 +25,8 @@ export default function ConfirmModal({
   confirmText = "Confirmer",
   cancelText = "Annuler",
   type = "info",
-  requiredConfirmValue
+  requiredConfirmValue,
+  isLoading = false
 }: ConfirmModalProps) {
   const [inputValue, setInputValue] = useState("");
 
@@ -97,9 +99,10 @@ export default function ConfirmModal({
             type="button"
             className={`${styles.btn} ${styles[type]} ${styles.btnConfirm}`}
             onClick={onConfirm}
-            disabled={isConfirmDisabled}
-            style={{ opacity: isConfirmDisabled ? 0.5 : 1, cursor: isConfirmDisabled ? 'not-allowed' : 'pointer' }}
+            disabled={isConfirmDisabled || isLoading}
+            style={{ opacity: (isConfirmDisabled || isLoading) ? 0.5 : 1, cursor: (isConfirmDisabled || isLoading) ? 'not-allowed' : 'pointer' }}
           >
+            {isLoading && <i className="fas fa-spinner fa-spin" style={{ marginRight: '0.5rem' }}></i>}
             {confirmText}
           </button>
         </div>

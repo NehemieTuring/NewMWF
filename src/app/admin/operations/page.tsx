@@ -310,6 +310,7 @@ export default function GlobalOperationsPage() {
                     "BORROWING_LOAN": "Prêt accordé",
                     "LOAN_REFUND": "Remboursement prêt",
                     "SOLIDARITY_PAYMENT": "Cotisation Solidarité",
+                    "SOLIDARITY_HELP": "Solidarité / Aide",
                     "AGAPE": "Agape",
                     "INSCRIPTION": "Frais d'inscription",
                     "PENALTY": "Pénalité"
