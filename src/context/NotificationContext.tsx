@@ -12,11 +12,13 @@ interface NotificationContextType {
 interface ConfirmOptions {
   title: string;
   message: string;
-  onConfirm: () => void;
+  onConfirm: (motive?: string) => void;
   confirmText?: string;
   cancelText?: string;
   type?: "danger" | "info" | "success" | "warning";
   requiredConfirmValue?: string;
+  showMotiveInput?: boolean;
+  motivePlaceholder?: string;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -27,11 +29,13 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     isOpen: boolean;
     title: string;
     message: string;
-    onConfirm: () => void;
+    onConfirm: (motive?: string) => void;
     confirmText?: string;
     cancelText?: string;
     type?: "danger" | "info" | "success" | "warning";
     requiredConfirmValue?: string;
+    showMotiveInput?: boolean;
+    motivePlaceholder?: string;
   } | null>(null);
 
   const showToast = useCallback((message: string, type: ToastType = "info") => {
@@ -43,14 +47,16 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       isOpen: true,
       title: options.title,
       message: options.message,
-      onConfirm: () => {
-        options.onConfirm();
+      onConfirm: (motive?: string) => {
+        options.onConfirm(motive);
         setConfirmState(null);
       },
       confirmText: options.confirmText,
       cancelText: options.cancelText,
       type: options.type || "info",
       requiredConfirmValue: options.requiredConfirmValue,
+      showMotiveInput: options.showMotiveInput,
+      motivePlaceholder: options.motivePlaceholder,
     });
   }, []);
 
@@ -75,6 +81,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           cancelText={confirmState.cancelText}
           type={confirmState.type}
           requiredConfirmValue={confirmState.requiredConfirmValue}
+          showMotiveInput={confirmState.showMotiveInput}
+          motivePlaceholder={confirmState.motivePlaceholder}
         />
       )}
     </NotificationContext.Provider>

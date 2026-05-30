@@ -68,6 +68,9 @@ export default function SessionDetailsPage() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
+        <button type="button" className={styles.backBtn} onClick={() => router.push("/admin/parametres")} style={{ marginBottom: "1rem", alignSelf: "flex-start" }}>
+          <i className="fas fa-chevron-left"></i> Retour aux sessions
+        </button>
         <div className={styles.titleSection}>
           <h1 className={styles.title}>Bilan : {data.sessionName || "Session"}</h1>
           <p className={styles.subtitle}>
@@ -76,9 +79,6 @@ export default function SessionDetailsPage() {
             {data.sessionState ? ` — ${data.sessionState === "OPEN" || data.sessionState === "SAVING" ? "🟢 Ouverte" : "🔒 Clôturée"}` : ""}
           </p>
         </div>
-        <button type="button" className={styles.backBtn} onClick={() => router.push("/admin/parametres")}>
-          <i className="fas fa-chevron-left"></i> Retour aux sessions
-        </button>
       </header>
 
       <div className={styles.statsGrid}>
@@ -144,10 +144,39 @@ export default function SessionDetailsPage() {
                   <td>{new Date(tx.date).toLocaleDateString()}</td>
                   <td>
                     <span className={`${styles.badge} ${styles['badge_' + tx.type] || ''}`}>
-                      {tx.type || "AUTRE"}
+                      {(() => {
+                        const mapping: any = {
+                          "SAVING_DEPOSIT": "DÉPÔT D'ÉPARGNE",
+                          "SAVING_WITHDRAWAL": "RETRAIT D'ÉPARGNE",
+                          "BORROWING_LOAN": "PRÊT ACCORDÉ",
+                          "LOAN_REFUND": "REMBOURSEMENT PRÊT",
+                          "SOLIDARITY_PAYMENT": "COTISATION SOLIDARITÉ",
+                          "SOLIDARITY_HELP": "SOLIDARITÉ / AIDE",
+                          "AGAPE": "AGAPE",
+                          "INSCRIPTION": "FRAIS D'INSCRIPTION",
+                          "PENALTY": "PÉNALITÉ"
+                        };
+                        return mapping[tx.type] || tx.type || "AUTRE";
+                      })()}
                     </span>
                   </td>
-                  <td style={{ fontWeight: 700 }}>{tx.description}</td>
+                  <td style={{ fontWeight: 700 }}>
+                    {(() => {
+                      const desc = tx.description || "";
+                      const mapping: any = {
+                        "Saving deposit": "Dépôt d'épargne",
+                        "Saving withdrawal": "Retrait d'épargne",
+                        "Loan refund": "Remboursement de prêt",
+                        "Solidarity payment": "Cotisation solidarité",
+                        "Loan granted": "Prêt accordé",
+                        "Social Fund help": "Aide Fonds Social",
+                        "Penalty payment": "Paiement de pénalité",
+                        "Agape contribution": "Contribution Agape",
+                        "Inscription fee": "Frais d'inscription"
+                      };
+                      return mapping[desc] || desc;
+                    })()}
+                  </td>
                   <td style={{ textAlign: "right" }} className={tx.amount > 0 ? styles.amount_pos : styles.amount_neg}>
                     {formatAmount(tx.amount)} XAF
                   </td>

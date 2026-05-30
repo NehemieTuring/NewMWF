@@ -15,6 +15,46 @@
   }
 }
 
+@media print {
+
+  .exerciseSection,
+  .actions,
+  .secondaryBtn,
+  .calculateBtn,
+  .pdfBtn {
+    display: none !important;
+  }
+
+  .page {
+    padding: 0;
+    margin: 0;
+  }
+
+  .summaryGrid {
+    display: block !important;
+  }
+
+  .statBox {
+    break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+    margin-bottom: 1rem;
+    padding: 1rem !important;
+  }
+
+  .header {
+    background: none !important;
+    color: black !important;
+    border-bottom: 2px solid #000;
+    padding: 1rem 0 !important;
+    box-shadow: none !important;
+  }
+
+  .header::after {
+    display: none;
+  }
+}
+
 .header {
   margin-bottom: 3rem;
   background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);

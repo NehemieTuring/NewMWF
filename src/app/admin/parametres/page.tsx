@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import styles from "../admin.module.css";
 import { secretaryService } from "@/services/secretaryService";
 import { useNotification } from "@/context/NotificationContext";
+import { useAuth } from "@/context/AuthContext";
 
 type Tab = "sessions" | "exercices";
 
@@ -11,6 +12,8 @@ export default function StructuralAdminPage() {
   const [activeTab, setActiveTab] = useState<Tab>("sessions");
   const [loading, setLoading] = useState(true);
   const { showToast, confirm } = useNotification();
+  const { user } = useAuth();
+  const isTreasurer = user?.subRole === "TRESORIER";
 
   // Data states
   const [sessions, setSessions] = useState<any[]>([]);
@@ -69,6 +72,16 @@ export default function StructuralAdminPage() {
 
   const handleCreateExercise = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Client-side check for duplicates
+    if (!exerciseForm.id) {
+      const exists = exercises.some(ex => ex.year === exerciseForm.year);
+      if (exists) {
+        showToast(`L'année ${exerciseForm.year} est déjà utilisée par un autre exercice. Veuillez choisir une autre année ou modifier l'existant.`, "warning");
+        return;
+      }
+    }
+
     try {
       if (exerciseForm.id) {
         await secretaryService.updateExercise(exerciseForm.id, exerciseForm as any);
@@ -82,8 +95,8 @@ export default function StructuralAdminPage() {
     } catch (err: any) {
       console.error(err);
       const msg = err.message || "";
-      if (msg.includes("déjà été créé") || msg.includes("existe déjà")) {
-        showToast(`Impossible de créer cet exercice : l'année ${exerciseForm.year} est déjà utilisée par un autre exercice.`, "error");
+      if (msg.includes("déjà été créé") || msg.includes("existe déjà") || msg.includes("Conflict")) {
+        showToast(`L'année ${exerciseForm.year} est déjà utilisée.`, "error");
       } else {
         showToast(err.message || "Erreur lors de l'enregistrement de l'exercice financier.", "error");
       }
@@ -192,10 +205,10 @@ export default function StructuralAdminPage() {
       {/* Dynamic Animated Header */}
       <header className="fade-in-up" style={{ marginBottom: "2.5rem", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
         <div>
-          <h1 style={{ fontSize: "2.2rem", fontWeight: 900, color: "#1a365d", marginBottom: "0.5rem", letterSpacing: "-0.03em" }}>
+          <h1 style={{ fontSize: "2.2rem", fontWeight: 900, color: "var(--text-dark)", marginBottom: "0.5rem", letterSpacing: "-0.03em" }}>
             Administration & <span className="text-gradient">Structure</span>
           </h1>
-          <p style={{ color: "#718096", fontSize: "1.05rem", fontWeight: 500 }}>Pilotez les exercices annuels et gérez les sessions de la mutuelle.</p>
+          <p style={{ color: "var(--text-muted)", fontSize: "1.05rem", fontWeight: 500 }}>Pilotez les exercices annuels et gérez les sessions de la mutuelle.</p>
         </div>
         <div style={{ display: "flex", gap: "0.75rem" }}>
           <div className={styles.sidebarBadge} style={{ background: "rgba(78, 115, 223, 0.1)", color: "#4e73df", padding: "0.5rem 1rem" }}>
@@ -220,17 +233,21 @@ export default function StructuralAdminPage() {
             <i className="fas fa-clock"></i>
           </div>
           <div className={styles.kpiContent}>
-            <span className={styles.kpiLabel}>Sessions</span>
-            <span className={styles.kpiValue}>{sessions.length} totales</span>
+            <span className={styles.kpiLabel}>Sessions (Exercice en cours)</span>
+            <span className={styles.kpiValue}>
+              {sessions.filter(s => s.exercise?.id === exercises.find(e => e.active)?.id).length} totales
+            </span>
           </div>
         </div>
         <div className={styles.kpiCard}>
-          <div className={styles.kpiIcon} style={{ background: "rgba(246, 194, 62, 0.1)", color: "#f6c23e" }}>
-            <i className="fas fa-hand-holding-heart"></i>
+          <div className={styles.kpiIcon} style={{ background: "rgba(28, 200, 138, 0.1)", color: "#1cc88a" }}>
+            <i className="fas fa-check-circle"></i>
           </div>
           <div className={styles.kpiContent}>
-            <span className={styles.kpiLabel}>Types d{"'"}Aide</span>
-            <span className={styles.kpiValue}>{helpTypes.length}</span>
+            <span className={styles.kpiLabel}>Sessions Clôturées (Exercice en cours)</span>
+            <span className={styles.kpiValue}>
+              {sessions.filter(s => s.exercise?.id === exercises.find(e => e.active)?.id && s.state !== "OPEN" && s.state !== "SAVING").length}
+            </span>
           </div>
         </div>
       </div>
@@ -252,8 +269,8 @@ export default function StructuralAdminPage() {
             <div className="fade-in">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: "1.4rem", fontWeight: 800, color: "#2d3748" }}>Calendrier des Sessions</h3>
-                  <p style={{ color: "#718096", fontSize: "0.9rem" }}>Gérez les rencontres mensuelles et les clôtures.</p>
+                  <h3 style={{ margin: 0, fontSize: "1.4rem", fontWeight: 800, color: "var(--text-dark)" }}>Calendrier des Sessions</h3>
+                  <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>Gérez les rencontres mensuelles et les clôtures.</p>
                 </div>
                 <button
                   className={styles.confirmBtn}
@@ -264,6 +281,15 @@ export default function StructuralAdminPage() {
                       showToast(`La session "${activeSession.name || 'actuelle'}" est déjà ouverte. Veuillez la clôturer avant d'en créer une nouvelle.`, "warning");
                       return;
                     }
+                    const activeExercise = exercises.find(e => e.active);
+                    if (!activeExercise) {
+                      showToast("Veuillez d'abord activer un exercice annuel dans l'onglet 'Exercices'.", "warning");
+                      return;
+                    }
+                    setSessionForm({
+                      ...sessionForm,
+                      exercise: { id: activeExercise.id }
+                    });
                     setShowSessionModal(true);
                   }}
                 >
@@ -271,7 +297,7 @@ export default function StructuralAdminPage() {
                 </button>
               </div>
 
-              <div className={styles.tableCard} style={{ border: "1px solid #e2e8f0", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
+              <div className={styles.tableCard}>
                 <table className={styles.table}>
                   <thead>
                     <tr>
@@ -284,7 +310,7 @@ export default function StructuralAdminPage() {
                   </thead>
                   <tbody>
                     {sessions.length === 0 ? (
-                      <tr><td colSpan={5} style={{ textAlign: "center", padding: "3rem", color: "#a0aec0" }}>Aucune session enregistrée.</td></tr>
+                      <tr><td colSpan={5} style={{ textAlign: "center", padding: "3rem", color: "var(--text-muted)" }}>Aucune session enregistrée.</td></tr>
                     ) : sessions.map(s => (
                       <tr key={s.id}>
                         <td>
@@ -292,8 +318,8 @@ export default function StructuralAdminPage() {
                             {s.sessionNumber}
                           </div>
                         </td>
-                        <td style={{ fontWeight: 700, color: "#1a365d" }}>{s.name || `Session #${s.sessionNumber}`}</td>
-                        <td style={{ color: "#718096", fontSize: "0.9rem" }}>
+                        <td style={{ fontWeight: 700, color: "var(--text-dark)" }}>{s.name || `Session #${s.sessionNumber}`}</td>
+                        <td style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
                           {new Date(s.date).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}
                         </td>
                         <td>
@@ -341,8 +367,8 @@ export default function StructuralAdminPage() {
             <div className="fade-in">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: "1.4rem", fontWeight: 800, color: "#2d3748" }}>Exercices Annuels</h3>
-                  <p style={{ color: "#718096", fontSize: "0.9rem" }}>Historique et configuration des cycles de la mutuelle.</p>
+                  <h3 style={{ margin: 0, fontSize: "1.4rem", fontWeight: 800, color: "var(--text-dark)" }}>Exercices Annuels</h3>
+                  <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>Historique et configuration des cycles de la mutuelle.</p>
                 </div>
                 <button
                   className={styles.confirmBtn}
@@ -371,7 +397,7 @@ export default function StructuralAdminPage() {
                 </button>
               </div>
 
-              <div className={styles.tableCard} style={{ border: "1px solid #e2e8f0", boxShadow: "0 4px 12px rgba(0,0,0,0.03)" }}>
+              <div className={styles.tableCard}>
                 <table className={styles.table}>
                   <thead>
                     <tr>
@@ -392,7 +418,7 @@ export default function StructuralAdminPage() {
                             <span style={{ fontWeight: 700 }}>{ex.name || `Exercice ${ex.year}`}</span>
                           </div>
                         </td>
-                        <td style={{ color: "#718096" }}>
+                        <td style={{ color: "var(--text-muted)" }}>
                           {new Date(ex.startDate).toLocaleDateString()} - {new Date(ex.endDate).toLocaleDateString()}
                         </td>
                         <td>
@@ -410,21 +436,25 @@ export default function StructuralAdminPage() {
                               <i className="fas fa-lock"></i>
                             </button>
                           )}
-                          <button
-                            onClick={() => handleEditExercise(ex)}
-                            style={{ background: "none", border: "none", color: "#4e73df", cursor: "pointer", fontSize: "1.1rem", padding: "0.5rem" }}
-                            title="Modifier"
-                          >
-                            <i className="fas fa-edit"></i>
-                          </button>
+                          {ex.active && (
+                            <button
+                              onClick={() => handleEditExercise(ex)}
+                              style={{ background: "none", border: "none", color: "#4e73df", cursor: "pointer", fontSize: "1.1rem", padding: "0.5rem" }}
+                              title="Modifier"
+                            >
+                              <i className="fas fa-edit"></i>
+                            </button>
+                          )}
 
-                          <button
-                            onClick={() => showToast("Génération du rapport en cours...", "info")}
-                            style={{ background: "none", border: "none", color: "#718096", cursor: "pointer", fontSize: "1.1rem", padding: "0.5rem" }}
-                            title="Rapport"
-                          >
-                            <i className="fas fa-file-alt"></i>
-                          </button>
+                          {isTreasurer && (
+                            <button
+                              onClick={() => window.location.href = `/admin/bilans?ex=${ex.id}`}
+                              style={{ background: "none", border: "none", color: "#718096", cursor: "pointer", fontSize: "1.1rem", padding: "0.5rem" }}
+                              title="Rapport"
+                            >
+                              <i className="fas fa-file-alt"></i>
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -456,7 +486,16 @@ export default function StructuralAdminPage() {
                     type="number"
                     className={styles.formInput}
                     value={exerciseForm.year}
-                    onChange={e => setExerciseForm({ ...exerciseForm, year: parseInt(e.target.value) || 0 })}
+                    onChange={e => {
+                      const yr = parseInt(e.target.value) || 0;
+                      setExerciseForm({
+                        ...exerciseForm,
+                        year: yr,
+                        name: `Exercice ${yr}`,
+                        startDate: `${yr}-01-01`,
+                        endDate: `${yr}-12-31`
+                      });
+                    }}
                     required
                     disabled={!!exerciseForm.id}
                   />
@@ -519,8 +558,8 @@ export default function StructuralAdminPage() {
                     required
                   >
                     <option value="">-- Sélectionner l{"'"}exercice --</option>
-                    {exercises.map(ex => (
-                      <option key={ex.id} value={ex.id}>{ex.year} {ex.active ? "(Actif)" : ""}</option>
+                    {exercises.filter(ex => ex.active).map(ex => (
+                      <option key={ex.id} value={ex.id}>{ex.year} (Actif)</option>
                     ))}
                   </select>
                 </div>

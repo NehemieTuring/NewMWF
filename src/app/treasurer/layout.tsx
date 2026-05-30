@@ -28,12 +28,9 @@ export default function TreasurerLayout({ children }: { children: React.ReactNod
       title: "Menu Trésorier",
       items: [
         { label: "Dashboard", icon: "fas fa-chart-line", href: "/treasurer" },
-        { label: "Finances (Perso)", icon: "fas fa-wallet", href: "/membre/finances" },
         { label: "Gestion des Membres", icon: "fas fa-users", href: "/treasurer/membres" },
         { label: "Comptabilité & Trésorerie", icon: "fas fa-vault", href: "/treasurer/tresorerie" },
-        { label: "Aides", icon: "fas fa-hand-holding-heart", href: "/membre/aides" },
-        { label: "Messagerie", icon: "fas fa-comments", href: "/membre/messages" },
-        { label: "Mon Profil", icon: "fas fa-user-circle", href: "/membre/profil" },
+        { label: "Portail Membre", icon: "fas fa-arrow-left", href: "/membre" },
       ],
     },
   ];
@@ -70,25 +67,6 @@ export default function TreasurerLayout({ children }: { children: React.ReactNod
                 ))}
               </div>
             ))}
-            <div className={styles.menuSection}>
-              <span className={styles.menuTitle}>{t.common.profil}</span>
-              <Link href="/membre" className={styles.menuItem}>
-                <i className="fas fa-arrow-left"></i>
-                <span>Portail Membre</span>
-              </Link>
-              <Link href="/treasurer/profil" className={styles.menuItem}>
-                <i className="fas fa-user-circle"></i>
-                <span>{t.common.monProfil}</span>
-              </Link>
-              <Link href="/treasurer/parametres" className={styles.menuItem}>
-                <i className="fas fa-cog"></i>
-                <span>{t.admin.parametres}</span>
-              </Link>
-              <button className={styles.menuItem} onClick={() => setShowLogout(true)}>
-                <i className="fas fa-sign-out-alt"></i>
-                <span>{t.common.deconnexion}</span>
-              </button>
-            </div>
           </nav>
         </aside>
 
@@ -133,7 +111,7 @@ export default function TreasurerLayout({ children }: { children: React.ReactNod
                 </button>
                 {profileOpen && (
                   <div className={styles.dropdownMenu}>
-                    <Link href="/treasurer/profil" className={styles.dropdownItem} onClick={() => setProfileOpen(false)}>
+                    <Link href="/membre/profil" className={styles.dropdownItem} onClick={() => setProfileOpen(false)}>
                       <i className="fas fa-user-cog"></i>
                       {t.common.monProfil}
                     </Link>

@@ -87,7 +87,8 @@ export default function MembreDashboard() {
         () => setUnreadCount(prev => prev + 1), // Group msg -> increment (or handle differently)
         () => { }, // Update
         () => { }, // Status
-        (count) => setUnreadCount(count) // Direct unread count update from server
+        (count) => setUnreadCount(count), // Direct unread count update from server
+        () => { } // Message status (added missing 7th arg)
       );
       return () => webSocketService.disconnect();
     }
@@ -200,7 +201,7 @@ export default function MembreDashboard() {
             <Link href="/membre/aides" style={{ fontSize: "0.85rem", color: "#4e73df", fontWeight: 600 }}>Voir tout →</Link>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            {activeHelps.slice(0, 3).map((help) => {
+            {activeHelps.map((help) => {
               const progress = Math.min(100, Math.round(((help.collectedAmount || 0) / (help.targetAmount || 1)) * 100));
               return (
                 <div key={help.id} className={styles.dataCard}>

@@ -1,25 +1,39 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import styles from "./bilans.module.css";
 import { useTranslation } from "@/context/LanguageContext";
 import { secretaryService } from "@/services/secretaryService";
 
 export default function AdminBilansPage() {
   const { t, locale } = useTranslation();
+  const { user } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialEx = searchParams.get("ex");
+
   const [exercises, setExercises] = useState<any[]>([]);
   const [sessions, setSessions] = useState<any[]>([]);
-  const [selectedExercise, setSelectedExercise] = useState<string>("");
+  const [selectedExercise, setSelectedExercise] = useState<string>(initialEx || "");
   const [selectedSession, setSelectedSession] = useState<string>("");
   const [bilan, setBilan] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (user && user.subRole !== "TRESORIER") {
+      router.push("/admin");
+    }
+  }, [user, router]);
 
   useEffect(() => {
     async function loadInitialData() {
       try {
         const exData = await secretaryService.getExercises();
         setExercises(exData || []);
-        if (exData && exData.length > 0) {
+        if (exData && exData.length > 0 && !initialEx) {
           const active = exData.find((e: any) => e.active);
           if (active) setSelectedExercise(active.id.toString());
         }
@@ -67,6 +81,10 @@ export default function AdminBilansPage() {
     return (n || 0).toLocaleString(locale === "fr" ? "fr-FR" : "en-US");
   }
 
+  function handlePrint() {
+    window.print();
+  }
+
   return (
     <div className={styles.page}>
       <header className={styles.header}>
@@ -77,12 +95,12 @@ export default function AdminBilansPage() {
       <div className={styles.filters}>
         <div className={styles.filterGroup}>
           <label><i className="fas fa-calendar-check" style={{ marginRight: '8px' }}></i> Exercice</label>
-          <select 
-            value={selectedExercise} 
-            onChange={(e) => { 
-                setSelectedExercise(e.target.value); 
-                setSelectedSession(""); 
-                if (e.target.value) loadExerciseBilan(parseInt(e.target.value));
+          <select
+            value={selectedExercise}
+            onChange={(e) => {
+              setSelectedExercise(e.target.value);
+              setSelectedSession("");
+              if (e.target.value) loadExerciseBilan(parseInt(e.target.value));
             }}
           >
             <option value="">Sélectionner un exercice</option>
@@ -93,11 +111,11 @@ export default function AdminBilansPage() {
         </div>
         <div className={styles.filterGroup}>
           <label><i className="fas fa-clock" style={{ marginRight: '8px' }}></i> Session Spécifique</label>
-          <select 
-            value={selectedSession} 
-            onChange={(e) => { 
-                setSelectedSession(e.target.value); 
-                if (e.target.value) loadSessionBilan(parseInt(e.target.value));
+          <select
+            value={selectedSession}
+            onChange={(e) => {
+              setSelectedSession(e.target.value);
+              if (e.target.value) loadSessionBilan(parseInt(e.target.value));
             }}
           >
             <option value="">Visualiser une session particulière</option>
@@ -110,8 +128,8 @@ export default function AdminBilansPage() {
 
       {loading ? (
         <div className={styles.loading}>
-             <i className="fas fa-circle-notch fa-spin fa-3x"></i>
-             <p style={{ marginTop: '1rem' }}>Génération du rapport en cours...</p>
+          <i className="fas fa-circle-notch fa-spin fa-3x"></i>
+          <p style={{ marginTop: '1rem' }}>Génération du rapport en cours...</p>
         </div>
       ) : bilan ? (
         <div className={styles.bilanGrid}>
@@ -156,20 +174,20 @@ export default function AdminBilansPage() {
               </tbody>
             </table>
           </div>
-          
+
           <div className={styles.actionCard}>
-             <i className="fas fa-file-invoice-dollar" style={{ fontSize: '3rem', marginBottom: '1rem' }}></i>
-             <p style={{ fontWeight: 600 }}>Rapport Prêt à l'Exportation</p>
-             <button className={styles.exportBtn}>
-                <i className="fas fa-file-pdf"></i> Télécharger le Bilan (PDF)
-             </button>
-             <small style={{ opacity: 0.8 }}>Générez un document officiel pour l'assemblée.</small>
+            <i className="fas fa-file-invoice-dollar" style={{ fontSize: '3rem', marginBottom: '1rem' }}></i>
+            <p style={{ fontWeight: 600 }}>Rapport Prêt à l'Exportation</p>
+            <button className={styles.exportBtn} onClick={handlePrint}>
+              <i className="fas fa-file-pdf"></i> Télécharger le Bilan (PDF)
+            </button>
+            <small style={{ opacity: 0.8 }}>Générez un document officiel pour l'assemblée.</small>
           </div>
         </div>
       ) : (
         <div className={styles.empty}>
-            <i className="fas fa-chart-pie" style={{ fontSize: '4rem', marginBottom: '2rem', display: 'block' }}></i>
-            <p>Veuillez sélectionner un <strong>exercice</strong> ou une <strong>session</strong> pour afficher les indicateurs financiers correspondants.</p>
+          <i className="fas fa-chart-pie" style={{ fontSize: '4rem', marginBottom: '2rem', display: 'block' }}></i>
+          <p>Veuillez sélectionner un <strong>exercice</strong> ou une <strong>session</strong> pour afficher les indicateurs financiers correspondants.</p>
         </div>
       )}
     </div>

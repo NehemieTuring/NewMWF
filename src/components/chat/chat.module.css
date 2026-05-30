@@ -68,8 +68,13 @@
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .newChatBtn {
@@ -320,8 +325,15 @@
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .myMsgOuter {
@@ -439,7 +451,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   transition: all 0.2s;
 }
 
@@ -663,4 +675,45 @@
   transform: translate(-50%, -50%);
   font-size: 2rem;
   color: #6366f1;
+}
+
+/* ── Checkmarks de statut (Point 3) ──────────────────────────── */
+/* ✓ = envoyé | ✓✓ gris = livré | ✓✓ bleu = lu */
+.statusIcon {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.6);
+  /* gris clair sur fond violet */
+  display: flex;
+  align-items: center;
+  transition: color 0.3s ease;
+}
+
+.statusRead {
+  color: #7dd3fc;
+  /* bleu ciel — visible sur fond violet #6366f1 */
+}
+
+/* ── Point de présence en ligne pulsant (Point 1) ────────────── */
+.onlineStatus {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 14px;
+  height: 14px;
+  background: #10b981;
+  border: 3px solid white;
+  border-radius: 50%;
+  animation: pulse-green 2s ease-in-out infinite;
+}
+
+@keyframes pulse-green {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+  }
+
+  50% {
+    box-shadow: 0 0 0 5px rgba(16, 185, 129, 0);
+  }
 }

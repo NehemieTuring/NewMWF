@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import styles from "../membre.module.css";
+import styles from "./aides.module.css";
 import { useTranslation } from "@/context/LanguageContext";
 import { memberService } from "@/services/memberService";
 import { useNotification } from "@/context/NotificationContext";
@@ -9,45 +9,57 @@ import { useNotification } from "@/context/NotificationContext";
 export default function AidesPage() {
   const { t, locale } = useTranslation();
   const { showToast } = useNotification();
-  const [activeHelps, setActiveHelps] = useState<any[]>([]);
+  const [helps, setHelps] = useState<any[]>([]);
   const [helpTypes, setHelpTypes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isEligible, setIsEligible] = useState(true);
 
-  // Contribution modal
-  const [selectedHelp, setSelectedHelp] = useState<any>(null);
-  const [contributionAmount, setContributionAmount] = useState("");
+  // Modal state
+  const [showModal, setShowModal] = useState(false);
+  const [selectedType, setSelectedType] = useState("");
+  const [motive, setMotive] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  async function loadData() {
+    try {
+      const [allHelps, types, eligibility] = await Promise.all([
+        memberService.getAllHelps(),
+        memberService.getHelpTypes(),
+        memberService.checkEligibility()
+      ]);
+      setHelps(allHelps || []);
+      setHelpTypes(types || []);
+      setIsEligible(eligibility);
+    } catch (err) {
+      console.error("Failed to load helps", err);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function loadAides() {
-      try {
-        const [helps, types] = await Promise.all([
-          memberService.getActiveHelps(),
-          memberService.getHelpTypes()
-        ]);
-        setActiveHelps(helps || []);
-        setHelpTypes(types || []);
-      } catch (err) {
-        console.error("Failed to load helps", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadAides();
+    loadData();
   }, []);
 
-  const handleContribute = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedHelp || !contributionAmount) return;
+    if (!selectedType || !motive) {
+      showToast("Veuillez remplir tous les champs", "error");
+      return;
+    }
+
+    setSubmitting(true);
     try {
-      await memberService.contributeToHelp(selectedHelp.id, Number(contributionAmount));
-      showToast("Contribution enregistrée avec succès !", "success");
-      setSelectedHelp(null);
-      setContributionAmount("");
-      // Refresh
-      const updated = await memberService.getActiveHelps();
-      setActiveHelps(updated);
+      await memberService.requestHelp(parseInt(selectedType), null, motive);
+      showToast("Demande soumise avec succès !", "success");
+      setShowModal(false);
+      setSelectedType("");
+      setMotive("");
+      loadData(); // Reload list
     } catch (err: any) {
-      showToast(err.message || "Erreur lors de la contribution", "error");
+      showToast(err.message || "Erreur lors de la demande", "error");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -55,125 +67,289 @@ export default function AidesPage() {
     return (n || 0).toLocaleString(locale === "fr" ? "fr-FR" : "en-US");
   }
 
+  function getTypeIconClass(name: string) {
+    const lower = (name || "").toLowerCase();
+    if (lower.includes("maladie")) return styles.typeIconMaladie;
+    if (lower.includes("déc") || lower.includes("dec")) return styles.typeIconDeces;
+    return styles.typeIconDefault;
+  }
+
+  function getTypeIcon(name: string) {
+    const lower = (name || "").toLowerCase();
+    if (lower.includes("maladie")) return "fas fa-hospital";
+    if (lower.includes("déc") || lower.includes("dec")) return "fas fa-pray";
+    return "fas fa-hand-holding-heart";
+  }
+
+  function getStatusClass(status: string) {
+    if (status === "DISBURSED") return styles.statusDisbursed;
+    if (status === "COMPLETED") return styles.statusCompleted;
+    if (status === "PENDING") return styles.statusPending;
+    if (status === "REJECTED") return styles.statusRejected;
+    return styles.statusActive;
+  }
+
+  function getStatusLabel(status: string) {
+    if (status === "DISBURSED") return "DÉCAISSÉ";
+    if (status === "COMPLETED") return "PRÊT";
+    if (status === "PENDING") return "EN ATTENTE";
+    if (status === "REJECTED") return "REJETÉ";
+    return "EN COURS";
+  }
+
   if (loading) return (
-    <div className={styles.container}>
-      <div className={styles.loadingContainer}>
-        <div className={styles.loadingSpinner}></div>
-        <span className={styles.loadingText}>Chargement des aides...</span>
+    <div className={styles.page}>
+      <div style={{ height: "60vh", display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem", color: "var(--primary)", fontWeight: 700, fontSize: "1.1rem" }}>
+        <i className="fas fa-spinner fa-spin" style={{ fontSize: "1.5rem" }}></i>
+        Chargement des aides...
       </div>
     </div>
   );
 
+  const ongoingHelps = helps.filter(h => h.status !== "DISBURSED" && h.status !== "REJECTED");
+  const historyHelps = helps.filter(h => h.status === "DISBURSED" || h.status === "REJECTED");
+
   return (
-    <div className={styles.container}>
-      <header className="fade-in-up" style={{ marginBottom: "2rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <div className={styles.page}>
+      {/* Header */}
+      <header className={styles.header} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#2e3b4e", letterSpacing: "-0.02em" }}>
+          <h1 className={styles.title}>
             Solidarité & <span className="text-gradient">Aides</span>
           </h1>
-          <p style={{ color: "#858796", fontSize: "0.95rem" }}>Consultez les aides en cours financées par le Fonds Social.</p>
+          <p className={styles.subtitle}>Consultez l&apos;historique et le statut des aides du Fonds Social.</p>
         </div>
+
+        <button
+          className={styles.requestButton}
+          onClick={() => setShowModal(true)}
+          disabled={!isEligible}
+          title={!isEligible ? "Vous avez une dette de solidarité de plus de 6 mois" : "Demander une aide"}
+        >
+          <i className="fas fa-plus-circle"></i>
+          Demander une aide
+        </button>
       </header>
 
+      {!isEligible && (
+        <div style={{
+          background: 'rgba(231, 74, 59, 0.1)',
+          color: '#e74a3b',
+          padding: '1rem',
+          borderRadius: '12px',
+          marginBottom: '2rem',
+          fontSize: '0.9rem',
+          fontWeight: 600,
+          border: '1px solid rgba(231, 74, 59, 0.2)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem'
+        }}>
+          <i className="fas fa-exclamation-triangle"></i>
+          Droit aux aides suspendu : Votre cotisation de solidarité présente un retard de plus de 6 mois.
+        </div>
+      )}
 
-      {/* Active Helps */}
-      <section className="fade-in-up" style={{ marginBottom: "3rem", animationDelay: "0.2s" }}>
+      {/* Ongoing Helps Table */}
+      <section style={{ marginBottom: "3rem" }}>
         <div className={styles.sectionHeader}>
           <h2 className={styles.sectionTitle}>Aides en cours</h2>
-          <span className={styles.statusBadge} style={{ background: "rgba(28,200,138,0.08)", color: "#1cc88a" }}>
-            {activeHelps.length} active{activeHelps.length > 1 ? "s" : ""}
+          <span className={styles.countBadge}>
+            <i className="fas fa-circle" style={{ fontSize: "0.4rem" }}></i>
+            {ongoingHelps.length} dossier{ongoingHelps.length > 1 ? "s" : ""}
           </span>
         </div>
-        <div className={styles.tableWrapper}>
-          <table className={styles.table}>
-            <colgroup>
-              <col style={{ width: "20%" }} />
-              <col style={{ width: "30%" }} />
-              <col style={{ width: "15%" }} />
-              <col style={{ width: "15%" }} />
-              <col style={{ width: "20%" }} />
-            </colgroup>
-            <thead>
-              <tr>
-                <th>Type d&apos;Aide</th>
-                <th>Bénéficiaire</th>
-                <th>Montant</th>
-                <th>Collecté</th>
-                <th>Progression</th>
-              </tr>
-            </thead>
-            <tbody>
-              {activeHelps.map((help, index) => {
-                const progress = Math.min(100, Math.round(((help.collectedAmount || 0) / (help.targetAmount || 1)) * 100));
-                return (
-                  <tr key={help.id} style={{ animationDelay: `${index * 0.1}s` }} className="fade-in">
-                    <td>
-                      <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                        <div style={{ width: "42px", height: "42px", borderRadius: "12px", background: "linear-gradient(135deg, rgba(78,115,223,0.1), rgba(33,147,176,0.1))", color: "#4e73df", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1rem" }}>
-                          <i className="fas fa-hand-holding-heart"></i>
+
+        {ongoingHelps.length > 0 ? (
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Type d&apos;aide</th>
+                  <th>Bénéficiaire</th>
+                  <th>Montant cible</th>
+                  <th>Collecté</th>
+                  <th>Statut</th>
+                </tr>
+              </thead>
+              <tbody>
+                {ongoingHelps.map((help, index) => {
+                  const typeName = help.helpType?.name || "Aide";
+
+                  return (
+                    <tr key={help.id} className="fade-in" style={{ animationDelay: `${index * 0.05}s` }}>
+                      {/* Type */}
+                      <td>
+                        <div className={styles.typeCell}>
+                          <div className={`${styles.typeIcon} ${getTypeIconClass(typeName)}`}>
+                            <i className={getTypeIcon(typeName)}></i>
+                          </div>
+                          <div>
+                            <div className={styles.typeName}>{typeName}</div>
+                            {help.motive && (
+                              <div style={{ fontSize: '0.75rem', opacity: 0.6, maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={help.motive}>
+                                {help.motive}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        <span style={{ fontWeight: 800, color: "#2d3748", fontSize: "0.95rem" }}>{help.helpType?.name}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <div className={styles.beneficiaryCell}>
-                        <span className={styles.beneficiaryName}>{help.member?.user?.firstName} {help.member?.user?.name}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <div className={styles.amountCell}>
-                        {formatAmount(help.targetAmount)} <span className={styles.amountXAF}>XAF</span>
-                      </div>
-                    </td>
-                    <td>
-                      <div className={styles.amountCell} style={{ color: "#1cc88a" }}>
-                        {formatAmount(help.collectedAmount)} <span className={styles.amountXAF}>XAF</span>
-                      </div>
-                    </td>
-                    <td>
-                      <div style={{ width: "160px" }}>
-                        <div className={styles.progressLabel}>
-                          <span style={{ color: progress >= 100 ? "#1cc88a" : "#4e73df" }}>{progress >= 100 ? "Versé" : "Financement"}</span>
-                          <span>{progress}%</span>
-                        </div>
-                        <div style={{ height: "6px", background: "#f1f4f8", borderRadius: "10px", overflow: "hidden" }}>
-                          <div style={{ width: `${progress}%`, height: "100%", background: progress >= 100 ? "linear-gradient(90deg, #1cc88a, #36e7b0)" : "linear-gradient(90deg, #4e73df, #6d8cef)", borderRadius: "10px", transition: "width 1s ease-out" }}></div>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          {activeHelps.length === 0 && (
-            <div className="empty-state" style={{ padding: "3rem" }}>
-              <i className="fas fa-heart" style={{ fontSize: "2rem", opacity: 0.1, marginBottom: "1rem" }}></i>
-              <p>Aucune aide active pour le moment.</p>
-            </div>
-          )}
-        </div>
+                      </td>
+
+                      {/* Beneficiary */}
+                      <td>
+                        <span className={styles.beneficiaryName}>
+                          {help.member?.user?.firstName} {help.member?.user?.name}
+                        </span>
+                      </td>
+
+                      {/* Target Amount */}
+                      <td>
+                        <span className={styles.amountValue}>
+                          {formatAmount(help.targetAmount)}<small>XAF</small>
+                        </span>
+                      </td>
+
+                      <td>
+                        <span className={`${styles.amountValue} ${styles.amountGreen}`}>
+                          {formatAmount(help.collectedAmount)}<small>XAF</small>
+                        </span>
+                      </td>
+
+                      {/* Status */}
+                      <td>
+                        <span className={`${styles.statusTag} ${getStatusClass(help.status)}`}>
+                          {getStatusLabel(help.status)}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className={styles.emptyState}>
+            <i className="fas fa-heart"></i>
+            <p>Aucune aide en cours pour le moment.</p>
+          </div>
+        )}
       </section>
 
       {/* Help Types */}
-      <section className="fade-in-up" style={{ animationDelay: "0.3s" }}>
+      <section className={styles.typesSection} style={{ marginBottom: "3rem" }}>
         <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>Types d&apos;aides disponibles</h2>
+          <h2 className={styles.sectionTitle}>Barème des aides (Nomenclature)</h2>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1rem" }}>
-          {helpTypes.map((type, index) => (
-            <div key={type.id} className={styles.dataCard} style={{ display: "flex", alignItems: "center", gap: "1rem", padding: "1.25rem" }}>
-              <div style={{ width: "44px", height: "44px", borderRadius: "12px", background: "rgba(78,115,223,0.08)", color: "#4e73df", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.1rem", flexShrink: 0 }}>
-                <i className="fas fa-check-circle"></i>
+        {helpTypes.length > 0 ? (
+          <div className={styles.typesGrid}>
+            {helpTypes.map((type) => (
+              <div key={type.id} className={type.active ? styles.typeCard : styles.typeCardDisabled}>
+                <div className={styles.typeCardIcon}>
+                  <i className={getTypeIcon(type.name)}></i>
+                </div>
+                <div className={styles.typeCardInfo}>
+                  <h4>{type.name}</h4>
+                  <p>Montant forfaitaire : <strong>{formatAmount(type.defaultAmount)} XAF</strong></p>
+                </div>
               </div>
-              <div>
-                <h4 style={{ margin: 0, fontSize: "0.95rem", fontWeight: 700 }}>{type.name}</h4>
-                <p style={{ margin: 0, fontSize: "0.8rem", color: "#858796" }}>Montant forfaitaire: <strong style={{ color: "#2e3b4e" }}>{formatAmount(type.defaultAmount)} XAF</strong></p>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className={styles.emptyState} style={{ padding: "2rem" }}>
+            <p>Aucun type d&apos;aide configuré.</p>
+          </div>
+        )}
       </section>
+
+      {/* History Table */}
+      {historyHelps.length > 0 && (
+        <section style={{ marginBottom: "3rem" }}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>Historique des aides</h2>
+          </div>
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Type d&apos;aide</th>
+                  <th>Bénéficiaire</th>
+                  <th>Montant final</th>
+                  <th>Statut</th>
+                </tr>
+              </thead>
+              <tbody>
+                {historyHelps.map((help, index) => {
+                  const typeName = help.helpType?.name || "Aide";
+                  return (
+                    <tr key={help.id} className="fade-in" style={{ opacity: 0.7 }}>
+                      <td>
+                        <div className={styles.typeCell}>
+                          <div className={`${styles.typeIcon} ${getTypeIconClass(typeName)}`}>
+                            <i className={getTypeIcon(typeName)}></i>
+                          </div>
+                          <div className={styles.typeName}>{typeName}</div>
+                        </div>
+                      </td>
+                      <td>{help.member?.user?.firstName} {help.member?.user?.name}</td>
+                      <td>{formatAmount(help.targetAmount)} XAF</td>
+                      <td>
+                        <span className={`${styles.statusTag} ${getStatusClass(help.status)}`}>
+                          {getStatusLabel(help.status)}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
+      {/* Modal Formulation */}
+      {showModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h2 className={styles.modalTitle}>Demande d&apos;aide</h2>
+            <p className={styles.modalSubtitle}>Complétez les informations pour soumettre votre dossier au Secrétariat Général.</p>
+
+            <form onSubmit={handleSubmit}>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Nature de l&apos;aide</label>
+                <select
+                  className={styles.select}
+                  value={selectedType}
+                  onChange={(e) => setSelectedType(e.target.value)}
+                  required
+                >
+                  <option value="">Sélectionnez un type...</option>
+                  {helpTypes.filter(t => t.active).map(t => (
+                    <option key={t.id} value={t.id}>{t.name} ({formatAmount(t.defaultAmount)} XAF)</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Motif / Justification</label>
+                <textarea
+                  className={styles.textarea}
+                  placeholder="Expliquez brièvement la situation..."
+                  value={motive}
+                  onChange={(e) => setMotive(e.target.value)}
+                  required
+                ></textarea>
+              </div>
+
+              <div className={styles.modalActions}>
+                <button type="button" className={styles.btnCancel} onClick={() => setShowModal(false)}>Annuler</button>
+                <button type="submit" className={styles.btnSubmit} disabled={submitting}>
+                  {submitting ? <i className="fas fa-spinner fa-spin"></i> : "Soumettre la demande"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

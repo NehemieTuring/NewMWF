@@ -19,7 +19,7 @@ export default function ExercicesPage() {
   const [newExercise, setNewExercise] = useState({
     year: new Date().getFullYear().toString(),
     interestRate: 5,
-    solidarityAmount: 150000,
+    solidarityAmount: 300000,
     agapeAmount: 45000,
     penaltyAmount: 15000
   });

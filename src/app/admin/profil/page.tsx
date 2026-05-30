@@ -14,6 +14,7 @@ export default function ProfilPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [activeTab, setActiveTab] = useState("info");
+  const [isEditing, setIsEditing] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -21,6 +22,7 @@ export default function ProfilPage() {
     email: "",
     tel: "",
     username: "",
+    address: "",
   });
 
   const [passwordData, setPasswordData] = useState({
@@ -44,6 +46,7 @@ export default function ProfilPage() {
           email: data.user?.email || "",
           tel: data.user?.tel || "",
           username: data.username || "",
+          address: data.user?.address || "",
         });
       } catch (err: any) {
         setError(err.message === "Failed to fetch" ? "Serveur inaccessible" : err.message);
@@ -80,6 +83,10 @@ export default function ProfilPage() {
       if (activeTab === "info") {
         await secretaryService.updateProfile(formData);
         setSuccess("Profil mis à jour avec succès !");
+        setIsEditing(false);
+        // Refresh local profile data
+        const updatedData = await secretaryService.getProfile();
+        setProfile(updatedData);
       } else {
         if (passwordData.newPassword !== passwordData.confirmPassword) {
           throw new Error("Les nouveaux mots de passe ne correspondent pas.");
@@ -160,6 +167,13 @@ export default function ProfilPage() {
                   <span className={styles.infoValue}>{profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString() : '...'}</span>
                 </div>
               </div>
+              <div className={styles.infoItem}>
+                <div className={styles.infoIconBox}><i className="fas fa-map-marker-alt"></i></div>
+                <div className={styles.infoContent}>
+                  <span className={styles.infoLabel}>Adresse</span>
+                  <span className={styles.infoValue}>{profile?.user?.address || "Non renseignée"}</span>
+                </div>
+              </div>
             </div>
           </div>
         </aside>
@@ -199,80 +213,136 @@ export default function ProfilPage() {
               )}
 
               {activeTab === "info" ? (
-                <div className={styles.formGrid}>
-                  <div className={styles.formGroup}>
-                    <label>Nom</label>
-                    <div className={styles.inputWrapper}>
-                      <input
-                        className={styles.input}
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                      />
-                      <i className="fas fa-user"></i>
-                    </div>
+                <>
+                  <div className={styles.sectionHeader}>
+                    <h3>Données Personnelles</h3>
+                    {!isEditing ? (
+                      <button type="button" className={styles.editBtn} onClick={() => setIsEditing(true)}>
+                        <i className="fas fa-edit"></i> Modifier
+                      </button>
+                    ) : (
+                      <button type="button" className={styles.cancelBtn} onClick={() => setIsEditing(false)}>
+                        Annuler
+                      </button>
+                    )}
                   </div>
-                  <div className={styles.formGroup}>
-                    <label>Prénom</label>
-                    <div className={styles.inputWrapper}>
-                      <input
-                        className={styles.input}
-                        type="text"
-                        name="firstName"
-                        value={formData.firstName}
-                        onChange={handleChange}
-                        required
-                      />
-                      <i className="fas fa-signature"></i>
+
+                  {!isEditing ? (
+                    <div className={styles.infoDisplayGrid}>
+                      <div className={styles.displayItem}>
+                        <span className={styles.displayLabel}>IDENTIFIANT (USERNAME)</span>
+                        <span className={styles.displayValue}>@{profile?.username || "À RENFEIGNER"}</span>
+                      </div>
+                      <div className={styles.displayItem}>
+                        <span className={styles.displayLabel}>NOM</span>
+                        <span className={styles.displayValue}>{profile?.user?.name}</span>
+                      </div>
+                      <div className={styles.displayItem}>
+                        <span className={styles.displayLabel}>PRÉNOM</span>
+                        <span className={styles.displayValue}>{profile?.user?.firstName}</span>
+                      </div>
+                      <div className={styles.displayItem}>
+                        <span className={styles.displayLabel}>ADRESSE EMAIL</span>
+                        <span className={styles.displayValue}>{profile?.user?.email}</span>
+                      </div>
+                      <div className={styles.displayItem}>
+                        <span className={styles.displayLabel}>N° DE TÉLÉPHONE</span>
+                        <span className={styles.displayValue}>{profile?.user?.tel || "Non renseigné"}</span>
+                      </div>
+                      <div className={styles.displayItem}>
+                        <span className={styles.displayLabel}>ADRESSE DE RÉSIDENCE</span>
+                        <span className={styles.displayValue}>{profile?.user?.address || "Non renseignée"}</span>
+                      </div>
                     </div>
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label>Email</label>
-                    <div className={styles.inputWrapper}>
-                      <input
-                        className={styles.input}
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                      />
-                      <i className="fas fa-envelope"></i>
+                  ) : (
+                    <div className={styles.formGrid}>
+                      <div className={styles.formGroup}>
+                        <label>Nom</label>
+                        <div className={styles.inputWrapper}>
+                          <input
+                            className={styles.input}
+                            type="text"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            required
+                          />
+                          <i className="fas fa-user"></i>
+                        </div>
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label>Prénom</label>
+                        <div className={styles.inputWrapper}>
+                          <input
+                            className={styles.input}
+                            type="text"
+                            name="firstName"
+                            value={formData.firstName}
+                            onChange={handleChange}
+                            required
+                          />
+                          <i className="fas fa-signature"></i>
+                        </div>
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label>Email</label>
+                        <div className={styles.inputWrapper}>
+                          <input
+                            className={styles.input}
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            required
+                          />
+                          <i className="fas fa-envelope"></i>
+                        </div>
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label>Téléphone</label>
+                        <div className={styles.inputWrapper}>
+                          <input
+                            className={styles.input}
+                            type="text"
+                            name="tel"
+                            value={formData.tel}
+                            onChange={handleChange}
+                            required
+                          />
+                          <i className="fas fa-phone"></i>
+                        </div>
+                      </div>
+                      <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                        <label>Identifiant (Username)</label>
+                        <div className={styles.inputWrapper}>
+                          <input
+                            className={styles.input}
+                            type="text"
+                            name="username"
+                            value={formData.username}
+                            onChange={handleChange}
+                            required
+                          />
+                          <i className="fas fa-id-badge"></i>
+                        </div>
+                      </div>
+                      <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                        <label>Adresse de résidence</label>
+                        <div className={styles.inputWrapper}>
+                          <input
+                            className={styles.input}
+                            type="text"
+                            name="address"
+                            value={formData.address}
+                            onChange={handleChange}
+                            placeholder="Ex: Yaoundé, Mvan"
+                          />
+                          <i className="fas fa-map-marker-alt"></i>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label>Téléphone</label>
-                    <div className={styles.inputWrapper}>
-                      <input
-                        className={styles.input}
-                        type="text"
-                        name="tel"
-                        value={formData.tel}
-                        onChange={handleChange}
-                        inputMode="tel"
-                        pattern="[0-9\s+]*"
-                        required
-                      />
-                      <i className="fas fa-phone"></i>
-                    </div>
-                  </div>
-                  <div className={`${styles.formGroup} ${styles.fullWidth}`}>
-                    <label>Identifiant (Username)</label>
-                    <div className={styles.inputWrapper}>
-                      <input
-                        className={styles.input}
-                        type="text"
-                        name="username"
-                        value={formData.username}
-                        readOnly
-                        style={{ backgroundColor: "var(--light)", cursor: "not-allowed" }}
-                      />
-                      <i className="fas fa-id-badge"></i>
-                    </div>
-                  </div>
-                </div>
+                  )}
+                </>
               ) : (
                 <div className={styles.formGrid}>
                   <div className={`${styles.formGroup} ${styles.fullWidth}`}>
@@ -349,12 +419,14 @@ export default function ProfilPage() {
                 </div>
               )}
 
-              <div className={styles.formActions}>
-                <button type="submit" className={styles.saveBtn} disabled={loading}>
-                  <i className={loading ? "fas fa-spinner fa-spin" : "fas fa-save"}></i>
-                  {loading ? "Traitement..." : "Enregistrer les modifications"}
-                </button>
-              </div>
+              {(activeTab === "security" || (activeTab === "info" && isEditing)) && (
+                <div className={styles.formActions}>
+                  <button type="submit" className={styles.saveBtn} disabled={loading}>
+                    <i className={loading ? "fas fa-spinner fa-spin" : "fas fa-save"}></i>
+                    {loading ? "Traitement..." : "Enregistrer les modifications"}
+                  </button>
+                </div>
+              )}
             </form>
           </div>
         </main>

@@ -84,7 +84,7 @@ export default function PresidentLayout({ children }: { children: React.ReactNod
                 <i className="fas fa-arrow-left"></i>
                 <span>Portail Membre</span>
               </Link>
-              <Link href="/president/profil" className={styles.menuItem}>
+              <Link href="/membre/profil" className={styles.menuItem}>
                 <i className="fas fa-user-circle"></i>
                 <span>{t.common.monProfil}</span>
               </Link>
@@ -145,7 +145,7 @@ export default function PresidentLayout({ children }: { children: React.ReactNod
                 </button>
                 {profileOpen && (
                   <div className={styles.dropdownMenu}>
-                    <Link href="/president/profil" className={styles.dropdownItem} onClick={() => setProfileOpen(false)}>
+                    <Link href="/membre/profil" className={styles.dropdownItem} onClick={() => setProfileOpen(false)}>
                       <i className="fas fa-user-cog"></i>
                       {t.common.monProfil}
                     </Link>

@@ -19,6 +19,7 @@ export interface ChatMessage {
   attachmentUrl?: string;
   attachmentType?: string;
   read: boolean;
+  delivered: boolean;
   isPending?: boolean;
 }
 
@@ -26,9 +27,9 @@ export const chatService = {
   // Common endpoints (prefix depends on user role, usually /member works for all as per controller)
   getConversations: () => fetchWithAuth("/member/chat/conversations"),
   getMembers: () => fetchWithAuth("/member/members"),
-  getMessages: (userId: number, page = 0, size = 20) => 
+  getMessages: (userId: number, page = 0, size = 20) =>
     fetchWithAuth(`/member/chat/messages/${userId}?page=${page}&size=${size}`),
-  
+
   sendMessage: (receiverId: number | null, content: string, attachmentUrl?: string, attachmentType?: string) => {
     let url = `/member/chat/send?content=${encodeURIComponent(content)}`;
     if (receiverId) url += `&receiverId=${receiverId}`;
@@ -37,21 +38,26 @@ export const chatService = {
     return fetchWithAuth(url, { method: "POST" });
   },
 
-  getGroupMessages: (page = 0, size = 50) => 
+  getGroupMessages: (page = 0, size = 50) =>
     fetchWithAuth(`/member/chat/group/messages?page=${page}&size=${size}`),
-  
-  searchGroupMessages: (query: string) => 
+
+  searchGroupMessages: (query: string) =>
     fetchWithAuth(`/member/chat/group/search?query=${encodeURIComponent(query)}`),
 
-  editMessage: (messageId: number, content: string) => 
+  editMessage: (messageId: number, content: string) =>
     fetchWithAuth(`/member/chat/messages/${messageId}?content=${encodeURIComponent(content)}`, { method: "PUT" }),
 
-  deleteMessage: (messageId: number) => 
+  deleteMessage: (messageId: number) =>
     fetchWithAuth(`/member/chat/messages/${messageId}`, { method: "DELETE" }),
 
   getUnreadCount: () => fetchWithAuth("/member/chat/unread"),
 
-  markAsRead: (messageId: number) => 
+  getOnlineStatuses: () => fetchWithAuth("/member/chat/online-status"),
+
+  acknowledgeConversation: (senderId: number) =>
+    fetchWithAuth(`/member/chat/delivered/${senderId}`, { method: "PUT" }),
+
+  markAsRead: (messageId: number) =>
     fetchWithAuth(`/member/chat/mark-read/${messageId}`, { method: "PUT" }),
 
   uploadFile: async (file: File) => {
@@ -60,7 +66,7 @@ export const chatService = {
 
     const auth = (await import("./authService")).getAuth();
     const token = auth?.token;
-    
+
     // Using simple fetch because fetchWithAuth sets JSON Content-Type
     const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
     const response = await fetch(`${API_URL}/member/chat/upload`, {
@@ -73,8 +79,8 @@ export const chatService = {
     });
 
     if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.message || "Upload failed");
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.message || "Upload failed");
     }
     return response.json();
   }

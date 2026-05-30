@@ -60,6 +60,10 @@ export default function AdminRenflouementsPage() {
     return (n || 0).toLocaleString(locale === "fr" ? "fr-FR" : "en-US");
   }
 
+  function handlePrint() {
+    window.print();
+  }
+
   return (
     <div className={styles.page}>
       <header className={styles.header}>
@@ -145,7 +149,7 @@ export default function AdminRenflouementsPage() {
               </div>
 
               <div className={styles.actions}>
-                <button className={styles.pdfBtn}>
+                <button className={styles.pdfBtn} onClick={handlePrint}>
                   <i className="fas fa-file-pdf"></i> Télécharger le rapport (PDF)
                 </button>
                 <button className={styles.pdfBtn}>

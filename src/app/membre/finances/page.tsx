@@ -13,7 +13,7 @@ export default function FinancesPage() {
   const { showToast } = useNotification();
   const [activeTab, setActiveTab] = useState<Tab>("epargne");
   const [loading, setLoading] = useState(true);
-  
+
   // Data states
   const [savings, setSavings] = useState<any[]>([]);
   const [savingBalance, setSavingBalance] = useState(0);
@@ -97,13 +97,13 @@ export default function FinancesPage() {
 
       <div className={styles.tabsContainer}>
         <div className={styles.tabsHeader}>
-          <button 
+          <button
             className={`${styles.tabBtn} ${activeTab === "epargne" ? styles.tabBtnActive : ""}`}
             onClick={() => setActiveTab("epargne")}
           >
             <i className="fas fa-piggy-bank"></i> Épargne
           </button>
-          <button 
+          <button
             className={`${styles.tabBtn} ${activeTab === "dettes" ? styles.tabBtnActive : ""}`}
             onClick={() => setActiveTab("dettes")}
           >
@@ -127,9 +127,9 @@ export default function FinancesPage() {
                     {savings.map((s) => (
                       <tr key={s.id}>
                         <td>
-                           <span className={styles.statusBadge} style={{ background: s.type === "DEPOSIT" ? "rgba(28,200,138,0.1)" : "rgba(231,74,59,0.1)", color: s.type === "DEPOSIT" ? "#1cc88a" : "#e74a3b" }}>
-                             {s.type === "DEPOSIT" ? "VERSEMENT" : "RETRAIT"}
-                           </span>
+                          <span className={styles.statusBadge} style={{ background: s.type === "DEPOSIT" ? "rgba(28,200,138,0.1)" : "rgba(231,74,59,0.1)", color: s.type === "DEPOSIT" ? "#1cc88a" : "#e74a3b" }}>
+                            {s.type === "DEPOSIT" ? "VERSEMENT" : "RETRAIT"}
+                          </span>
                         </td>
                         <td style={{ fontWeight: 700 }}>{formatAmount(s.amount)} XAF</td>
                         <td style={{ color: "#858796", fontSize: "0.85rem" }}>{new Date(s.createdAt).toLocaleDateString()}</td>
@@ -157,6 +157,7 @@ export default function FinancesPage() {
                       <th>Description</th>
                       <th>Montant dû</th>
                       <th>Session</th>
+                      <th>Exercice</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -170,6 +171,7 @@ export default function FinancesPage() {
                         <td style={{ fontWeight: 600 }}>{d.description || d.type || "Dette Divers"}</td>
                         <td style={{ color: "#e74a3b", fontWeight: 700 }}>{formatAmount(d.amount)} XAF</td>
                         <td style={{ color: "#858796", fontSize: "0.85rem" }}>{d.sessionName || "N/A"}</td>
+                        <td style={{ color: "#858796", fontSize: "0.85rem" }}>{d.exerciseName || "N/A"}</td>
                       </tr>
                     ))}
                   </tbody>

@@ -34,7 +34,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         ...(subRole === "SECRETAIRE_GENERALE" ? [
           { label: "Enregistrements", icon: "fas fa-exchange-alt", href: "/admin/operations" },
           { label: "Agape", icon: "fas fa-utensils", href: "/admin/agape" },
-          { label: "Dossiers d'Aide", icon: "fas fa-hand-holding-heart", href: "/admin/aides" }
+          { label: "Aide", icon: "fas fa-hand-holding-heart", href: "/admin/aides" }
         ] : []),
         ...(subRole === "TRESORIER" ? [
           { label: "Trésorerie & Dépenses", icon: "fas fa-vault", href: "/admin/tresorerie" }

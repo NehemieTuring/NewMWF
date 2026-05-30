@@ -30,7 +30,13 @@ export const presidentService = {
 
   // Profil & Chat
   getProfile: () => fetchWithAuth("/president/profile"),
+  updateProfile: (data: any) => fetchWithAuth(`/admin/profile?name=${encodeURIComponent(data.name)}&firstName=${encodeURIComponent(data.firstName)}&username=${encodeURIComponent(data.username)}&tel=${encodeURIComponent(data.tel || "")}&address=${encodeURIComponent(data.address || "")}`, { method: "PUT" }),
   updatePassword: (newPassword: string) => fetchWithAuth(`/president/profile/password?newPassword=${encodeURIComponent(newPassword)}`, { method: "PUT" }),
+  updateAvatar: (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return fetchWithAuth("/admin/profile/avatar", { method: "PUT", body: formData });
+  },
   getOtherAdmins: () => fetchWithAuth("/president/admins"),
   getConversations: () => fetchWithAuth("/president/chat/conversations"),
   getMessages: (userId: number) => fetchWithAuth(`/president/chat/messages/${userId}`),

@@ -30,7 +30,11 @@ export const memberService = {
   // Aides
   getHelpTypes: () => fetchWithAuth("/member/helps/types"),
   getActiveHelps: () => fetchWithAuth("/member/helps/active"),
+  getAllHelps: () => fetchWithAuth("/member/helps"),
   getHelpDetails: (id: number) => fetchWithAuth(`/member/helps/${id}`),
+  requestHelp: (typeId: number, amount: number | null, motive: string) =>
+    fetchWithAuth(`/member/helps?typeId=${typeId}${amount ? `&amount=${amount}` : ""}&motive=${encodeURIComponent(motive)}`, { method: "POST" }),
+  checkEligibility: () => fetchWithAuth("/member/helps/eligibility"),
   contributeToHelp: (id: number, amount: number) => fetchWithAuth(`/member/helps/${id}/contribute?amount=${amount}`, { method: "POST" }),
 
   // Communication

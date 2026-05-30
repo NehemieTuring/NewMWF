@@ -7,12 +7,14 @@ interface ConfirmModalProps {
   isOpen: boolean;
   title: string;
   message: string;
-  onConfirm: () => void;
+  onConfirm: (motive?: string) => void;
   onCancel: () => void;
   confirmText?: string;
   cancelText?: string;
   type?: "danger" | "info" | "success" | "warning";
   requiredConfirmValue?: string;
+  showMotiveInput?: boolean;
+  motivePlaceholder?: string;
   isLoading?: boolean;
 }
 
@@ -26,13 +28,17 @@ export default function ConfirmModal({
   cancelText = "Annuler",
   type = "info",
   requiredConfirmValue,
+  showMotiveInput = false,
+  motivePlaceholder = "Saisissez le motif ici...",
   isLoading = false
 }: ConfirmModalProps) {
   const [inputValue, setInputValue] = useState("");
+  const [motive, setMotive] = useState("");
 
   useEffect(() => {
     if (isOpen) {
       setInputValue("");
+      setMotive("");
     }
   }, [isOpen]);
 
@@ -88,6 +94,30 @@ export default function ConfirmModal({
                   />
                 </div>
               )}
+
+              {showMotiveInput && (
+                <div className={styles.inputWrapper} style={{ marginTop: '1.5rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.85rem', color: '#858796', marginBottom: '0.5rem' }}>
+                    Motif de la suppression :
+                  </label>
+                  <textarea
+                    className="form-input"
+                    value={motive}
+                    onChange={(e) => setMotive(e.target.value)}
+                    placeholder={motivePlaceholder}
+                    style={{
+                      width: '100%',
+                      padding: '0.8rem',
+                      borderRadius: '0.5rem',
+                      border: '1px solid #d1d3e2',
+                      fontSize: '0.95rem',
+                      minHeight: '80px',
+                      resize: 'vertical'
+                    }}
+                    required
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -98,9 +128,9 @@ export default function ConfirmModal({
           <button
             type="button"
             className={`${styles.btn} ${styles[type]} ${styles.btnConfirm}`}
-            onClick={onConfirm}
-            disabled={isConfirmDisabled || isLoading}
-            style={{ opacity: (isConfirmDisabled || isLoading) ? 0.5 : 1, cursor: (isConfirmDisabled || isLoading) ? 'not-allowed' : 'pointer' }}
+            onClick={() => onConfirm(motive)}
+            disabled={isConfirmDisabled || isLoading || (showMotiveInput && !motive.trim())}
+            style={{ opacity: (isConfirmDisabled || isLoading || (showMotiveInput && !motive.trim())) ? 0.5 : 1, cursor: (isConfirmDisabled || isLoading || (showMotiveInput && !motive.trim())) ? 'not-allowed' : 'pointer' }}
           >
             {isLoading && <i className="fas fa-spinner fa-spin" style={{ marginRight: '0.5rem' }}></i>}
             {confirmText}

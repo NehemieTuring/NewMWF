@@ -13,6 +13,7 @@ export const treasurerService = {
   addRefund: (memberId: number, amount: number) => fetchWithAuth(`/treasurer/borrowings/refund?memberId=${memberId}&amount=${amount}`, { method: "POST" }),
   addLoan: (memberId: number, amount: number) => fetchWithAuth(`/treasurer/borrowings/grant?memberId=${memberId}&amount=${amount}`, { method: "POST" }),
   paySolidarity: (memberId: number, amount: number) => fetchWithAuth(`/treasurer/solidarity/pay?memberId=${memberId}&amount=${amount}`, { method: "POST" }),
+  recordSolidarityPurchase: (amount: number, description: string) => fetchWithAuth(`/treasurer/solidarity/purchase?amount=${amount}&description=${encodeURIComponent(description)}`, { method: "POST" }),
 
   // Emprunts et Penalités
   getAllLoans: () => fetchWithAuth("/treasurer/borrowings"),
@@ -38,7 +39,13 @@ export const treasurerService = {
 
   // Profil & Chat
   getProfile: () => fetchWithAuth("/treasurer/profile"),
+  updateProfile: (data: any) => fetchWithAuth(`/admin/profile?name=${encodeURIComponent(data.name)}&firstName=${encodeURIComponent(data.firstName)}&username=${encodeURIComponent(data.username)}&tel=${encodeURIComponent(data.tel || "")}&address=${encodeURIComponent(data.address || "")}`, { method: "PUT" }),
   updatePassword: (newPassword: string) => fetchWithAuth(`/treasurer/profile/password?newPassword=${encodeURIComponent(newPassword)}`, { method: "PUT" }),
+  updateAvatar: (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return fetchWithAuth("/admin/profile/avatar", { method: "PUT", body: formData });
+  },
   getOtherAdmins: () => fetchWithAuth("/treasurer/admins"),
   getConversations: () => fetchWithAuth("/treasurer/chat/conversations"),
   getMessages: (userId: number) => fetchWithAuth(`/treasurer/chat/messages/${userId}`),

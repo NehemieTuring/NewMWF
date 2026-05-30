@@ -417,8 +417,8 @@ export default function AdminManagementPage() {
                   <i className="fas fa-info-circle"></i> {locale === "fr" ? "Format du fichier CSV" : "CSV File Format"}
                 </p>
                 <p style={{ fontSize: "0.8rem", color: "#15803d", margin: 0, lineHeight: 1.6 }}>
-                  {locale === "fr" ? "En-tête requis :" : "Required header:"} <code style={{ background: "#dcfce7", padding: "0.1rem 0.3rem", borderRadius: 4 }}>nom;prenom;email;username;password;role</code><br />
-                  <strong>{locale === "fr" ? "Champs obligatoires :" : "Required fields:"}</strong> <code>username</code>, <code>password</code>, <code>role</code><br />
+                  {locale === "fr" ? "En-tête requis :" : "Required header:"} <code style={{ background: "#dcfce7", padding: "0.1rem 0.3rem", borderRadius: 4 }}>nom;prenom;email;username;role</code><br />
+                  <strong>{locale === "fr" ? "Champs obligatoires :" : "Required fields:"}</strong> <code>username</code>, <code>role</code><br />
                   <strong>{locale === "fr" ? "Rôles valides :" : "Valid roles:"}</strong> <code>SECRETAIRE_GENERALE</code>, <code>PRESIDENT</code>, <code>TRESORIER</code>
                 </p>
               </div>

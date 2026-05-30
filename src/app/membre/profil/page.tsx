@@ -6,6 +6,8 @@ import { useTranslation } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import { memberService } from "@/services/memberService";
 import { secretaryService } from "@/services/secretaryService";
+import { presidentService } from "@/services/presidentService";
+import { treasurerService } from "@/services/treasurerService";
 import { superAdminService } from "@/services/superAdminService";
 import { useNotification } from "@/context/NotificationContext";
 
@@ -27,25 +29,30 @@ export default function MemberProfilPage() {
 
   // Editable fields
   const [editMode, setEditMode] = useState(false);
-  const [editData, setEditData] = useState({ name: "", firstName: "", tel: "", address: "" });
+  const [editData, setEditData] = useState({ name: "", firstName: "", username: "", tel: "", address: "" });
 
   useEffect(() => {
     async function loadData() {
       try {
         const role = authUser?.role?.toUpperCase() || "";
         const subRole = authUser?.subRole?.toUpperCase() || "";
-        // Operational admins (SG, President, Treasurer) have a subRole and should use secretaryService
-        const isOperationalAdmin = role.includes("ADMIN") && !!subRole;
 
         let data;
         try {
-          // Try preferred endpoint first
-          data = isOperationalAdmin ? await secretaryService.getProfile() : await memberService.getProfile();
+          if (role === "SUPER_ADMIN") {
+            data = await superAdminService.getProfile();
+          } else if (subRole === "TRESORIER") {
+            data = await treasurerService.getProfile().catch(() => memberService.getProfile());
+          } else if (subRole === "PRESIDENT") {
+            data = await presidentService.getProfile().catch(() => memberService.getProfile());
+          } else if (subRole === "SECRETAIRE_GENERALE") {
+            data = await secretaryService.getProfile().catch(() => memberService.getProfile());
+          } else {
+            data = await memberService.getProfile();
+          }
         } catch (err: any) {
-          // If 403 Forbidden or 400 Bad Request (missing profile), try the other one
-          if (err.message?.includes("403") || err.message?.includes("400")) {
-            data = isOperationalAdmin ? await memberService.getProfile() : await secretaryService.getProfile();
-          } else throw err;
+          // Fallback to member profile if specialized fails
+          data = await memberService.getProfile().catch(() => null);
         }
         setProfileData(data);
       } catch (err) {
@@ -69,11 +76,14 @@ export default function MemberProfilPage() {
     const isOperationalAdmin = role.includes("ADMIN") && !!subRole;
 
     try {
-
       if (isSuperAdmin) {
         await superAdminService.updatePassword(newPassword);
-      } else if (isOperationalAdmin) {
-        await secretaryService.updatePassword(newPassword);
+      } else if (subRole === "TRESORIER") {
+        await treasurerService.updatePassword(newPassword).catch(() => memberService.updatePassword(newPassword));
+      } else if (subRole === "PRESIDENT") {
+        await presidentService.updatePassword(newPassword).catch(() => memberService.updatePassword(newPassword));
+      } else if (subRole === "SECRETAIRE_GENERALE") {
+        await secretaryService.updatePassword(newPassword).catch(() => memberService.updatePassword(newPassword));
       } else {
         await memberService.updatePassword(newPassword);
       }
@@ -82,21 +92,7 @@ export default function MemberProfilPage() {
       setNewPassword("");
       setConfirmPassword("");
     } catch (err: any) {
-      // Fallback logic
-      try {
-        if (isSuperAdmin) {
-          await memberService.updatePassword(newPassword);
-        } else if (isOperationalAdmin) {
-          await memberService.updatePassword(newPassword);
-        } else {
-          await secretaryService.updatePassword(newPassword);
-        }
-        showToast("Mot de passe mis à jour avec succès", "success");
-        setNewPassword("");
-        setConfirmPassword("");
-      } catch (innerErr: any) {
-        showToast(err.message || "Erreur lors de la mise à jour", "error");
-      }
+      showToast(err.message || "Erreur lors de la mise à jour", "error");
     }
   };
 
@@ -116,7 +112,7 @@ export default function MemberProfilPage() {
   const displayFirstName = userData?.firstName || (authUser as any)?.firstName || "";
   const displayEmail = userData?.email || authUser?.email || "";
   const displayTel = userData?.tel || (authUser as any)?.tel || "Non renseigné";
-  const memberAddress = memberData?.address || "Non renseignée";
+  const memberAddress = userData?.address || (authUser as any)?.address || "Non renseignée";
   const inscriptionDate = memberData?.inscriptionDate;
 
   // Backend often uses 'avatar' field for the photo URL
@@ -134,7 +130,13 @@ export default function MemberProfilPage() {
   }
 
   const startEdit = () => {
-    setEditData({ name: displayName, firstName: displayFirstName, tel: displayTel === "Non renseigné" ? "" : displayTel, address: memberAddress === "Non renseignée" ? "" : memberAddress });
+    setEditData({
+      name: displayName,
+      firstName: displayFirstName,
+      username: profileData?.username || "",
+      tel: displayTel === "Non renseigné" ? "" : displayTel,
+      address: memberAddress === "Non renseignée" ? "" : memberAddress
+    });
     setEditMode(true);
   };
 
@@ -145,13 +147,16 @@ export default function MemberProfilPage() {
     const isOperationalAdmin = role.includes("ADMIN") && !!subRole;
 
     try {
-
       if (isSuperAdmin) {
-        await superAdminService.updateProfile({ ...editData, username: userData?.username || "" });
-      } else if (isOperationalAdmin) {
-        await secretaryService.updateProfile({ ...editData, username: userData?.username || "" });
+        await superAdminService.updateProfile(editData);
+      } else if (subRole === "SECRETAIRE_GENERALE") {
+        await secretaryService.updateProfile(editData);
+      } else if (subRole === "TRESORIER") {
+        await treasurerService.updateProfile(editData).catch(() => memberService.updateProfile(editData));
+      } else if (subRole === "PRESIDENT") {
+        await presidentService.updateProfile(editData).catch(() => memberService.updateProfile(editData));
       } else {
-        await memberService.updateProfile({ ...editData, username: userData?.username || "" });
+        await memberService.updateProfile(editData);
       }
 
       showToast("Profil mis à jour avec succès", "success");
@@ -160,7 +165,9 @@ export default function MemberProfilPage() {
       // Refresh data
       let data;
       if (isSuperAdmin) data = await superAdminService.getProfile();
-      else if (isOperationalAdmin) data = await secretaryService.getProfile();
+      else if (subRole === "SECRETAIRE_GENERALE") data = await secretaryService.getProfile();
+      else if (subRole === "TRESORIER") data = await treasurerService.getProfile().catch(() => memberService.getProfile());
+      else if (subRole === "PRESIDENT") data = await presidentService.getProfile().catch(() => memberService.getProfile());
       else data = await memberService.getProfile();
 
       setProfileData(data);
@@ -193,8 +200,12 @@ export default function MemberProfilPage() {
     try {
       if (isSuperAdmin) {
         await superAdminService.updateAvatar(file);
-      } else if (isOperationalAdmin) {
+      } else if (subRole === "SECRETAIRE_GENERALE") {
         await secretaryService.updateAvatar(file);
+      } else if (subRole === "TRESORIER") {
+        await treasurerService.updateAvatar(file).catch(() => memberService.updateAvatar(file));
+      } else if (subRole === "PRESIDENT") {
+        await presidentService.updateAvatar(file).catch(() => memberService.updateAvatar(file));
       } else {
         await memberService.updateAvatar(file);
       }
@@ -204,7 +215,9 @@ export default function MemberProfilPage() {
       // Refresh profile data
       let data;
       if (isSuperAdmin) data = await superAdminService.getProfile();
-      else if (isOperationalAdmin) data = await secretaryService.getProfile();
+      else if (subRole === "SECRETAIRE_GENERALE") data = await secretaryService.getProfile();
+      else if (subRole === "TRESORIER") data = await treasurerService.getProfile().catch(() => memberService.getProfile());
+      else if (subRole === "PRESIDENT") data = await presidentService.getProfile().catch(() => memberService.getProfile());
       else data = await memberService.getProfile();
       setProfileData(data);
 
@@ -299,6 +312,7 @@ export default function MemberProfilPage() {
                 <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
                   <FieldRow label="Nom" value={displayName} editMode={editMode} editValue={editData.name} onChange={(v) => setEditData({ ...editData, name: v })} />
                   <FieldRow label="Prénom" value={displayFirstName} editMode={editMode} editValue={editData.firstName} onChange={(v) => setEditData({ ...editData, firstName: v })} />
+                  <FieldRow label="Identifiant (Username)" value={"@" + (profileData?.username || "À renseigner")} editMode={editMode} editValue={editData.username} onChange={(v) => setEditData({ ...editData, username: v })} />
                   <FieldRow label="Adresse Email" value={displayEmail} />
                   <FieldRow
                     label="N° de téléphone"
@@ -312,6 +326,7 @@ export default function MemberProfilPage() {
                     inputMode="tel"
                     pattern="[0-9\s+]*"
                   />
+                  <FieldRow label="Adresse de résidence" value={memberAddress} editMode={editMode} editValue={editData.address} onChange={(v) => setEditData({ ...editData, address: v })} />
                   {editMode && (
                     <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
                       <button className={styles.cancelBtn} onClick={() => setEditMode(false)}>Annuler</button>
@@ -329,7 +344,6 @@ export default function MemberProfilPage() {
                 <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
                   <FieldRow label="Rôle" value={getRoleLabel()} valueColor="#4e73df" />
                   <FieldRow label="Date d'inscription" value={inscriptionDate ? new Date(inscriptionDate).toLocaleDateString() : "—"} />
-                  <FieldRow label="Adresse de résidence" value={memberAddress} editMode={editMode} editValue={editData.address} onChange={(v) => setEditData({ ...editData, address: v })} />
                 </div>
               </div>
             </div>

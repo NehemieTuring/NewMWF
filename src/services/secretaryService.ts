@@ -10,6 +10,7 @@ export const secretaryService = {
   activateMember: (id: number) => fetchWithAuth(`/admin/members/${id}/activate`, { method: "PUT" }),
   getMemberStatus: (id: number) => fetchWithAuth(`/admin/members/${id}/status`),
   getMemberDebts: (id: number) => fetchWithAuth(`/admin/members/${id}/debts`),
+  deleteMember: (id: number, motive?: string) => fetchWithAuth(`/admin/members/${id}/archive${motive ? `?motive=${encodeURIComponent(motive)}` : ""}`, { method: "POST" }),
   importMembersCsv: (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -42,6 +43,8 @@ export const secretaryService = {
   createHelpType: (name: string, description: string, amount: number) => fetchWithAuth(`/admin/helps/types?name=${encodeURIComponent(name)}&description=${encodeURIComponent(description)}&amount=${amount}`, { method: "POST" }),
   updateHelpType: (id: number, data: any) => fetchWithAuth(`/admin/helps/types/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   deleteHelpType: (id: number) => fetchWithAuth(`/admin/helps/types/${id}`, { method: "DELETE" }),
+  validateHelp: (id: number) => fetchWithAuth(`/admin/helps/${id}/validate`, { method: "POST" }),
+  rejectHelp: (id: number) => fetchWithAuth(`/admin/helps/${id}/reject`, { method: "POST" }),
 
   // Sessions et Exercices
   getExercises: () => fetchWithAuth("/admin/exercises"),
@@ -74,7 +77,7 @@ export const secretaryService = {
 
   // Profil propre
   getProfile: () => fetchWithAuth("/admin/profile"),
-  updateProfile: (data: any) => fetchWithAuth(`/admin/profile?name=${encodeURIComponent(data.name)}&firstName=${encodeURIComponent(data.firstName)}&username=${encodeURIComponent(data.username)}`, { method: "PUT" }),
+  updateProfile: (data: any) => fetchWithAuth(`/admin/profile?name=${encodeURIComponent(data.name)}&firstName=${encodeURIComponent(data.firstName)}&username=${encodeURIComponent(data.username)}&tel=${encodeURIComponent(data.tel || "")}&address=${encodeURIComponent(data.address || "")}`, { method: "PUT" }),
   updatePassword: (newPassword: string) => fetchWithAuth(`/admin/profile/password?newPassword=${encodeURIComponent(newPassword)}`, { method: "PUT" }),
   updateAvatar: (file: File) => {
     const formData = new FormData();

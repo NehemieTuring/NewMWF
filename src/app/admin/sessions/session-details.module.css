@@ -7,8 +7,9 @@
 
 .header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
   margin-bottom: 3.5rem;
   background: rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(15px);
@@ -18,7 +19,11 @@
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
 }
 
-.titleSection { display: flex; flex-direction: column; gap: 0.5rem; }
+.titleSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
 
 .title {
   font-size: 2.8rem;
@@ -88,7 +93,11 @@
   font-size: 2rem;
 }
 
-.statInfo { display: flex; flex-direction: column; gap: 0.25rem; }
+.statInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
 
 .statLabel {
   font-size: 0.95rem;
@@ -114,7 +123,9 @@
   gap: 1rem;
 }
 
-.sectionTitle i { color: var(--primary); }
+.sectionTitle i {
+  color: var(--primary);
+}
 
 .tableCard {
   background: white;
@@ -157,18 +168,51 @@
   text-transform: uppercase;
 }
 
-.badge_SAVING { background: rgba(54, 185, 204, 0.1); color: #36b9cc; }
-.badge_REFUND { background: rgba(78, 115, 223, 0.1); color: #4e73df; }
-.badge_INSCRIPTION { background: rgba(28, 200, 138, 0.1); color: #1cc88a; }
-.badge_PENALTY { background: rgba(246, 194, 62, 0.1); color: #f6c23e; }
-.badge_SOLIDARITY { background: rgba(231, 74, 59, 0.1); color: #e74a3b; }
+.badge_SAVING {
+  background: rgba(54, 185, 204, 0.1);
+  color: #36b9cc;
+}
 
-.amount_pos { color: #1cc88a; font-weight: 900; }
-.amount_neg { color: #e74a3b; font-weight: 900; }
+.badge_REFUND {
+  background: rgba(78, 115, 223, 0.1);
+  color: #4e73df;
+}
+
+.badge_INSCRIPTION {
+  background: rgba(28, 200, 138, 0.1);
+  color: #1cc88a;
+}
+
+.badge_PENALTY {
+  background: rgba(246, 194, 62, 0.1);
+  color: #f6c23e;
+}
+
+.badge_SOLIDARITY {
+  background: rgba(231, 74, 59, 0.1);
+  color: #e74a3b;
+}
+
+.amount_pos {
+  color: #1cc88a;
+  font-weight: 900;
+}
+
+.amount_neg {
+  color: #e74a3b;
+  font-weight: 900;
+}
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .loading {

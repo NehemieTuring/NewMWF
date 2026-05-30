@@ -100,8 +100,8 @@ export default function MemberDetailsPage() {
           </div>
         </div>
         <div className={styles.actions}>
-          <button className={styles.editBtn} onClick={() => router.push(`/admin/membres/modifier/${id}`)}>
-            <i className="fas fa-user-edit"></i> Modifier le profil
+          <button className={styles.backBtn} onClick={() => router.push("/admin/membres")}>
+            <i className="fas fa-arrow-left"></i> Retour à la liste
           </button>
         </div>
       </header>

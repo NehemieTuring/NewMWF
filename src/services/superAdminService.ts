@@ -31,7 +31,7 @@ export interface DashboardStats {
 
 // Profil
 export const getProfile = () => fetchWithAuth("/admin/super/profile");
-export const updateProfile = (data: any) => fetchWithAuth(`/admin/super/profile?name=${encodeURIComponent(data.name)}&firstName=${encodeURIComponent(data.firstName)}&username=${encodeURIComponent(data.username)}`, { method: "PUT" });
+export const updateProfile = (data: any) => fetchWithAuth(`/admin/super/profile?name=${encodeURIComponent(data.name)}&firstName=${encodeURIComponent(data.firstName)}&username=${encodeURIComponent(data.username)}&tel=${encodeURIComponent(data.tel || "")}`, { method: "PUT" });
 export const updatePassword = (newPassword: string) => fetchWithAuth(`/admin/super/profile/password?newPassword=${encodeURIComponent(newPassword)}`, { method: "PUT" });
 export const updateAvatar = (file: File) => {
   const formData = new FormData();
@@ -53,7 +53,7 @@ export const importAdminsCsv = (file: File) => {
 };
 
 // Gestion des membres
-export const deleteMember = (id: number) => fetchWithAuth(`/admin/super/members/${id}`, { method: "DELETE" });
+export const deleteMember = (id: number, motive?: string) => fetchWithAuth(`/admin/super/members/${id}/archive${motive ? `?motive=${encodeURIComponent(motive)}` : ""}`, { method: "POST" });
 
 // Sécurité
 export const changeUserPasswordByEmail = (email: string, newPassword: string) => fetchWithAuth(`/admin/super/users/password?email=${encodeURIComponent(email)}&newPassword=${encodeURIComponent(newPassword)}`, { method: "PUT" });

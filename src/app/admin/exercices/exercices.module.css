@@ -18,12 +18,17 @@
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
 }
 
+:global(.dark) .header,
 [data-theme='dark'] .header {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.titleSection { display: flex; flex-direction: column; gap: 0.5rem; }
+.titleSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
 
 .title {
   font-size: 2.8rem;
@@ -72,9 +77,10 @@
   animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+:global(.dark) .tableCard,
 [data-theme='dark'] .tableCard {
-  background: rgba(26, 32, 44, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--white);
+  border: 1px solid var(--border-color);
 }
 
 .table {
@@ -145,7 +151,8 @@
   gap: 1rem;
 }
 
-.cloturerBtn, .detailsBtn {
+.cloturerBtn,
+.detailsBtn {
   width: 48px;
   height: 48px;
   border-radius: 16px;
@@ -211,13 +218,27 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(50px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .loading {

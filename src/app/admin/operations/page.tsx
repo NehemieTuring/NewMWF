@@ -6,10 +6,10 @@ import { useTranslation } from "@/context/LanguageContext";
 import { treasurerService } from "@/services/treasurerService";
 import { useNotification } from "@/context/NotificationContext";
 
-type OperationType = "epargne" | "solidarite" | "emprunt" | "remboursement";
+type OperationType = "epargne" | "solidarite" | "emprunt" | "remboursement" | "achat";
 
 export default function GlobalOperationsPage() {
-  const { locale } = useTranslation();
+  const { t } = useTranslation();
   const { showToast, confirm: showConfirm } = useNotification();
   const [loading, setLoading] = useState(false);
   const [members, setMembers] = useState<any[]>([]);
@@ -21,6 +21,7 @@ export default function GlobalOperationsPage() {
   const [selectedMemberId, setSelectedMemberId] = useState("");
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
+  const [itemName, setItemName] = useState("");
   const [refundType, setRefundType] = useState<"LOAN" | "SOLIDARITY">("LOAN");
   const [memberDebts, setMemberDebts] = useState<any[]>([]);
 
@@ -57,10 +58,11 @@ export default function GlobalOperationsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedMemberId || !amount || !selectedOp) return;
+    if (!amount || !selectedOp) return;
+    if (selectedOp !== "achat" && !selectedMemberId) return;
 
     if (!activeSession) {
-      showToast("Opération impossible : Aucune session de collecte n'est actuellement ouverte.", "error");
+      showToast(t.operations.erreurSessionFermee, "error");
       return;
     }
 
@@ -74,60 +76,60 @@ export default function GlobalOperationsPage() {
 
       if (refundType === "LOAN") {
         limit = memberDebts.filter(d => d.type === "LOAN").reduce((acc, d) => acc + d.amount, 0);
-        limitLabel = "dette de prêt";
+        limitLabel = t.operations.unPret;
       } else {
-        // La dette "SOLIDARITY" est le pivot qui inclut le renflouement sur le backend
-        const solidarityEntry = memberDebts.find(d => d.type === "SOLIDARITY");
-        const refuelingEntries = memberDebts.filter(d => d.type === "REFUELING");
-
-        // Si on a une entrée master SOLIDARITY, c'est elle qui fait foi
-        if (solidarityEntry) {
-          limit = solidarityEntry.amount;
-        } else {
-          // Sinon on somme les renflouements (cas rare où la dette globale n'est pas encore créée)
-          limit = refuelingEntries.reduce((acc, d) => acc + d.amount, 0);
-        }
-        limitLabel = "dette de solidarité/renflouement";
+        const socialDebts = memberDebts.filter(d => d.type === "SOLIDARITY" || d.type === "REFUELING");
+        limit = socialDebts.reduce((acc, d) => acc + d.amount, 0);
+        limitLabel = t.operations.solidariteRenflouement;
       }
 
       if (numAmount > limit) {
-        showToast(`Opération refusée : Le montant (${numAmount.toLocaleString()} XAF) excède la ${limitLabel} (${limit.toLocaleString()} XAF).`, "error");
+        showToast(t.operations.erreurMontantExcede.replace("{amount}", numAmount.toLocaleString()).replace("{limitLabel}", limitLabel).replace("{limit}", limit.toLocaleString()), "error");
         return;
       }
     }
 
+    const confirmMsg = selectedOp === "achat"
+      ? t.operations.confirmMsgAchat.replace("{amount}", amount)
+      : t.operations.confirmMsgOp.replace("{amount}", amount).replace("{member}", `${member?.user?.firstName} ${member?.user?.name}`).replace("{session}", activeSession.name || activeSession.sessionNumber);
+
     showConfirm({
-      title: `Confirmer ${opLabel}`,
-      message: `Voulez-vous enregistrer cette opération de ${amount} XAF pour ${member?.user?.firstName} ${member?.user?.name} ? (Session: ${activeSession.name || activeSession.sessionNumber})`,
+      title: `${t.operations.confirmTitre}${opLabel}`,
+      message: confirmMsg,
       type: "info",
       onConfirm: async () => {
         setLoading(true);
         try {
           if (selectedOp === "epargne") {
             await treasurerService.addMemberSaving(Number(selectedMemberId), Number(amount));
-            showToast("Épargne enregistrée avec succès", "success");
+            showToast(t.operations.succesEpargne, "success");
           } else if (selectedOp === "remboursement") {
             if (refundType === "LOAN") {
               await treasurerService.addRefund(Number(selectedMemberId), Number(amount));
-              showToast("Remboursement de prêt enregistré", "success");
+              showToast(t.operations.succesRemboursement, "success");
             } else {
               await treasurerService.paySolidarity(Number(selectedMemberId), Number(amount));
-              showToast("Paiement Solidarité/Renflouement enregistré", "success");
+              showToast(t.operations.succesSolidarite, "success");
             }
           } else if (selectedOp === "emprunt") {
             await treasurerService.addLoan(Number(selectedMemberId), Number(amount));
-            showToast("Prêt accordé et décaissé avec succès", "success");
+            showToast(t.operations.succesPret, "success");
           } else if (selectedOp === "solidarite") {
             await treasurerService.paySolidarity(Number(selectedMemberId), Number(amount));
-            showToast("Cotisation Solidarité enregistrée", "success");
+            showToast(t.operations.succesSolidarite, "success"); // Fixed: reuse same success msg for solidarity
+          } else if (selectedOp === "achat") {
+            const finalDescription = itemName ? `Article: ${itemName}${description ? ` - Justification: ${description}` : ""}` : (description || (t.operations.nomArticle));
+            await treasurerService.recordSolidarityPurchase(Number(amount), finalDescription);
+            showToast(t.operations.succesAchat, "success");
           }
           // Reset
           setAmount("");
           setDescription("");
+          setItemName("");
           setSelectedOp(null);
           loadData();
         } catch (err: any) {
-          showToast(err.message || "Erreur lors de l'opération", "error");
+          showToast(err.message || t.superAdmin.erreur, "error");
         } finally {
           setLoading(false);
         }
@@ -136,31 +138,32 @@ export default function GlobalOperationsPage() {
   };
 
   const actions = [
-    { type: "epargne" as OperationType, label: "Collecter Épargne", icon: "fas fa-piggy-bank", color: "#1cc88a", desc: "Enregistrer un versement d'épargne d'un membre." },
-    { type: "remboursement" as OperationType, label: "Remboursement de Dette", icon: "fas fa-hand-holding-usd", color: "#4e73df", desc: "Payer un prêt en cours ou une cotisation de solidarité (renflouement)." },
-    { type: "emprunt" as OperationType, label: "Accorder un Prêt", icon: "fas fa-exchange-alt", color: "#36b9cc", desc: "Valider et décaisser un nouvel emprunt pour un membre." },
+    { type: "epargne" as OperationType, label: t.operations.collecteEpargne, icon: "fas fa-piggy-bank", color: "#1cc88a", desc: t.operations.collecteEpargneDesc },
+    { type: "remboursement" as OperationType, label: t.operations.remboursementDette, icon: "fas fa-hand-holding-usd", color: "#4e73df", desc: t.operations.remboursementDetteDesc },
+    { type: "emprunt" as OperationType, label: t.operations.accorderPret, icon: "fas fa-exchange-alt", color: "#36b9cc", desc: t.operations.accorderPretDesc },
+    { type: "achat" as OperationType, label: t.operations.achatsMutuelle, icon: "fas fa-shopping-cart", color: "#e74a3b", desc: t.operations.achatsMutuelleDesc },
   ];
 
   return (
     <div className={styles.container}>
       <header style={{ marginBottom: "3rem" }}>
-        <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#2e3b4e" }}>Opérations Financières</h1>
-        <p style={{ color: "#858796" }}>Interface opérationnelle pour la gestion des flux financiers quotidiens.</p>
+        <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "var(--text-dark)" }}>{t.operations.titre}</h1>
+        <p style={{ color: "var(--text-muted)" }}>{t.operations.sousTitre}</p>
 
         {!activeSession ? (
-          <div style={{ marginTop: "1.5rem", padding: "1.5rem", background: "#fff5f5", border: "1px solid #feb2b2", borderRadius: "16px", display: "flex", alignItems: "center", gap: "1rem", color: "#c53030" }}>
+          <div style={{ marginTop: "1.5rem", padding: "1.5rem", background: "rgba(231,74,59,0.1)", border: "1px solid var(--danger)", borderRadius: "16px", display: "flex", alignItems: "center", gap: "1rem", color: "var(--danger)" }}>
             <i className="fas fa-exclamation-circle" style={{ fontSize: "1.5rem" }}></i>
             <div>
-              <strong style={{ display: "block" }}>Aucune session active</strong>
-              <span style={{ fontSize: "0.85rem" }}>Vous devez ouvrir une session dans le module de gestion pour enregistrer des collectes d'épargne, des remboursements ou accorder des prêts.</span>
+              <strong style={{ display: "block" }}>{t.operations.aucuneSession}</strong>
+              <span style={{ fontSize: "0.85rem" }}>{t.operations.aucuneSessionDesc}</span>
             </div>
           </div>
         ) : (
-          <div style={{ marginTop: "1.5rem", padding: "1.5rem", background: "#f0fff4", border: "1px solid #9ae6b4", borderRadius: "16px", display: "flex", alignItems: "center", gap: "1rem", color: "#276749" }}>
+          <div style={{ marginTop: "1.5rem", padding: "1.5rem", background: "rgba(28,200,138,0.1)", border: "1px solid var(--success)", borderRadius: "16px", display: "flex", alignItems: "center", gap: "1rem", color: "var(--success)" }}>
             <i className="fas fa-check-circle" style={{ fontSize: "1.5rem" }}></i>
             <div>
-              <strong style={{ display: "block" }}>Session Active : {activeSession.name || `Session #${activeSession.sessionNumber}`}</strong>
-              <span style={{ fontSize: "0.85rem" }}>La session est ouverte. Vous pouvez enregistrer les opérations financières courantes.</span>
+              <strong style={{ display: "block" }}>{t.operations.sessionOuverte}{activeSession.name || `Session #${activeSession.sessionNumber}`}</strong>
+              <span style={{ fontSize: "0.85rem" }}>{t.operations.sessionOuverteDesc}</span>
             </div>
           </div>
         )}
@@ -171,10 +174,10 @@ export default function GlobalOperationsPage() {
           <div
             key={act.type}
             style={{
-              background: "white",
+              background: "var(--white)",
               padding: "2rem",
               borderRadius: "24px",
-              border: !activeSession ? "1px dashed #cbd5e0" : "1px solid #e3e6f0",
+              border: !activeSession ? "1px dashed var(--border-color)" : "1px solid var(--border-color)",
               display: "flex",
               flexDirection: "column",
               gap: "1.25rem",
@@ -189,11 +192,11 @@ export default function GlobalOperationsPage() {
               <i className={act.icon}></i>
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700, color: "#2e3b4e" }}>{act.label}</h3>
-              <p style={{ fontSize: "0.85rem", color: "#858796", marginTop: "0.5rem", lineHeight: "1.4" }}>{act.desc}</p>
+              <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700, color: "var(--text-dark)" }}>{act.label}</h3>
+              <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginTop: "0.5rem", lineHeight: "1.4" }}>{act.desc}</p>
             </div>
             <button style={{ marginTop: "auto", background: "none", border: "none", color: act.color, fontWeight: 800, fontSize: "0.8rem", display: "flex", alignItems: "center", gap: "0.5rem", padding: 0, cursor: "pointer" }}>
-              OUVRIR LE MODULE <i className="fas fa-arrow-right"></i>
+              {t.operations.ouvrirModule} <i className="fas fa-arrow-right"></i>
             </button>
           </div>
         ))}
@@ -210,23 +213,25 @@ export default function GlobalOperationsPage() {
               </button>
             </div>
             <form onSubmit={handleSubmit} className={styles.modalBody} style={{ textAlign: "left" }}>
-              <div style={{ marginBottom: "1.5rem" }}>
-                <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#4e73df", marginBottom: "0.5rem" }}>Sélectionner le membre</label>
-                <select
-                  className={styles.formInput}
-                  value={selectedMemberId}
-                  onChange={(e) => setSelectedMemberId(e.target.value)}
-                  required
-                >
-                  <option value="">-- Choisir un membre --</option>
-                  {members.map(m => (
-                    <option key={m.id} value={m.id}>{m.user?.firstName} {m.user?.name} (@{m.username})</option>
-                  ))}
-                </select>
-              </div>
+              {selectedOp !== "achat" && (
+                <div style={{ marginBottom: "1.5rem" }}>
+                  <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#4e73df", marginBottom: "0.5rem" }}>{t.operations.selectionMember}</label>
+                  <select
+                    className={styles.formInput}
+                    value={selectedMemberId}
+                    onChange={(e) => setSelectedMemberId(e.target.value)}
+                    required
+                  >
+                    <option value="">{t.operations.choisirMembre}</option>
+                    {members.map(m => (
+                      <option key={m.id} value={m.id}>{m.user?.firstName} {m.user?.name} (@{m.username})</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div style={{ marginBottom: "1.5rem" }}>
-                <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#4e73df", marginBottom: "0.5rem" }}>Montant de l'opération (XAF)</label>
+                <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#4e73df", marginBottom: "0.5rem" }}>{t.operations.montantOperation}</label>
                 <input
                   type="number"
                   className={styles.formInput}
@@ -239,44 +244,58 @@ export default function GlobalOperationsPage() {
 
               {selectedOp === "remboursement" && (
                 <div style={{ marginBottom: "1.5rem" }}>
-                  <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#4e73df", marginBottom: "0.5rem" }}>Que remboursez-vous ?</label>
+                  <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#4e73df", marginBottom: "0.5rem" }}>{t.operations.queRemboursezVous}</label>
                   <div style={{ display: "flex", gap: "1rem" }}>
                     <label style={{ flex: 1, cursor: "pointer" }}>
                       <input type="radio" name="refundType" checked={refundType === "LOAN"} onChange={() => setRefundType("LOAN")} style={{ marginRight: "0.5rem" }} />
-                      Un Prêt (Emprunt)
+                      {t.operations.unPret}
                     </label>
                     <label style={{ flex: 1, cursor: "pointer" }}>
                       <input type="radio" name="refundType" checked={refundType === "SOLIDARITY"} onChange={() => setRefundType("SOLIDARITY")} style={{ marginRight: "0.5rem" }} />
-                      Solidarité / Renflouement
+                      {t.operations.solidariteRenflouement}
                     </label>
                   </div>
                   {selectedMemberId && (
                     <div style={{ marginTop: "0.5rem", fontSize: "0.8rem", color: "#e74a3b", fontWeight: 600 }}>
                       {refundType === "LOAN" ? (
-                        <>Dette de prêt actuelle : {(memberDebts.filter(d => d.type === "LOAN").reduce((acc, d) => acc + d.amount, 0)).toLocaleString()} XAF</>
+                        <>{t.operations.dettePretActuelle}{(memberDebts.filter(d => d.type === "LOAN").reduce((acc, d) => acc + d.amount, 0)).toLocaleString()} XAF</>
                       ) : (
-                        <>Dette Solidarité/Renflouement : {(memberDebts.find(d => d.type === "SOLIDARITY")?.amount || memberDebts.filter(d => d.type === "REFUELING").reduce((acc, d) => acc + d.amount, 0)).toLocaleString()} XAF</>
+                        <>{t.operations.detteSolidariteActuelle}{(memberDebts.filter(d => d.type === "SOLIDARITY" || d.type === "REFUELING").reduce((acc, d) => acc + d.amount, 0)).toLocaleString()} XAF</>
                       )}
                     </div>
                   )}
                 </div>
               )}
 
+              {selectedOp === "achat" && (
+                <div style={{ marginBottom: "1.5rem" }}>
+                  <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#4e73df", marginBottom: "0.5rem" }}>{t.operations.nomArticle}</label>
+                  <input
+                    type="text"
+                    className={styles.formInput}
+                    value={itemName}
+                    onChange={(e) => setItemName(e.target.value)}
+                    placeholder="Ex: Fournitures de bureau"
+                    required
+                  />
+                </div>
+              )}
+
               <div style={{ marginBottom: "2rem" }}>
-                <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#4e73df", marginBottom: "0.5rem" }}>Note / Observation</label>
+                <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#4e73df", marginBottom: "0.5rem" }}>{t.operations.justification}</label>
                 <textarea
                   className={styles.formInput}
                   style={{ minHeight: "80px", resize: "none" }}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Détails optionnels..."
+                  placeholder={t.operations.detailsOperation}
                 />
               </div>
 
               <div className={styles.modalActions}>
-                <button type="button" className={styles.cancelBtn} onClick={() => setSelectedOp(null)}>Annuler</button>
+                <button type="button" className={styles.cancelBtn} onClick={() => setSelectedOp(null)}>{t.operations.annuler}</button>
                 <button type="submit" className={styles.confirmBtn} disabled={loading} style={{ background: actions.find(a => a.type === selectedOp)?.color }}>
-                  {loading ? "Traitement..." : "Confirmer l'opération"}
+                  {loading ? t.operations.traitement : t.operations.confirmerOperation}
                 </button>
               </div>
             </form>
@@ -286,15 +305,15 @@ export default function GlobalOperationsPage() {
 
       {/* Historique rapide */}
       <section style={{ marginTop: "4rem" }}>
-        <h2 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "1.5rem", color: "#4e4f5d" }}>Dernières opérations enregistrées</h2>
+        <h2 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "1.5rem", color: "var(--text-dark)" }}>{t.operations.historiqueTitre}</h2>
         <div className={styles.tableCard}>
           <table className={styles.table}>
             <thead>
-              <tr><th>Date</th><th>Membre</th><th>Opération</th><th style={{ textAlign: "right" }}>Montant</th></tr>
+              <tr><th>{t.operations.date}</th><th>{t.operations.membre}</th><th>{t.operations.operation}</th><th style={{ textAlign: "right" }}>{t.operations.montant}</th></tr>
             </thead>
             <tbody>
               {transactions.length === 0 ? (
-                <tr><td colSpan={4} style={{ textAlign: "center", padding: "2rem", color: "#a0aec0" }}>Aucune opération récente trouvée.</td></tr>
+                <tr><td colSpan={4} style={{ textAlign: "center", padding: "2rem", color: "#a0aec0" }}>{t.operations.aucuneOperation}</td></tr>
               ) : transactions.slice(0, 5).map((tx: any) => {
                 const getMemberName = (desc: string) => {
                   if (!desc) return "N/A";
@@ -305,15 +324,16 @@ export default function GlobalOperationsPage() {
 
                 const translateType = (type: string) => {
                   const mapping: any = {
-                    "SAVING_DEPOSIT": "Dépôt d'épargne",
-                    "SAVING_WITHDRAWAL": "Retrait d'épargne",
-                    "BORROWING_LOAN": "Prêt accordé",
-                    "LOAN_REFUND": "Remboursement prêt",
-                    "SOLIDARITY_PAYMENT": "Cotisation Solidarité",
-                    "SOLIDARITY_HELP": "Solidarité / Aide",
-                    "AGAPE": "Agape",
-                    "INSCRIPTION": "Frais d'inscription",
-                    "PENALTY": "Pénalité"
+                    "SAVING_DEPOSIT": t.dashboard.epargnes,
+                    "SAVING_WITHDRAWAL": t.dashboard.epargnes,
+                    "BORROWING_LOAN": t.dashboard.emprunts,
+                    "LOAN_REFUND": t.dashboard.emprunts,
+                    "SOLIDARITY_PAYMENT": t.dashboard.fondSocial,
+                    "SOLIDARITY_HELP": t.admin.aides,
+                    "AGAPE": t.admin.agape,
+                    "INSCRIPTION": t.dashboard.inscriptions,
+                    "PENALTY": t.admin.dettes,
+                    "SOCIAL_FUND_PURCHASE": t.operations.achatsMutuelle
                   };
                   return mapping[type] || type;
                 };
@@ -321,7 +341,7 @@ export default function GlobalOperationsPage() {
                 return (
                   <tr key={tx.id}>
                     <td>{new Date(tx.date).toLocaleDateString()}</td>
-                    <td style={{ fontWeight: 600 }}>{getMemberName(tx.description)}</td>
+                    <td style={{ fontWeight: 600 }}>{tx.memberName || getMemberName(tx.description)}</td>
                     <td>
                       <span className={tx.amount > 0 ? styles.badgeSuccess : styles.badgePrimary}>
                         {translateType(tx.type)}

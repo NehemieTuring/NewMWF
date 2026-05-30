@@ -17,6 +17,8 @@ export default function AdminDashboard() {
   const isTreasurer = subRole === "TRESORIER";
   const [stats, setStats] = useState<any>(null);
   const [exercises, setExercises] = useState<any[]>([]);
+  const [helpTypes, setHelpTypes] = useState<any[]>([]);
+  const [ruleStats, setRuleStats] = useState({ inRule: 0, notInRule: 0 });
   const [loading, setLoading] = useState(true);
   const [showSessionModal, setShowSessionModal] = useState(false);
   const [showExerciseModal, setShowExerciseModal] = useState(false);
@@ -34,7 +36,7 @@ export default function AdminDashboard() {
     startDate: `${new Date().getFullYear()}-01-01`,
     endDate: `${new Date().getFullYear()}-12-31`,
     interestRate: 3.0,
-    solidarityAmount: 150000,
+    solidarityAmount: 300000,
     agapeAmount: 45000,
     penaltyAmount: 15000
   });
@@ -45,12 +47,20 @@ export default function AdminDashboard() {
     setLoading(true);
     setErrorState(null);
     try {
-      const [statsData, exercisesData] = await Promise.all([
+      const [statsData, exercisesData, typesData, inRuleData, notInRuleData] = await Promise.all([
         secretaryService.getGlobalTransactions(),
-        secretaryService.getExercises()
+        secretaryService.getExercises(),
+        secretaryService.getHelpTypes(),
+        secretaryService.getMembersInRule(),
+        secretaryService.getMembersNotInRule()
       ]);
       setStats(statsData);
       setExercises(exercisesData || []);
+      setHelpTypes(typesData || []);
+      setRuleStats({
+        inRule: (inRuleData as any[] || []).length,
+        notInRule: (notInRuleData as any[] || []).length
+      });
 
       // Auto-select active exercise in form if possible
       const activeEx = (exercisesData || []).find((e: any) => e.active);
@@ -169,10 +179,10 @@ export default function AdminDashboard() {
     <div className={styles.dashboard}>
       <header style={{ marginBottom: "2rem", display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1rem" }}>
         <div>
-          <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#2e3b4e" }}>
+          <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "var(--text-dark)" }}>
             Tableau de Bord {isSG ? "Secrétaire G." : isTreasurer ? "Trésorier" : "Président"}
           </h1>
-          <p style={{ color: "#858796" }}>
+          <p style={{ color: "var(--text-muted)" }}>
             {isSG ? "Gestion opérationnelle et suivi des activités récentes." :
               isTreasurer ? "Surveillance financière et état des fonds." :
                 "Supervision globale et indicateurs de performance."}
@@ -189,7 +199,7 @@ export default function AdminDashboard() {
           <div className={styles.statContent}>
             <span className={styles.statLabel}>Adhésions Totales</span>
             <div className={styles.statValueContainer}>
-              <span className={styles.statValue}>{formatAmount(stats?.totalEnrollments)}</span>
+              <span className={styles.statValue} style={{ color: "var(--text-dark)" }}>{formatAmount(stats?.totalEnrollments)}</span>
               <span className={styles.statUnit}>XAF</span>
             </div>
           </div>
@@ -201,7 +211,7 @@ export default function AdminDashboard() {
           <div className={styles.statContent}>
             <span className={styles.statLabel}>Fond social</span>
             <div className={styles.statValueContainer}>
-              <span className={styles.statValue}>{formatAmount(stats?.totalSocialFunds)}</span>
+              <span className={styles.statValue} style={{ color: "var(--text-dark)" }}>{formatAmount(stats?.totalSocialFunds)}</span>
               <span className={styles.statUnit}>XAF</span>
             </div>
           </div>
@@ -213,7 +223,7 @@ export default function AdminDashboard() {
           <div className={styles.statContent}>
             <span className={styles.statLabel}>Épargnes Totales</span>
             <div className={styles.statValueContainer}>
-              <span className={styles.statValue}>{formatAmount(stats?.totalSavings)}</span>
+              <span className={styles.statValue} style={{ color: "var(--text-dark)" }}>{formatAmount(stats?.totalSavings)}</span>
               <span className={styles.statUnit}>XAF</span>
             </div>
           </div>
@@ -225,20 +235,46 @@ export default function AdminDashboard() {
           <div className={styles.statContent}>
             <span className={styles.statLabel}>Volume d'Emprunts</span>
             <div className={styles.statValueContainer}>
-              <span className={styles.statValue}>{formatAmount(stats?.totalLoans)}</span>
+              <span className={styles.statValue} style={{ color: "var(--text-dark)" }}>{formatAmount(stats?.totalLoans)}</span>
               <span className={styles.statUnit}>XAF</span>
             </div>
           </div>
         </div>
+        <div className={styles.statCard}>
+          <div className={styles.statIcon} style={{ background: "rgba(246, 194, 62, 0.1)", color: "#f6c23e" }}>
+            <i className="fas fa-hand-holding-heart"></i>
+          </div>
+          <div className={styles.statContent}>
+            <span className={styles.statLabel}>Types d'Aide</span>
+            <div className={styles.statValueContainer}>
+              <span className={styles.statValue} style={{ color: "var(--text-dark)" }}>{helpTypes.length}</span>
+              <span className={styles.statUnit}>Modes</span>
+            </div>
+          </div>
+        </div>
+        {isSG && (
+          <div className={styles.statCard}>
+            <div className={styles.statIcon} style={{ background: "rgba(110, 142, 251, 0.1)", color: "#6e8efb" }}>
+              <i className="fas fa-user-check"></i>
+            </div>
+            <div className={styles.statContent}>
+              <span className={styles.statLabel}>Membres en règle</span>
+              <div className={styles.statValueContainer}>
+                <span className={styles.statValue} style={{ color: "var(--text-dark)" }}>{ruleStats.inRule} / {ruleStats.inRule + ruleStats.notInRule}</span>
+                <span className={styles.statUnit}>Vérifiés</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className={styles.infoGrid} style={{ marginTop: "2rem" }}>
         {/* Session Status & Quick Actions for SG */}
-        <div className={styles.infoCard} style={{ background: stats?.activeSession ? "linear-gradient(135deg, #1e3a8a, #3b82f6)" : "#f8f9fc", color: stats?.activeSession ? "white" : "#2e3b4e" }}>
+        <div className={styles.infoCard} style={{ background: stats?.activeSession ? "linear-gradient(135deg, #1e3a8a, #3b82f6)" : "var(--white)", color: stats?.activeSession ? "white" : "var(--text-dark)" }}>
           <div className={styles.infoCardHeader} style={{ color: "inherit" }}>
             <h3 style={{ color: "inherit" }}><i className="fas fa-history"></i> Session en cours</h3>
           </div>
-          <div style={{ padding: "1.5rem" }}>
+          <div style={{ padding: "0.5rem 1.5rem" }}>
             {stats?.activeSession ? (
               <>
                 <h2 style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>{stats.activeSession.name || "Session Actuelle"}</h2>
@@ -255,9 +291,9 @@ export default function AdminDashboard() {
                 )}
               </>
             ) : (
-              <div style={{ textAlign: "center", padding: "1rem" }}>
-                <i className="fas fa-calendar-times" style={{ fontSize: "3rem", opacity: 0.1, marginBottom: "1rem" }}></i>
-                <p>Aucune session active actuellement.</p>
+              <div style={{ textAlign: "center", padding: "0.5rem" }}>
+                <i className="fas fa-calendar-times" style={{ fontSize: "1.5rem", opacity: 0.1, marginBottom: "0.5rem" }}></i>
+                <p style={{ fontSize: "0.85rem" }}>Aucune session active actuellement.</p>
                 {isSG && <button className={styles.sessionBtn} style={{ marginTop: "1rem" }} onClick={() => setShowSessionModal(true)}>Démarrer une session</button>}
               </div>
             )}
@@ -265,12 +301,12 @@ export default function AdminDashboard() {
         </div>
 
         {/* Exercise Management Card */}
-        <div className={styles.infoCard} style={{ background: exercises.some(e => e.active) ? "#f8f9fc" : "rgba(78, 115, 223, 0.05)", border: exercises.some(e => e.active) ? "1px solid #edf2f7" : "2px dashed #4e73df88" }}>
+        <div className={styles.infoCard} style={{ background: "var(--white)", border: exercises.some(e => e.active) ? "1px solid var(--border-color)" : "2px dashed #4e73df88" }}>
           <div className={styles.infoCardHeader}>
             <h3><i className="fas fa-calendar-alt"></i> Exercice Annuel</h3>
             <a href="/admin/parametres" className={styles.viewAllLink}>Tout voir <i className="fas fa-arrow-right"></i></a>
           </div>
-          <div style={{ padding: "1.5rem" }}>
+          <div style={{ padding: "0.5rem 1.5rem" }}>
             {exercises.find((e: any) => e.active) ? (
               <>
                 <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.5rem" }}>
@@ -304,9 +340,9 @@ export default function AdminDashboard() {
                 )}
               </>
             ) : (
-              <div style={{ textAlign: "center", padding: "1rem" }}>
-                <i className="fas fa-calendar-plus" style={{ fontSize: "3rem", opacity: 0.1, marginBottom: "1rem" }}></i>
-                <p style={{ fontSize: "0.9rem", color: "#718096" }}>Aucun exercice n{"'"}est actif pour le moment.</p>
+              <div style={{ textAlign: "center", padding: "0.5rem" }}>
+                <i className="fas fa-calendar-plus" style={{ fontSize: "1.5rem", opacity: 0.1, marginBottom: "0.5rem" }}></i>
+                <p style={{ fontSize: "0.85rem", color: "#718096" }}>Aucun exercice n{"'"}est actif pour le moment.</p>
                 {isSG && <button className={styles.sessionBtn} style={{ marginTop: "1rem", background: "linear-gradient(135deg, #1cc88a, #16a085)" }} onClick={() => setShowExerciseModal(true)}>Initialiser un Exercice</button>}
               </div>
             )}
@@ -430,9 +466,9 @@ export default function AdminDashboard() {
           <h2 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0 }}>Journal des Activités</h2>
           <a href="/admin/operations" style={{ fontSize: "0.8rem", fontWeight: 700, color: "#4e73df" }}>Accéder au back-office <i className="fas fa-arrow-right"></i></a>
         </div>
-        <div className={styles.tableCard} style={{ background: "white", borderRadius: "24px", border: "1px solid #e3e6f0", overflow: "hidden" }}>
+        <div className={styles.infoCard} style={{ padding: 0, overflow: "hidden" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead style={{ background: "#f8f9fc" }}>
+            <thead style={{ background: "var(--light)" }}>
               <tr>
                 <th style={{ padding: "1rem 1.5rem", textAlign: "left", fontSize: "0.7rem", fontWeight: 800, color: "#858796", textTransform: "uppercase" }}>Date</th>
                 <th style={{ padding: "1rem 1.5rem", textAlign: "left", fontSize: "0.7rem", fontWeight: 800, color: "#858796", textTransform: "uppercase" }}>Rôle / Action</th>
@@ -451,7 +487,8 @@ export default function AdminDashboard() {
                     "SOLIDARITY_HELP": "Solidarité / Aide",
                     "AGAPE": "Agape",
                     "INSCRIPTION": "Frais d'inscription",
-                    "PENALTY": "Pénalité"
+                    "PENALTY": "Pénalité",
+                    "SOCIAL_FUND_PURCHASE": "Achat Mutuelle"
                   };
                   return mapping[type] || type;
                 };
@@ -461,7 +498,23 @@ export default function AdminDashboard() {
                     <td style={{ padding: "1rem 1.5rem", fontSize: "0.85rem" }}>{new Date(tx.date).toLocaleDateString()}</td>
                     <td style={{ padding: "1rem 1.5rem" }}>
                       <span style={{ display: "block", fontWeight: 700, fontSize: "0.9rem" }}>{translateType(tx.type)}</span>
-                      <span style={{ fontSize: "0.75rem", color: "#858796" }}>{tx.description}</span>
+                      <span style={{ fontSize: "0.75rem", color: "#858796" }}>
+                        {(() => {
+                          const desc = tx.description || "";
+                          const mapping: any = {
+                            "Saving deposit": "Dépôt d'épargne",
+                            "Saving withdrawal": "Retrait d'épargne",
+                            "Loan refund": "Remboursement de prêt",
+                            "Solidarity payment": "Cotisation solidarité",
+                            "Loan granted": "Prêt accordé",
+                            "Social Fund help": "Aide Fonds Social",
+                            "Penalty payment": "Paiement de pénalité",
+                            "Agape contribution": "Contribution Agape",
+                            "Inscription fee": "Frais d'inscription"
+                          };
+                          return mapping[desc] || desc;
+                        })()}
+                      </span>
                     </td>
                     <td style={{ padding: "1rem 1.5rem", textAlign: "right", fontWeight: 800, color: tx.amount > 0 ? "#1cc88a" : "#e74a3b" }}>
                       {tx.amount > 0 ? "+" : ""} {tx.amount.toLocaleString()} XAF

@@ -9,20 +9,27 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Session Banner Section */
 .sessionBanner {
-  background: white;
+  background: var(--white);
   border-radius: 30px;
   padding: 2.5rem 3rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
-  border: 1px solid #edf2f7;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
   position: relative;
   overflow: hidden;
 }
@@ -69,9 +76,20 @@
 }
 
 @keyframes pulse {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(56, 161, 105, 0.4); }
-  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(56, 161, 105, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(56, 161, 105, 0); }
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(56, 161, 105, 0.4);
+  }
+
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(56, 161, 105, 0);
+  }
+
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(56, 161, 105, 0);
+  }
 }
 
 .sessionTitle {
@@ -132,14 +150,14 @@
 }
 
 .statCard {
-  background: white;
+  background: var(--white);
   border-radius: 28px;
   padding: 2rem;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-  border: 1px solid #edf2f7;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
   transition: all 0.4s ease;
   position: relative;
   overflow: hidden;
@@ -207,11 +225,11 @@
 }
 
 .infoCard {
-  background: white;
+  background: var(--white);
   border-radius: 30px;
-  padding: 2rem;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
-  border: 1px solid #edf2f7;
+  padding: 1.25rem 2rem;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
 }
@@ -220,15 +238,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1.25rem;
-  border-bottom: 2px solid #f8f9fc;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--light);
 }
 
 .infoCardHeader h3 {
   font-size: 1.25rem;
   font-weight: 800;
-  color: #2d3748;
+  color: var(--text-dark);
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -343,8 +361,13 @@
   font-weight: 700;
 }
 
-.amountText { color: #4a5568; }
-.percentText { color: #4e73df; }
+.amountText {
+  color: #4a5568;
+}
+
+.percentText {
+  color: #4e73df;
+}
 
 .addBtn {
   margin-top: 1rem;
@@ -383,32 +406,44 @@
 }
 
 @keyframes fadeInModal {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .modal {
-  background: white;
+  background: var(--white);
   width: 100%;
   max-width: 550px;
   border-radius: 30px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-xl);
   overflow: hidden;
   animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes slideUp {
-  from { transform: translateY(30px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .modalHeader {
   padding: 2rem;
-  background: #f8f9fc;
+  background: var(--light);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #edf2f7;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .modalHeader h3 {
@@ -432,7 +467,10 @@
   transition: all 0.2s;
 }
 
-.modalClose:hover { background: #fee2e2; color: #ef4444; }
+.modalClose:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
 
 .modalBody {
   padding: 2.5rem;
@@ -464,7 +502,10 @@
   outline: none;
 }
 
-.formInput:focus { border-color: #4e73df; background: white; }
+.formInput:focus {
+  border-color: #4e73df;
+  background: white;
+}
 
 .modalActions {
   display: flex;
@@ -512,14 +553,34 @@
   animation: spin 1s linear infinite;
 }
 
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 @media (max-width: 1200px) {
-  .statsGrid { grid-template-columns: repeat(2, 1fr); }
-  .infoGrid { grid-template-columns: 1fr; }
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 640px) {
-  .statsGrid { grid-template-columns: 1fr; }
-  .sessionBanner { flex-direction: column; text-align: center; gap: 2rem; }
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sessionBanner {
+    flex-direction: column;
+    text-align: center;
+    gap: 2rem;
+  }
 }
