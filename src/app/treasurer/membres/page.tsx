@@ -70,7 +70,7 @@ export default function TreasurerMembersPage() {
       const html = `
          <html>
             <head>
-               <title>Liste des Membres - Mutuelle Néhémie</title>
+               <title>Liste des Membres - Mutuelle web</title>
                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
                <style>
                   body { font-family: 'Inter', sans-serif; padding: 40px; color: #333; }
@@ -92,7 +92,7 @@ export default function TreasurerMembersPage() {
             </head>
             <body>
                <div class="header">
-                  <div class="logo">ENSPY - Mutuelle Néhémie</div>
+                  <div class="logo">ENSPY - Mutuelle web</div>
                   <div class="date">Généré le ${new Date().toLocaleDateString()}</div>
                </div>
                <h1>Liste des Membres</h1>

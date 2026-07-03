@@ -120,7 +120,7 @@ export default function MembreDashboard() {
           <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#2e3b4e", marginBottom: "0.25rem", letterSpacing: "-0.02em" }}>
             Bonjour, <span className="text-gradient">{profile?.user?.firstName || user?.username}</span> !
           </h1>
-          <p style={{ color: "#858796", fontSize: "0.95rem" }}>Voici un aperçu de vos activités à la Mutuelle Néhémie.</p>
+          <p style={{ color: "#858796", fontSize: "0.95rem" }}>Voici un aperçu de vos activités à la Mutuelle web.</p>
         </div>
       </header>
 
