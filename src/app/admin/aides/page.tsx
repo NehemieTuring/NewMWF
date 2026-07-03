@@ -36,6 +36,12 @@ export default function AidesPage() {
     amount: ""
   });
 
+  const [showDisburseModal, setShowDisburseModal] = useState(false);
+  const [disburseHelpItem, setDisburseHelpItem] = useState<any>(null);
+  const [memberDebtsForDisburse, setMemberDebtsForDisburse] = useState<any[]>([]);
+  const [deductDebtOption, setDeductDebtOption] = useState(false);
+  const [deductAmount, setDeductAmount] = useState("");
+
   async function loadData() {
     setLoading(true);
     try {
@@ -144,27 +150,88 @@ export default function AidesPage() {
     });
   };
 
-  const handleDisburse = (id: number) => {
+  const handleDisburse = async (id: number) => {
     const activeSession = sessions.find(s => s.state === "OPEN" || s.state === "SAVING");
     if (!activeSession) {
       showToast(t.operations.erreurSessionFermee, "error");
       return;
     }
-    showConfirm({
-      title: t.aides.confirmDecaissement,
-      message: t.aides.confirmDecaissementMsg,
-      type: "warning",
-      confirmText: t.aides.decaisser,
-      onConfirm: async () => {
-        try {
-          await secretaryService.disburseHelp(id);
-          showToast(t.aides.succesDecaissement, "success");
-          loadData();
-        } catch (err: any) {
-          showToast(err.message || t.superAdmin.erreur, "error");
-        }
+    const help = aides.find(a => a.id === id);
+    if (!help) return;
+
+    try {
+      setLoading(true);
+      const debts = await secretaryService.getMemberDebts(help.member.id);
+      setLoading(false);
+
+      const totalDebts = debts.reduce((acc: number, d: any) => acc + d.amount, 0);
+
+      if (totalDebts > 0) {
+        setDisburseHelpItem(help);
+        setMemberDebtsForDisburse(debts);
+        setDeductDebtOption(true);
+        const maxDeduct = Math.min(help.collectedAmount || 0, totalDebts);
+        setDeductAmount(maxDeduct.toString());
+        setShowDisburseModal(true);
+      } else {
+        showConfirm({
+          title: t.aides.confirmDecaissement,
+          message: t.aides.confirmDecaissementMsg,
+          type: "warning",
+          confirmText: t.aides.decaisser,
+          onConfirm: async () => {
+            try {
+              await secretaryService.disburseHelp(id, false, 0);
+              showToast(t.aides.succesDecaissement, "success");
+              loadData();
+            } catch (err: any) {
+              showToast(err.message || t.superAdmin.erreur, "error");
+            }
+          }
+        });
       }
-    });
+    } catch (err: any) {
+      setLoading(false);
+      showToast(err.message || "Erreur lors de la récupération des dettes.", "error");
+    }
+  };
+
+  const submitDisburseWithDebt = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!disburseHelpItem) return;
+
+    const numAmount = deductDebtOption ? Number(deductAmount) : 0;
+    const totalDebts = memberDebtsForDisburse.reduce((acc: number, d: any) => acc + d.amount, 0);
+    const helpAmount = disburseHelpItem.collectedAmount || 0;
+
+    if (deductDebtOption) {
+      if (isNaN(numAmount) || numAmount < 0) {
+        showToast("Le montant à rembourser est invalide.", "error");
+        return;
+      }
+      if (numAmount > helpAmount) {
+        showToast(`Le montant à rembourser ne peut pas excéder le montant de l'aide (${helpAmount.toLocaleString()} XAF).`, "error");
+        return;
+      }
+      if (numAmount > totalDebts) {
+        showToast(`Le montant à rembourser ne peut pas dépasser la dette totale du membre (${totalDebts.toLocaleString()} XAF).`, "error");
+        return;
+      }
+    }
+
+    setSubmitting(true);
+    try {
+      await secretaryService.disburseHelp(disburseHelpItem.id, deductDebtOption, numAmount);
+      showToast(t.aides.succesDecaissement, "success");
+      setShowDisburseModal(false);
+      setDisburseHelpItem(null);
+      setMemberDebtsForDisburse([]);
+      loadData();
+    } catch (err: any) {
+      showToast(err.message || t.superAdmin.erreur, "error");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleValidate = (id: number) => {
@@ -492,6 +559,106 @@ export default function AidesPage() {
                   <button type="button" className={styles.cancelBtn} onClick={() => setShowTypeModal(false)} style={{ borderRadius: "16px", padding: "1.1rem", fontWeight: 700 }}>{t.common.annuler}</button>
                   <button type="submit" className={styles.confirmBtn} disabled={submitting} style={{ background: "linear-gradient(135deg, #4e73df, #224abe)", borderRadius: "16px", padding: "1.1rem", flex: 2, boxShadow: "0 10px 25px rgba(78, 115, 223, 0.3)", border: "none" }}>
                     {submitting ? <i className="fas fa-spinner fa-spin"></i> : <><i className="fas fa-check-circle" style={{ marginRight: "0.6rem" }}></i> {editingType ? t.common.valider : t.common.annuler.includes("Cancel") ? "Save Type" : "Enregistrer le Type"}</>}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )
+      }
+      {
+        showDisburseModal && disburseHelpItem && (
+          <div className={styles.modalOverlay}>
+            <div className={`${styles.modal} fade-in-up`} style={{ maxWidth: "550px", borderRadius: "30px", border: "none", overflow: "hidden", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)" }}>
+              <div className={styles.modalHeader} style={{ background: "linear-gradient(135deg, #1cc88a, #13855c)", padding: "1.75rem 2rem" }}>
+                <h3 style={{ color: "white", fontSize: "1.35rem", fontWeight: 800, margin: 0 }}>
+                  <i className="fas fa-hand-holding-usd" style={{ marginRight: "0.75rem", opacity: 0.8 }}></i>
+                  {t.aides.confirmDecaissement}
+                </h3>
+                <button type="button" className={styles.modalClose} style={{ color: "white", background: "rgba(255,255,255,0.2)", width: "32px", height: "32px", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => { setShowDisburseModal(false); setDisburseHelpItem(null); }}>
+                  <i className="fas fa-times"></i>
+                </button>
+              </div>
+              <form onSubmit={submitDisburseWithDebt} className={styles.modalBody} style={{ padding: "2.5rem" }}>
+                <div style={{ background: "rgba(28,200,138,0.05)", padding: "1.25rem", borderRadius: "16px", marginBottom: "1.5rem", border: "1px solid rgba(28,200,138,0.15)" }}>
+                  <div style={{ fontSize: "0.85rem", color: "#718096" }}>Bénéficiaire</div>
+                  <strong style={{ fontSize: "1.1rem", color: "#1a365d" }}>
+                    {disburseHelpItem.member?.user?.firstName} {disburseHelpItem.member?.user?.name}
+                  </strong>
+                  <div style={{ fontSize: "0.85rem", color: "#718096", marginTop: "0.5rem" }}>Montant total de l'aide</div>
+                  <strong style={{ fontSize: "1.3rem", color: "#1cc88a" }}>
+                    {(disburseHelpItem.collectedAmount || 0).toLocaleString()} XAF
+                  </strong>
+                </div>
+
+                <div style={{ background: "rgba(231,74,59,0.05)", padding: "1.25rem", borderRadius: "16px", marginBottom: "1.5rem", border: "1px solid rgba(231,74,59,0.15)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                    <span style={{ fontSize: "0.9rem", fontWeight: 700, color: "#e74a3b" }}>
+                      Dettes en cours découvertes :
+                    </span>
+                    <strong style={{ fontSize: "1.1rem", color: "#e74a3b" }}>
+                      {memberDebtsForDisburse.reduce((acc, d) => acc + d.amount, 0).toLocaleString()} XAF
+                    </strong>
+                  </div>
+                  <div style={{ maxHeight: "120px", overflowY: "auto", fontSize: "0.8rem", color: "#4a5568", marginTop: "0.25rem" }}>
+                    <ul style={{ paddingLeft: "1.2rem", margin: 0 }}>
+                      {memberDebtsForDisburse.map((debt, index) => (
+                        <li key={index} style={{ marginBottom: "0.25rem" }}>
+                          {debt.description} : <strong>{debt.amount.toLocaleString()} XAF</strong> ({debt.exerciseName})
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div className={styles.formGroup} style={{ marginBottom: "1.5rem" }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontWeight: 700, color: "#4a5568" }}>
+                    <input
+                      type="checkbox"
+                      checked={deductDebtOption}
+                      onChange={(e) => {
+                        setDeductDebtOption(e.target.checked);
+                        if (e.target.checked) {
+                          const totalDebts = memberDebtsForDisburse.reduce((acc, d) => acc + d.amount, 0);
+                          const helpAmount = disburseHelpItem.collectedAmount || 0;
+                          setDeductAmount(Math.min(helpAmount, totalDebts).toString());
+                        } else {
+                          setDeductAmount("0");
+                        }
+                      }}
+                      style={{ width: "18px", height: "18px" }}
+                    />
+                    Rembourser les dettes à partir de cette aide ?
+                  </label>
+                </div>
+
+                {deductDebtOption && (
+                  <div style={{ marginBottom: "1.5rem" }}>
+                    <label style={{ color: "#4e73df", fontWeight: 700, fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "0.75rem", display: "block" }}>
+                      Montant à prélever de l'aide (XAF)
+                    </label>
+                    <input
+                      type="number"
+                      className={styles.formInput}
+                      value={deductAmount}
+                      onChange={(e) => setDeductAmount(e.target.value)}
+                      required
+                      min="0"
+                      max={Math.min(disburseHelpItem.collectedAmount || 0, memberDebtsForDisburse.reduce((acc, d) => acc + d.amount, 0))}
+                      style={{ borderRadius: "15px", padding: "1rem 1.25rem", border: "1px solid #e2e8f0", background: "#f8fafc", fontWeight: 700 }}
+                    />
+                    <small style={{ display: "block", marginTop: "0.5rem", color: "#718096" }}>
+                      Aide restante perçue par le membre : <strong>
+                        {Math.max(0, (disburseHelpItem.collectedAmount || 0) - Number(deductAmount || 0)).toLocaleString()} XAF
+                      </strong>
+                    </small>
+                  </div>
+                )}
+
+                <div className={styles.modalActions} style={{ marginTop: "2rem", gap: "1.25rem" }}>
+                  <button type="button" className={styles.cancelBtn} onClick={() => { setShowDisburseModal(false); setDisburseHelpItem(null); }} style={{ borderRadius: "16px", padding: "1.1rem", fontWeight: 700 }}>{t.common.annuler}</button>
+                  <button type="submit" className={styles.confirmBtn} disabled={submitting || (deductDebtOption && (!deductAmount || Number(deductAmount) <= 0 || Number(deductAmount) > Math.min(disburseHelpItem.collectedAmount || 0, memberDebtsForDisburse.reduce((acc, d) => acc + d.amount, 0))))} style={{ background: "linear-gradient(135deg, #1cc88a, #13855c)", borderRadius: "16px", padding: "1.1rem", flex: 2, boxShadow: "0 10px 25px rgba(28, 200, 138, 0.3)", border: "none" }}>
+                    {submitting ? <i className="fas fa-spinner fa-spin"></i> : <><i className="fas fa-check-circle" style={{ marginRight: "0.6rem" }}></i> Confirmer le décaissement</>}
                   </button>
                 </div>
               </form>

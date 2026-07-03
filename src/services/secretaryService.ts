@@ -89,5 +89,18 @@ export const secretaryService = {
   getAgapes: () => fetchWithAuth("/admin/agapes"),
   createAgape: (data: { title: string, description: string, amount: number, date: string, sessionId: string }) =>
     fetchWithAuth(`/admin/agapes?title=${encodeURIComponent(data.title)}&description=${encodeURIComponent(data.description)}&amount=${data.amount}&date=${data.date}&sessionId=${data.sessionId}`, { method: "POST" }),
-  disburseHelp: (helpId: number) => fetchWithAuth(`/admin/helps/${helpId}/disburse`, { method: "POST" }),
+  disburseHelp: (helpId: number, deductDebt?: boolean, deductedAmount?: number) => {
+    let url = `/admin/helps/${helpId}/disburse`;
+    const params: string[] = [];
+    if (deductDebt !== undefined) {
+      params.push(`deductDebt=${deductDebt}`);
+    }
+    if (deductedAmount !== undefined) {
+      params.push(`deductedAmount=${deductedAmount}`);
+    }
+    if (params.length > 0) {
+      url += `?${params.join("&")}`;
+    }
+    return fetchWithAuth(url, { method: "POST" });
+  },
 };
