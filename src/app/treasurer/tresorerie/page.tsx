@@ -19,6 +19,57 @@ export default function TresoreriePage() {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [caisses, setCaisses] = useState<any[]>([]);
 
+  const getCaisseDisplayName = (name: string) => {
+    switch (name?.toUpperCase()) {
+      case "SAVING":
+        return "Caisse d'Épargne";
+      case "SOLIDARITY":
+        return "Caisse de Solidarité (Fond Social)";
+      case "INSCRIPTION":
+        return "Caisse d'Inscription (Adhésion)";
+      case "MUTUAL_FUND":
+        return "Caisse du Fond Mutuel";
+      case "LOAN":
+        return "Caisse des Emprunts & Prêts";
+      default:
+        return name?.replace('_', ' ') || "";
+    }
+  };
+
+  const getCaisseIcon = (name: string) => {
+    switch (name?.toUpperCase()) {
+      case "SAVING":
+        return "fas fa-piggy-bank";
+      case "SOLIDARITY":
+        return "fas fa-hand-holding-heart";
+      case "INSCRIPTION":
+        return "fas fa-id-card";
+      case "MUTUAL_FUND":
+        return "fas fa-coins";
+      case "LOAN":
+        return "fas fa-handshake";
+      default:
+        return "fas fa-wallet";
+    }
+  };
+
+  const getCaisseColor = (name: string) => {
+    switch (name?.toUpperCase()) {
+      case "SAVING":
+        return "#4e73df"; // Blue
+      case "SOLIDARITY":
+        return "#e74a3b"; // Red
+      case "INSCRIPTION":
+        return "#1cc88a"; // Green
+      case "MUTUAL_FUND":
+        return "#f6c23e"; // Yellow
+      case "LOAN":
+        return "#36b9cc"; // Cyan
+      default:
+        return "#858796"; // Grey
+    }
+  };
+
   useEffect(() => {
     async function loadTreasury() {
       setLoading(true);
@@ -29,7 +80,7 @@ export default function TresoreriePage() {
         ]);
         setStats(statsData);
         setTransactions(statsData?.recentTransactions || []);
-        setCaisses(caissesData?.cashboxes || []);
+        setCaisses(Array.isArray(caissesData) ? caissesData : (caissesData?.cashboxes || statsData?.cashboxes || []));
       } catch (err: any) {
         showToast(err.message || t.tresorerie.chargement, "error");
       } finally {
@@ -57,7 +108,7 @@ export default function TresoreriePage() {
           target.reset();
           // Refresh
           const caissesData = await treasurerService.getCashboxes();
-          setCaisses(caissesData?.cashboxes || []);
+          setCaisses(Array.isArray(caissesData) ? caissesData : (caissesData?.cashboxes || []));
         } catch (err: any) {
           showToast(t.superAdmin.erreur + ": " + err.message, "error");
         }
@@ -154,10 +205,10 @@ export default function TresoreriePage() {
             <div className="fade-in">
               <div className={styles.dashboardGrid}>
                 {caisses.map((box) => (
-                  <div key={box.name} className={styles.cashboxCard}>
+                  <div key={box.id || box.name} className={styles.cashboxCard} style={{ borderLeft: `5px solid ${getCaisseColor(box.name)}` }}>
                     <div className={styles.cashboxHeader}>
-                      <h3>{box.name}</h3>
-                      <i className="fas fa-briefcase"></i>
+                      <h3 style={{ textTransform: "none", fontWeight: 800 }}>{getCaisseDisplayName(box.name)}</h3>
+                      <i className={getCaisseIcon(box.name)} style={{ color: getCaisseColor(box.name), background: `${getCaisseColor(box.name)}15` }}></i>
                     </div>
                     <div className={styles.cashboxValue}>
                       {box.balance?.toLocaleString()} <span>XAF</span>
