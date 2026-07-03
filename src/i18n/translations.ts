@@ -343,6 +343,47 @@ export interface Translations {
     rapportTitre: string;
     situationGlobale: string;
     chargement: string;
+    caisseEpargne: string;
+    caisseSolidarite: string;
+    caisseInscription: string;
+    caisseFondMutuel: string;
+    caisseEmprunts: string;
+    bilanTitre: string;
+    bilanSousTitre: string;
+    periodeExercice: string;
+    selectExercice: string;
+    ouFiltrerSession: string;
+    selectSession: string;
+    chargementComptes: string;
+    detailGlobalFlux: string;
+    totalEntrees: string;
+    totalSorties: string;
+    soldeNetPeriode: string;
+    membresEnRegle: string;
+    soldeCaissesMutuelle: string;
+    tableauCompletTransactions: string;
+    dateHeure: string;
+    beneficiaireActeur: string;
+    categorie: string;
+    descOperation: string;
+    montantXaf: string;
+    aucuneTransaction: string;
+    listeMembresEnRegle: string;
+    aucunMembreRegle: string;
+    releveTransactionsMembre: string;
+    aucuneActiviteMembre: string;
+    leTresorier: string;
+    lePresidentConseil: string;
+    signatureCachet: string;
+    visaApprobation: string;
+    imprimerBilanPdf: string;
+    veuillezSelectPeriode: string;
+    bilanAnnuel: string;
+    sessionDate: string;
+    bilanGlobal: string;
+    tousMembresRegle: string;
+    systeme: string;
+    activiteNet: string;
   };
   aides: {
     titre: string;
@@ -732,6 +773,47 @@ export const translations: Record<Locale, Translations> = {
       rapportTitre: "Bilan de Trésorerie - Mutuelle web",
       situationGlobale: "Rapport de Situation Globale",
       chargement: "Chargement des données de trésorerie...",
+      caisseEpargne: "Caisse d'Épargne",
+      caisseSolidarite: "Caisse de Solidarité (Fond Social)",
+      caisseInscription: "Caisse d'Inscription (Adhésion)",
+      caisseFondMutuel: "Caisse du Fond Mutuel",
+      caisseEmprunts: "Caisse des Emprunts & Prêts",
+      bilanTitre: "Bilans Financiers du Trésorier",
+      bilanSousTitre: "Suivi comptable rigoureux des flux et états financiers de la mutuelle.",
+      periodeExercice: "Période (Exercice)",
+      selectExercice: "Sélectionner un exercice",
+      ouFiltrerSession: "OU Filtrer par Session",
+      selectSession: "Sélectionner une session",
+      chargementComptes: "Chargement des données comptables...",
+      detailGlobalFlux: "1. Détail Global des Flux Financiers",
+      totalEntrees: "Total Entrées",
+      totalSorties: "Total Sorties",
+      soldeNetPeriode: "Solde Net de Période",
+      membresEnRegle: "Membres En Règle",
+      soldeCaissesMutuelle: "Solde des Caisses de la Mutuelle",
+      tableauCompletTransactions: "2. Tableau Complet des Transactions (Global)",
+      dateHeure: "Date / Heure",
+      beneficiaireActeur: "Bénéficiaire / Acteur",
+      categorie: "Catégorie",
+      descOperation: "Description de l'Opération",
+      montantXaf: "Montant (XAF)",
+      aucuneTransaction: "Aucune transaction sur cette période. ",
+      listeMembresEnRegle: "3. Liste des Membres En Règle (À Jour)",
+      aucunMembreRegle: "Aucun membre n'est actuellement en règle pour cet exercice.",
+      releveTransactionsMembre: "4. Relevé des Transactions par Membre",
+      aucuneActiviteMembre: "Aucune activité de transaction attribuée à un membre sur la période choisie.",
+      leTresorier: "Le Trésorier",
+      lePresidentConseil: "Le Président du Conseil",
+      signatureCachet: "Signature & Cachet",
+      visaApprobation: "Visa & Approbation",
+      imprimerBilanPdf: "Imprimer le Bilan en PDF",
+      veuillezSelectPeriode: "Veuillez sélectionner un exercice ou une session ci-dessus pour générer le bilan financier comptable.",
+      bilanAnnuel: "Exercice Annuel {year}",
+      sessionDate: "Session en date du {date}",
+      bilanGlobal: "Bilan global",
+      tousMembresRegle: "En règle",
+      systeme: "Système / Général",
+      activiteNet: "Activité Net : ",
     },
     aides: {
       titre: "Solidarité & Aides",
@@ -1119,6 +1201,47 @@ export const translations: Record<Locale, Translations> = {
       rapportTitre: "Treasury Report - Web Mutual",
       situationGlobale: "Global Situation Report",
       chargement: "Loading treasury data...",
+      caisseEpargne: "Savings Cashbox",
+      caisseSolidarite: "Solidarity Cashbox (Social Fund)",
+      caisseInscription: "Inscription Cashbox (Membership)",
+      caisseFondMutuel: "Mutual Fund Cashbox",
+      caisseEmprunts: "Loans & Borrowings Cashbox",
+      bilanTitre: "Treasurer Financial Balance-Sheets",
+      bilanSousTitre: "Rigorous accounting log of the mutual's flows and financial statements.",
+      periodeExercice: "Period (Exercise)",
+      selectExercice: "Select an exercise",
+      ouFiltrerSession: "OR Filter by Session",
+      selectSession: "Select a session",
+      chargementComptes: "Loading accounting data...",
+      detailGlobalFlux: "1. Global Financial Flows Detail",
+      totalEntrees: "Total Inflows",
+      totalSorties: "Total Outflows",
+      soldeNetPeriode: "Net Period Balance",
+      membresEnRegle: "Members in Rule",
+      soldeCaissesMutuelle: "Mutual Cashbox Balances",
+      tableauCompletTransactions: "2. Comprehensive Transaction Log (Global)",
+      dateHeure: "Date / Time",
+      beneficiaireActeur: "Beneficiary / Actor",
+      categorie: "Category",
+      descOperation: "Operation Description",
+      montantXaf: "Amount (XAF)",
+      aucuneTransaction: "No transactions during this period.",
+      listeMembresEnRegle: "3. Up-to-Date Members List",
+      aucunMembreRegle: "No member is currently up-to-date for this exercise.",
+      releveTransactionsMembre: "4. Transaction Statements per Member",
+      aucuneActiviteMembre: "No transaction activity assigned to a member during the chosen period.",
+      leTresorier: "The Treasurer",
+      lePresidentConseil: "Council President",
+      signatureCachet: "Signature & Stamp",
+      visaApprobation: "Visa & Approval",
+      imprimerBilanPdf: "Print Balance Sheet as PDF",
+      veuillezSelectPeriode: "Please select an exercise or a session above to generate the financial report.",
+      bilanAnnuel: "Annual Exercise {year}",
+      sessionDate: "Session of {date}",
+      bilanGlobal: "Global Balance Sheet",
+      tousMembresRegle: "Up-to-date",
+      systeme: "System / General",
+      activiteNet: "Net Activity: ",
     },
     aides: {
       titre: "Solidarity & Financial Aid",

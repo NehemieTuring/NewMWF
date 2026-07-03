@@ -68,6 +68,23 @@ export default function TreasurerBilansPage({ isEmbedded = false }: { isEmbedded
     return (n || 0).toLocaleString(locale === "fr" ? "fr-FR" : "en-US");
   }
 
+  const getCaisseDisplayName = (name: string) => {
+    switch (name?.toUpperCase()) {
+      case "SAVING":
+        return t.tresorerie.caisseEpargne;
+      case "SOLIDARITY":
+        return t.tresorerie.caisseSolidarite;
+      case "INSCRIPTION":
+        return t.tresorerie.caisseInscription;
+      case "MUTUAL_FUND":
+        return t.tresorerie.caisseFondMutuel;
+      case "LOAN":
+        return t.tresorerie.caisseEmprunts;
+      default:
+        return name?.replace('_', ' ') || "";
+    }
+  };
+
   const handlePrint = () => {
     window.print();
   };
@@ -104,10 +121,10 @@ export default function TreasurerBilansPage({ isEmbedded = false }: { isEmbedded
   const systemTransactions = transactions.filter((t: any) => !t.memberId);
 
   const activePeriodLabel = selectedSession
-    ? `Session en date du ${sessions.find(s => s.id.toString() === selectedSession) ? new Date(sessions.find(s => s.id.toString() === selectedSession).date).toLocaleDateString() : 'Inconnue'}`
+    ? t.tresorerie.sessionDate.replace("{date}", sessions.find(s => s.id.toString() === selectedSession) ? new Date(sessions.find(s => s.id.toString() === selectedSession).date).toLocaleDateString() : '')
     : selectedExercise
-      ? `Exercice Annuel ${exercises.find(e => e.id.toString() === selectedExercise)?.year || ''}`
-      : "Bilan global";
+      ? t.tresorerie.bilanAnnuel.replace("{year}", exercises.find(e => e.id.toString() === selectedExercise)?.year?.toString() || '')
+      : t.tresorerie.bilanGlobal;
 
   return (
     <div className={styles.page}>
@@ -156,10 +173,10 @@ export default function TreasurerBilansPage({ isEmbedded = false }: { isEmbedded
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
             <h1 style={{ fontSize: "2rem", fontWeight: 800, color: "#1a365d", margin: 0 }}>MUTUELLE WEB</h1>
-            <p style={{ margin: "4px 0 0 0", color: "#4a5568", fontSize: "0.9rem" }}>Solidarité • Épargne • Crédit</p>
+            <p style={{ margin: "4px 0 0 0", color: "#4a5568", fontSize: "0.9rem" }}>{t.login.tagline || "Solidarité • Épargne • Crédit"}</p>
           </div>
           <div style={{ textAlign: "right" }}>
-            <h2 style={{ fontSize: "1.2rem", fontWeight: 700, margin: 0 }}>BILAN FINANCIER</h2>
+            <h2 style={{ fontSize: "1.2rem", fontWeight: 700, margin: 0 }}>{t.tresorerie.bilansRapports?.toUpperCase()}</h2>
             <p style={{ margin: "4px 0 0 0", color: "#718096", fontSize: "0.85rem" }}>{activePeriodLabel}</p>
             <p style={{ margin: "2px 0 0 0", color: "#a0aec0", fontSize: "0.75rem" }}>Généré le {new Date().toLocaleDateString()}</p>
           </div>
@@ -168,14 +185,14 @@ export default function TreasurerBilansPage({ isEmbedded = false }: { isEmbedded
 
       {!isEmbedded && (
         <header className={`${styles.header} no-print`}>
-          <h1 className={styles.title}>Bilans Financiers du Trésorier</h1>
-          <p className={styles.subtitle}>Suivi comptable rigoureux des flux et états financiers de la mutuelle.</p>
+          <h1 className={styles.title}>{t.tresorerie.bilanTitre}</h1>
+          <p className={styles.subtitle}>{t.tresorerie.bilanSousTitre}</p>
         </header>
       )}
 
       <div className={`${styles.filters} no-print`}>
         <div className={styles.filterGroup}>
-          <label><i className="fas fa-calendar-alt" style={{ marginRight: '0.4rem', color: '#4e73df' }}></i> Période (Exercice)</label>
+          <label><i className="fas fa-calendar-alt" style={{ marginRight: '0.4rem', color: '#4e73df' }}></i> {t.tresorerie.periodeExercice}</label>
           <select
             value={selectedExercise}
             onChange={(e) => {
@@ -184,14 +201,14 @@ export default function TreasurerBilansPage({ isEmbedded = false }: { isEmbedded
             }}
             style={{ borderRadius: "10px", border: "1px solid #cbd5e0", padding: "0.75rem" }}
           >
-            <option value="">Sélectionner un exercice</option>
+            <option value="">{t.tresorerie.selectExercice}</option>
             {exercises.map(ex => (
               <option key={ex.id} value={ex.id}>Exercice {ex.year}</option>
             ))}
           </select>
         </div>
         <div className={styles.filterGroup}>
-          <label><i className="fas fa-clock" style={{ marginRight: '0.4rem', color: '#1cc88a' }}></i> OU Filtrer par Session</label>
+          <label><i className="fas fa-clock" style={{ marginRight: '0.4rem', color: '#1cc88a' }}></i> {t.tresorerie.ouFiltrerSession}</label>
           <select
             value={selectedSession}
             onChange={(e) => {
@@ -201,7 +218,7 @@ export default function TreasurerBilansPage({ isEmbedded = false }: { isEmbedded
             }}
             style={{ borderRadius: "10px", border: "1px solid #cbd5e0", padding: "0.75rem" }}
           >
-            <option value="">Sélectionner une session</option>
+            <option value="">{t.tresorerie.selectSession}</option>
             {sessions.map(s => (
               <option key={s.id} value={s.id}>Session #{s.sessionNumber || s.id} ({new Date(s.date).toLocaleDateString()})</option>
             ))}
@@ -212,39 +229,39 @@ export default function TreasurerBilansPage({ isEmbedded = false }: { isEmbedded
       {loading ? (
         <div className={styles.loading} style={{ display: "flex", flexDirection: "column", gap: "1rem", alignItems: "center", padding: "5rem" }}>
           <i className="fas fa-spinner fa-spin" style={{ fontSize: "2.5rem", color: "#4e73df" }}></i>
-          <span style={{ fontWeight: 700, color: "#4a5568" }}>Chargement des données comptables...</span>
+          <span style={{ fontWeight: 700, color: "#4a5568" }}>{t.tresorerie.chargementComptes}</span>
         </div>
       ) : bilan ? (
         <div className={styles.bilanGrid}>
           {/* Métriques globales haut de page */}
           <div className="section-block" style={{ marginBottom: "2rem" }}>
             <h2 style={{ fontSize: "1.35rem", fontWeight: 800, color: "#1a365d", borderLeft: "4px solid #4e73df", paddingLeft: "0.75rem", marginBottom: "1rem" }}>
-              1. Détail Global des Flux Financiers
+              {t.tresorerie.detailGlobalFlux}
             </h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1.25rem" }}>
               <div style={{ background: "linear-gradient(135deg, #e3f9e5, #c1f2c6)", padding: "1.5rem", borderRadius: "16px", border: "1px solid #a3e8ab" }}>
-                <div style={{ fontSize: "0.8rem", color: "#137333", textTransform: "uppercase", fontWeight: 800 }}>Total Entrées</div>
+                <div style={{ fontSize: "0.8rem", color: "#137333", textTransform: "uppercase", fontWeight: 800 }}>{t.tresorerie.totalEntrees}</div>
                 <div style={{ fontSize: "1.8rem", fontWeight: 900, color: "#137333", marginTop: "0.5rem" }}>
                   +{formatAmount(totalInflows)} <span style={{ fontSize: "1rem" }}>XAF</span>
                 </div>
               </div>
 
               <div style={{ background: "linear-gradient(135deg, #ffebee, #ffcdd2)", padding: "1.5rem", borderRadius: "16px", border: "1px solid #ef9a9a" }}>
-                <div style={{ fontSize: "0.8rem", color: "#c5221f", textTransform: "uppercase", fontWeight: 800 }}>Total Sorties</div>
+                <div style={{ fontSize: "0.8rem", color: "#c5221f", textTransform: "uppercase", fontWeight: 800 }}>{t.tresorerie.totalSorties}</div>
                 <div style={{ fontSize: "1.8rem", fontWeight: 900, color: "#c5221f", marginTop: "0.5rem" }}>
                   {formatAmount(totalOutflows)} <span style={{ fontSize: "1rem" }}>XAF</span>
                 </div>
               </div>
 
               <div style={{ background: netBalance >= 0 ? "linear-gradient(135deg, #e8f0fe, #d2e3fc)" : "linear-gradient(135deg, #fff5f5, #feb2b2)", padding: "1.5rem", borderRadius: "16px", border: "1px solid #adc1eb" }}>
-                <div style={{ fontSize: "0.8rem", color: netBalance >= 0 ? "#1a73e8" : "#c5221f", textTransform: "uppercase", fontWeight: 800 }}>Solde Net de Période</div>
+                <div style={{ fontSize: "0.8rem", color: netBalance >= 0 ? "#1a73e8" : "#c5221f", textTransform: "uppercase", fontWeight: 800 }}>{t.tresorerie.soldeNetPeriode}</div>
                 <div style={{ fontSize: "1.8rem", fontWeight: 900, color: netBalance >= 0 ? "#174ea6" : "#c5221f", marginTop: "0.5rem" }}>
                   {netBalance >= 0 ? "+" : ""}{formatAmount(netBalance)} <span style={{ fontSize: "1rem" }}>XAF</span>
                 </div>
               </div>
 
               <div style={{ background: "linear-gradient(135deg, #f3e5f5, #e1bee7)", padding: "1.5rem", borderRadius: "16px", border: "1px solid #ce93d8" }}>
-                <div style={{ fontSize: "0.8rem", color: "#7b1fa2", textTransform: "uppercase", fontWeight: 800 }}>Membres En Règle</div>
+                <div style={{ fontSize: "0.8rem", color: "#7b1fa2", textTransform: "uppercase", fontWeight: 800 }}>{t.tresorerie.membresEnRegle}</div>
                 <div style={{ fontSize: "1.8rem", fontWeight: 900, color: "#7b1fa2", marginTop: "0.5rem" }}>
                   {inRuleMembers.length} / {members.length}
                 </div>
@@ -255,12 +272,12 @@ export default function TreasurerBilansPage({ isEmbedded = false }: { isEmbedded
           {/* État des Caisses */}
           <div className="section-block" style={{ marginBottom: "2rem" }}>
             <h3 style={{ fontSize: "1.2rem", fontWeight: 800, color: "#2d3748", marginBottom: "1rem" }}>
-              <i className="fas fa-wallet" style={{ marginRight: "0.5rem", color: "#4e73df" }}></i> Solde des Caisses de la Mutuelle
+              <i className="fas fa-wallet" style={{ marginRight: "0.5rem", color: "#4e73df" }}></i> {t.tresorerie.soldeCaissesMutuelle}
             </h3>
             <div className={styles.cashboxGrid}>
               {bilan.cashboxes?.map((cb: any) => (
                 <div key={cb.id} className={styles.cashboxCard}>
-                  <div className={styles.cbName}>{cb.name.replace('_', ' ')}</div>
+                  <div className={styles.cbName}>{getCaisseDisplayName(cb.name)}</div>
                   <div className={styles.cbBalance}>{formatAmount(cb.balance)} <small>XAF</small></div>
                   <div className={styles.indicatorTrack}>
                     <div className={styles.indicatorFill} style={{ width: "100%" }}></div>
@@ -273,24 +290,24 @@ export default function TreasurerBilansPage({ isEmbedded = false }: { isEmbedded
           {/* Tableau des transactions globales */}
           <div className="section-block" style={{ marginBottom: "2.5rem" }}>
             <h2 style={{ fontSize: "1.35rem", fontWeight: 800, color: "#1a365d", borderLeft: "4px solid #1cc88a", paddingLeft: "0.75rem", marginBottom: "1.2rem" }}>
-              2. Tableau Complet des Transactions (Global)
+              {t.tresorerie.tableauCompletTransactions}
             </h2>
             <div className={styles.tableCard} style={{ background: "white", padding: "1.5rem", borderRadius: "16px", border: "1px solid #e2e8f0" }}>
               <table className="table" style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
                 <thead>
                   <tr style={{ background: "#f8fafc", borderBottom: "2px solid #e2e8f0" }}>
-                    <th style={{ padding: "0.75rem", fontWeight: 700, color: "#4a5568" }}>Date / Heure</th>
-                    <th style={{ padding: "0.75rem", fontWeight: 700, color: "#4a5568" }}>Bénéficiaire / Acteur</th>
-                    <th style={{ padding: "0.75rem", fontWeight: 700, color: "#4a5568" }}>Catégorie</th>
-                    <th style={{ padding: "0.75rem", fontWeight: 700, color: "#4a5568" }}>Description de l'Opération</th>
-                    <th style={{ padding: "0.75rem", fontWeight: 700, color: "#4a5568", textAlign: "right" }}>Montant (XAF)</th>
+                    <th style={{ padding: "0.75rem", fontWeight: 700, color: "#4a5568" }}>{t.tresorerie.dateHeure}</th>
+                    <th style={{ padding: "0.75rem", fontWeight: 700, color: "#4a5568" }}>{t.tresorerie.beneficiaireActeur}</th>
+                    <th style={{ padding: "0.75rem", fontWeight: 700, color: "#4a5568" }}>{t.tresorerie.categorie}</th>
+                    <th style={{ padding: "0.75rem", fontWeight: 700, color: "#4a5568" }}>{t.tresorerie.descOperation}</th>
+                    <th style={{ padding: "0.75rem", fontWeight: 700, color: "#4a5568", textAlign: "right" }}>{t.tresorerie.montantXaf}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {transactions.length === 0 ? (
                     <tr>
                       <td colSpan={5} style={{ textAlign: "center", padding: "2rem", color: "#a0aec0" }}>
-                        Aucune transaction sur cette période.
+                        {t.tresorerie.aucuneTransaction}
                       </td>
                     </tr>
                   ) : (
@@ -300,7 +317,7 @@ export default function TreasurerBilansPage({ isEmbedded = false }: { isEmbedded
                           {new Date(tx.date).toLocaleString()}
                         </td>
                         <td style={{ padding: "0.85rem", fontWeight: 600, color: "#2d3748" }}>
-                          {tx.memberName}
+                          {tx.memberName || t.tresorerie.systeme}
                         </td>
                         <td style={{ padding: "0.85rem" }}>
                           <span style={{ fontSize: "0.75rem", textTransform: "uppercase", background: "#e2e8f0", padding: "0.2rem 0.5rem", borderRadius: "6px" }}>
@@ -324,13 +341,13 @@ export default function TreasurerBilansPage({ isEmbedded = false }: { isEmbedded
           {/* Liste des membres à jour */}
           <div className="section-block" style={{ marginBottom: "2.5rem" }}>
             <h2 style={{ fontSize: "1.35rem", fontWeight: 800, color: "#1a365d", borderLeft: "4px solid #f6ad55", paddingLeft: "0.75rem", marginBottom: "1.2rem" }}>
-              3. Liste des Membres En Règle (À Jour)
+              {t.tresorerie.listeMembresEnRegle}
             </h2>
             <div className={styles.tableCard} style={{ background: "white", padding: "1.5rem", borderRadius: "16px", border: "1px solid #e2e8f0" }}>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: "1rem" }}>
                 {inRuleMembers.length === 0 ? (
                   <div style={{ gridColumn: "1/-1", textAlign: "center", color: "#a0aec0", padding: "1rem" }}>
-                    Aucun membre n'est actuellement en règle pour cet exercice.
+                    {t.tresorerie.aucunMembreRegle}
                   </div>
                 ) : (
                   inRuleMembers.map((m: any) => (
@@ -340,7 +357,7 @@ export default function TreasurerBilansPage({ isEmbedded = false }: { isEmbedded
                       </div>
                       <div>
                         <div style={{ fontWeight: 700, color: "#276749" }}>{m.user?.firstName} {m.user?.name}</div>
-                        <div style={{ fontSize: "0.75rem", color: "#48bb78" }}>@{m.username} • En règle</div>
+                        <div style={{ fontSize: "0.75rem", color: "#48bb78" }}>@{m.username} • {t.tresorerie.tousMembresRegle}</div>
                       </div>
                     </div>
                   ))
@@ -352,12 +369,12 @@ export default function TreasurerBilansPage({ isEmbedded = false }: { isEmbedded
           {/* Liste des transaction par membre */}
           <div className="section-block" style={{ marginBottom: "2.5rem" }}>
             <h2 style={{ fontSize: "1.35rem", fontWeight: 800, color: "#1a365d", borderLeft: "4px solid #b7791f", paddingLeft: "0.75rem", marginBottom: "1.2rem" }}>
-              4. Relevé des Transactions par Membre
+              {t.tresorerie.releveTransactionsMembre}
             </h2>
             <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
               {memberActivity.length === 0 ? (
                 <div style={{ background: "white", padding: "2rem", textAlign: "center", borderRadius: "16px", color: "#a0aec0", border: "1px solid #e2e8f0" }}>
-                  Aucune activité de transaction attribuée à un membre sur la période choisie.
+                  {t.tresorerie.aucuneActiviteMembre}
                 </div>
               ) : (
                 memberActivity.map((act: any) => (
@@ -368,7 +385,7 @@ export default function TreasurerBilansPage({ isEmbedded = false }: { isEmbedded
                         <span style={{ fontSize: "0.75rem", color: "#718096", marginLeft: "1rem" }}>(@{act.member.username})</span>
                       </div>
                       <div style={{ textAlign: "right" }}>
-                        <span style={{ fontSize: "0.8rem", color: "#4a5568" }}>Activité Net : </span>
+                        <span style={{ fontSize: "0.8rem", color: "#4a5568" }}>{t.tresorerie.activiteNet}</span>
                         <strong style={{ color: act.net >= 0 ? "#137333" : "#c5221f" }}>
                           {act.net >= 0 ? "+" : ""}{formatAmount(act.net)} XAF
                         </strong>
@@ -395,28 +412,28 @@ export default function TreasurerBilansPage({ isEmbedded = false }: { isEmbedded
           <div className="print-header" style={{ display: "none", marginTop: "4rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               <div style={{ width: "200px", textAlign: "center" }}>
-                <p style={{ fontWeight: 700, margin: 0 }}>Le Trésorier</p>
+                <p style={{ fontWeight: 700, margin: 0 }}>{t.tresorerie.leTresorier}</p>
                 <div style={{ height: "80px" }}></div>
-                <p style={{ borderTop: "1px solid #cbd5e0", paddingTop: "0.5rem", fontSize: "0.8rem", color: "#718096" }}>Signature & Cachet</p>
+                <p style={{ borderTop: "1px solid #cbd5e0", paddingTop: "0.5rem", fontSize: "0.8rem", color: "#718096" }}>{t.tresorerie.signatureCachet}</p>
               </div>
               <div style={{ width: "200px", textAlign: "center" }}>
-                <p style={{ fontWeight: 700, margin: 0 }}>Le Président du Conseil</p>
+                <p style={{ fontWeight: 700, margin: 0 }}>{t.tresorerie.lePresidentConseil}</p>
                 <div style={{ height: "80px" }}></div>
-                <p style={{ borderTop: "1px solid #cbd5e0", paddingTop: "0.5rem", fontSize: "0.8rem", color: "#718096" }}>Visa & Approbation</p>
+                <p style={{ borderTop: "1px solid #cbd5e0", paddingTop: "0.5rem", fontSize: "0.8rem", color: "#718096" }}>{t.tresorerie.visaApprobation}</p>
               </div>
             </div>
           </div>
 
           <div className={`${styles.actions} no-print`}>
             <button className={styles.exportBtn} onClick={handlePrint} style={{ background: "linear-gradient(135deg, #1cc88a, #13855c)", color: "white", padding: "1rem 2rem", fontSize: "1.05rem", fontWeight: 700, outline: "none", display: "flex", gap: "0.5rem" }}>
-              <i className="fas fa-file-pdf"></i> Imprimer le Bilan en PDF
+              <i className="fas fa-file-pdf"></i> {t.tresorerie.imprimerBilanPdf}
             </button>
           </div>
         </div>
       ) : (
         <div className={styles.empty} style={{ background: "#edf2f7", padding: "4rem", textAlign: "center", borderRadius: "16px", color: "#718096", fontSize: "1.1rem" }}>
           <i className="fas fa-chart-bar" style={{ fontSize: "3rem", color: "#a0aec0", marginBottom: "1rem", display: "block" }}></i>
-          Veuillez sélectionner un exercice ou une session ci-dessus pour générer le bilan financier comptable.
+          {t.tresorerie.veuillezSelectPeriode}
         </div>
       )}
     </div>

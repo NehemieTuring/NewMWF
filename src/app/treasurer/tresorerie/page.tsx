@@ -23,15 +23,15 @@ export default function TresoreriePage() {
   const getCaisseDisplayName = (name: string) => {
     switch (name?.toUpperCase()) {
       case "SAVING":
-        return "Caisse d'Épargne";
+        return t.tresorerie.caisseEpargne;
       case "SOLIDARITY":
-        return "Caisse de Solidarité (Fond Social)";
+        return t.tresorerie.caisseSolidarite;
       case "INSCRIPTION":
-        return "Caisse d'Inscription (Adhésion)";
+        return t.tresorerie.caisseInscription;
       case "MUTUAL_FUND":
-        return "Caisse du Fond Mutuel";
+        return t.tresorerie.caisseFondMutuel;
       case "LOAN":
-        return "Caisse des Emprunts & Prêts";
+        return t.tresorerie.caisseEmprunts;
       default:
         return name?.replace('_', ' ') || "";
     }
