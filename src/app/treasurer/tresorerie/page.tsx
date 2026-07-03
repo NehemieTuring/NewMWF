@@ -5,6 +5,7 @@ import { treasurerService } from "@/services/treasurerService";
 import { useNotification } from "@/context/NotificationContext";
 import styles from "../treasurer.module.css";
 import { useTranslation } from "@/context/LanguageContext";
+import TreasurerBilansPage from "../bilans/page";
 
 type Tab = "caisses" | "transactions" | "bilans";
 
@@ -258,34 +259,7 @@ export default function TresoreriePage() {
 
           {activeTab === "bilans" && (
             <div className="fade-in">
-              <div className={styles.dashboardGrid}>
-                <div className={styles.statCard}>
-                  <div className={styles.statIcon} style={{ background: "rgba(28,200,138,0.1)", color: "#1cc88a" }}>
-                    <i className="fas fa-file-medical"></i>
-                  </div>
-                  <div className={styles.statInfo}>
-                    <span className={styles.statLabel}>{t.tresorerie.totalEpargnes}</span>
-                    <span className={styles.statValue}>{stats?.totalSavings?.toLocaleString()} XAF</span>
-                  </div>
-                </div>
-                <div className={styles.statCard}>
-                  <div className={styles.statIcon} style={{ background: "rgba(78,115,223,0.1)", color: "#4e73df" }}>
-                    <i className="fas fa-hand-holding-usd"></i>
-                  </div>
-                  <div className={styles.statInfo}>
-                    <span className={styles.statLabel}>{t.tresorerie.empruntsActifs}</span>
-                    <span className={styles.statValue}>{stats?.totalBorrowings?.toLocaleString()} XAF</span>
-                  </div>
-                </div>
-              </div>
-              <div style={{ padding: "4rem", textAlign: "center", background: "white", borderRadius: "20px", border: "1px dashed #e3e6f0" }}>
-                <i className="fas fa-chart-bar" style={{ fontSize: "3rem", color: "#4e73df", opacity: 0.2, marginBottom: "1rem" }}></i>
-                <h3>{t.tresorerie.generationRapports}</h3>
-                <p style={{ color: "#858796" }}>{t.tresorerie.generationDesc}</p>
-                <button className={styles.confirmBtn} onClick={handleExportPDF} style={{ marginTop: "1rem", background: "white", color: "#4e73df", border: "1px solid #4e73df" }}>
-                  <i className="fas fa-file-pdf"></i> {t.tresorerie.exporterPDF}
-                </button>
-              </div>
+              <TreasurerBilansPage isEmbedded={true} />
             </div>
           )}
         </div>

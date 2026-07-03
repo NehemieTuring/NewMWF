@@ -5,7 +5,7 @@ import styles from "./bilans.module.css";
 import { useTranslation } from "@/context/LanguageContext";
 import { treasurerService } from "@/services/treasurerService";
 
-export default function TreasurerBilansPage() {
+export default function TreasurerBilansPage({ isEmbedded = false }: { isEmbedded?: boolean }) {
   const { t, locale } = useTranslation();
   const [exercises, setExercises] = useState<any[]>([]);
   const [sessions, setSessions] = useState<any[]>([]);
@@ -166,10 +166,12 @@ export default function TreasurerBilansPage() {
         </div>
       </div>
 
-      <header className={`${styles.header} no-print`}>
-        <h1 className={styles.title}>Bilans Financiers du Trésorier</h1>
-        <p className={styles.subtitle}>Suivi comptable rigoureux des flux et états financiers de la mutuelle.</p>
-      </header>
+      {!isEmbedded && (
+        <header className={`${styles.header} no-print`}>
+          <h1 className={styles.title}>Bilans Financiers du Trésorier</h1>
+          <p className={styles.subtitle}>Suivi comptable rigoureux des flux et états financiers de la mutuelle.</p>
+        </header>
+      )}
 
       <div className={`${styles.filters} no-print`}>
         <div className={styles.filterGroup}>
