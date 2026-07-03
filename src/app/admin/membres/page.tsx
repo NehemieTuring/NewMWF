@@ -30,25 +30,44 @@ export default function MembresPage() {
     }
   }
 
-  const handleDeleteMember = (member: any) => {
+  const handleDeactivateMember = (member: any) => {
     const fullName = `${member.user?.firstName} ${member.user?.name}`;
     confirm({
-      title: locale === "fr" ? "Supprimer le membre" : "Delete Member",
+      title: locale === "fr" ? "Désactiver le membre" : "Deactivate Member",
       message: locale === "fr"
-        ? `Êtes-vous sûr de vouloir supprimer ${fullName} ? Le membre sera désactivé et son profil archivé, mais ses données historiques seront conservées.`
-        : `Are you sure you want to delete ${fullName}? The member will be deactivated and their profile archived, but their historical data will be preserved.`,
+        ? `Êtes-vous sûr de vouloir désactiver ${fullName} ? Le membre ne pourra plus se connecter au système.`
+        : `Are you sure you want to deactivate ${fullName}? The member will no longer be able to log in.`,
       type: "danger",
-      confirmText: locale === "fr" ? "Supprimer le membre" : "Delete Member",
+      confirmText: locale === "fr" ? "Désactiver" : "Deactivate",
       requiredConfirmValue: fullName,
-      showMotiveInput: true,
-      motivePlaceholder: locale === "fr" ? "Indiquez la raison de l'exclusion ou du départ..." : "State the reason for exclusion or departure...",
-      onConfirm: async (motive) => {
+      onConfirm: async () => {
         try {
-          await secretaryService.deleteMember(member.id, motive);
-          showToast(locale === "fr" ? "Membre supprimé avec succès." : "Member deleted successfully.", "success");
+          await secretaryService.deactivateMember(member.id);
+          showToast(locale === "fr" ? "Membre désactivé avec succès." : "Member deactivated successfully.", "success");
           loadMembers();
         } catch (err: any) {
-          showToast(err.message || (locale === "fr" ? "Erreur lors de la suppression." : "Error during deletion."), "error");
+          showToast(err.message || (locale === "fr" ? "Erreur lors de la désactivation." : "Error during deactivation."), "error");
+        }
+      }
+    });
+  };
+
+  const handleActivateMember = (member: any) => {
+    const fullName = `${member.user?.firstName} ${member.user?.name}`;
+    confirm({
+      title: locale === "fr" ? "Réactiver le membre" : "Reactivate Member",
+      message: locale === "fr"
+        ? `Êtes-vous sûr de vouloir réactiver ${fullName} ?`
+        : `Are you sure you want to reactivate ${fullName}?`,
+      type: "success",
+      confirmText: locale === "fr" ? "Activer" : "Activate",
+      onConfirm: async () => {
+        try {
+          await secretaryService.activateMember(member.id);
+          showToast(locale === "fr" ? "Membre réactivé avec succès." : "Member reactivated successfully.", "success");
+          loadMembers();
+        } catch (err: any) {
+          showToast(err.message || (locale === "fr" ? "Erreur lors de la réactivation." : "Error during reactivation."), "error");
         }
       }
     });
@@ -163,22 +182,40 @@ export default function MembresPage() {
                     <strong className={styles.savingsValue}>{formatAmount(member.savingsTotal)} XAF</strong>
                   </td>
                   <td>
-                    <span className={`${styles.badge} ${member.calculatedStatus === 'EN_REGLE' ? styles.badgeActive : (member.calculatedStatus === 'INACTIF' ? styles.badgeInactive : styles.badgePending)}`}>
-                      {member.calculatedStatus === 'EN_REGLE' ? (locale === "fr" ? 'En Règle' : 'In Order') : (member.calculatedStatus === 'INACTIF' ? t.membres.inactif : (locale === "fr" ? 'Insolvable' : 'Insolvent'))}
-                    </span>
+                    {!member.active ? (
+                      <span className={`${styles.badge} ${styles.badgeInactive}`}>
+                        DESACTIVE
+                      </span>
+                    ) : (
+                      <span className={`${styles.badge} ${member.calculatedStatus === 'EN_REGLE' ? styles.badgeActive : (member.calculatedStatus === 'INACTIF' ? styles.badgeInactive : styles.badgePending)}`}>
+                        {member.calculatedStatus === 'EN_REGLE' ? 'EN REGLE' : (member.calculatedStatus === 'INACTIF' ? 'INACTIF' : 'INSOLVABLE')}
+                      </span>
+                    )}
                   </td>
                   <td>
                     <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem" }}>
                       <a href={`/admin/membres/${member.id}`} className={styles.viewBtn} style={{ padding: "0.5rem 1rem", minWidth: "auto" }}>
                         <i className="fas fa-eye"></i> {t.membres.details}
                       </a>
-                      <button
-                        onClick={() => handleDeleteMember(member)}
-                        className={styles.viewBtn}
-                        style={{ padding: "0.5rem 1rem", minWidth: "auto", background: "rgba(231, 74, 59, 0.05)", color: "#e74a3b", borderColor: "rgba(231, 74, 59, 0.2)" }}
-                      >
-                        <i className="fas fa-trash-alt"></i>
-                      </button>
+                      {member.active ? (
+                        <button
+                          onClick={() => handleDeactivateMember(member)}
+                          className={styles.viewBtn}
+                          style={{ padding: "0.5rem 1rem", minWidth: "auto", background: "rgba(231, 74, 59, 0.05)", color: "#e74a3b", borderColor: "rgba(231, 74, 59, 0.2)" }}
+                          title={locale === "fr" ? "Désactiver le membre" : "Deactivate member"}
+                        >
+                          <i className="fas fa-user-slash"></i>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleActivateMember(member)}
+                          className={styles.viewBtn}
+                          style={{ padding: "0.5rem 1rem", minWidth: "auto", background: "rgba(28, 200, 138, 0.05)", color: "#1cc88a", borderColor: "rgba(28, 200, 138, 0.2)" }}
+                          title={locale === "fr" ? "Activer le membre" : "Activate member"}
+                        >
+                          <i className="fas fa-user-check"></i>
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

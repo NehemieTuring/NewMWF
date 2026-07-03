@@ -11,7 +11,7 @@ export default function PresidentMembers() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
-  
+
   // Detail Drawer State
   const [selectedMember, setSelectedMember] = useState<any>(null);
   const [memberDetails, setMemberDetails] = useState<{
@@ -62,16 +62,16 @@ export default function PresidentMembers() {
 
   const filteredMembers = useMemo(() => {
     return members.filter((m) => {
-      const matchesSearch = 
+      const matchesSearch =
         `${m.user?.firstName} ${m.user?.name} ${m.username}`
           .toLowerCase()
           .includes(search.toLowerCase());
-      
-      const matchesStatus = 
-        statusFilter === "ALL" || 
-        (statusFilter === "ACTIVE" && m.active) || 
+
+      const matchesStatus =
+        statusFilter === "ALL" ||
+        (statusFilter === "ACTIVE" && m.active) ||
         (statusFilter === "INACTIVE" && !m.active);
-        
+
       return matchesSearch && matchesStatus;
     });
   }, [members, search, statusFilter]);
@@ -93,9 +93,9 @@ export default function PresidentMembers() {
           <p>{members.length} membres enregistrés au total</p>
         </div>
         <div className={styles.actions}>
-           <button className={styles.selectInput} onClick={() => window.location.reload()}>
-             <i className="fas fa-sync-alt" style={{ marginRight: '8px' }}></i> Actualiser
-           </button>
+          <button className={styles.selectInput} onClick={() => window.location.reload()}>
+            <i className="fas fa-sync-alt" style={{ marginRight: '8px' }}></i> Actualiser
+          </button>
         </div>
       </header>
 
@@ -112,7 +112,7 @@ export default function PresidentMembers() {
         </div>
         <div className={styles.filterGroup}>
           <label style={{ fontWeight: 700, color: '#718096', fontSize: '0.9rem' }}>Statut :</label>
-          <select 
+          <select
             className={styles.selectInput}
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -143,7 +143,7 @@ export default function PresidentMembers() {
                     <td>
                       <div className={styles.memberCell}>
                         <div className={styles.avatar}>
-                          {member.user?.firstName?.[0] || '?'}{member.user?.name?.[0] || '?' }
+                          {member.user?.firstName?.[0] || '?'}{member.user?.name?.[0] || '?'}
                         </div>
                         <div className={styles.memberInfo}>
                           <span className={styles.memberName}>{member.user?.firstName} {member.user?.name}</span>
@@ -163,10 +163,15 @@ export default function PresidentMembers() {
                       </span>
                     </td>
                     <td>
-                      <span className={`${styles.badge} ${member.active ? styles.badgeActive : styles.badgeInactive}`}>
-                        <span className={`${styles.dot} ${member.active ? styles.dotActive : styles.dotInactive}`}></span>
-                        {member.active ? "ACTIF" : "INACTIF"}
-                      </span>
+                      {!member.active ? (
+                        <span className={`${styles.badge} ${styles.badgeInactive}`}>
+                          DESACTIVE
+                        </span>
+                      ) : (
+                        <span className={`${styles.badge} ${member.calculatedStatus === 'EN_REGLE' ? styles.badgeActive : (member.calculatedStatus === 'INACTIF' ? styles.badgeInactive : styles.badgePending)}`}>
+                          {member.calculatedStatus === 'EN_REGLE' ? 'EN REGLE' : (member.calculatedStatus === 'INACTIF' ? 'INACTIF' : 'INSOLVABLE')}
+                        </span>
+                      )}
                     </td>
                   </tr>
                 ))

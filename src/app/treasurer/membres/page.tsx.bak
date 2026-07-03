@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import styles from "../treasurer.module.css";
@@ -27,7 +27,7 @@ export default function TreasurerMembersPage() {
             const data = await treasurerService.getAllMembers();
             setMembers(data || []);
          } catch (err) {
-            showToast("Échec du chargement des membres", "error");
+            showToast("Ã‰chec du chargement des membres", "error");
          } finally {
             setLoading(false);
          }
@@ -48,7 +48,7 @@ export default function TreasurerMembersPage() {
          ]);
          setMemberDetails({ debts, solidarity, savings, borrowings });
       } catch (err) {
-         showToast("Erreur lors du chargement des détails du membre", "error");
+         showToast("Erreur lors du chargement des dÃ©tails du membre", "error");
       } finally {
          setDetailsLoading(false);
       }
@@ -70,7 +70,7 @@ export default function TreasurerMembersPage() {
       const html = `
          <html>
             <head>
-               <title>Liste des Membres - Mutuelle Néhémie</title>
+               <title>Liste des Membres - Mutuelle NÃ©hÃ©mie</title>
                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
                <style>
                   body { font-family: 'Inter', sans-serif; padding: 40px; color: #333; }
@@ -92,17 +92,17 @@ export default function TreasurerMembersPage() {
             </head>
             <body>
                <div class="header">
-                  <div class="logo">ENSPY - Mutuelle Néhémie</div>
-                  <div class="date">Généré le ${new Date().toLocaleDateString()}</div>
+                  <div class="logo">ENSPY - Mutuelle NÃ©hÃ©mie</div>
+                  <div class="date">GÃ©nÃ©rÃ© le ${new Date().toLocaleDateString()}</div>
                </div>
                <h1>Liste des Membres</h1>
                <table>
                   <thead>
                      <tr>
-                        <th>Nom & Prénom</th>
+                        <th>Nom & PrÃ©nom</th>
                         <th>Email</th>
-                        <th>Téléphone</th>
-                        <th style="text-align: right;">Épargne</th>
+                        <th>TÃ©lÃ©phone</th>
+                        <th style="text-align: right;">Ã‰pargne</th>
                         <th style="text-align: center;">Statut</th>
                      </tr>
                   </thead>
@@ -131,7 +131,7 @@ export default function TreasurerMembersPage() {
 
       printWindow.document.write(html);
       printWindow.document.close();
-      showToast("Génération du PDF en cours...", "success");
+      showToast("GÃ©nÃ©ration du PDF en cours...", "success");
    };
 
    if (loading) return <div className="fas fa-spinner fa-spin" style={{ fontSize: "2rem", color: "#4e73df", margin: "5rem auto", display: "block" }}></div>;
@@ -141,7 +141,7 @@ export default function TreasurerMembersPage() {
          <header style={{ marginBottom: "2rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
                <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#2e3b4e" }}>Gestion des Membres</h1>
-               <p style={{ color: "#858796" }}>Suivi de l'état financier et des profils des adhérents.</p>
+               <p style={{ color: "#858796" }}>Suivi de l'Ã©tat financier et des profils des adhÃ©rents.</p>
             </div>
             <div style={{ display: "flex", gap: "1rem" }}>
                <div style={{ position: "relative", width: "300px" }}>
@@ -165,9 +165,9 @@ export default function TreasurerMembersPage() {
             <table className={styles.table}>
                <thead>
                   <tr>
-                     <th>Nom & Prénom</th>
+                     <th>Nom & PrÃ©nom</th>
                      <th>Contact</th>
-                     <th style={{ textAlign: "right" }}>Épargne Totale</th>
+                     <th style={{ textAlign: "right" }}>Ã‰pargne Totale</th>
                      <th style={{ textAlign: "center" }}>Statut</th>
                      <th style={{ textAlign: "right" }}>Actions</th>
                   </tr>
@@ -192,17 +192,7 @@ export default function TreasurerMembersPage() {
                         <td style={{ textAlign: "right", fontWeight: 800, color: "#1cc88a" }}>
                            {formatAmount(m.savingsTotal)} XAF
                         </td>
-                        <td style={{ textAlign: "center" }}>
-                           {!m.active ? (
-                              <span className={`${styles.badge} ${styles.badgeDanger}`}>
-                                 DESACTIVE
-                              </span>
-                           ) : (
-                              <span className={`${styles.badge} ${m.calculatedStatus === 'EN_REGLE' ? styles.badgeSuccess : (m.calculatedStatus === 'INACTIF' ? styles.badgeDanger : styles.badgeWarning)}`}>
-                                 {m.calculatedStatus === 'EN_REGLE' ? 'EN REGLE' : (m.calculatedStatus === 'INACTIF' ? 'INACTIF' : 'INSOLVABLE')}
-                              </span>
-                           )}
-                        </td>
+                        <td style={{ textAlign: "center" }}>`r`n                            <span className={`${styles.badge} ${m.calculatedStatus === "EN_REGLE" ? styles.badgeSuccess : m.calculatedStatus === "INACTIF" ? styles.badgeDanger : styles.badgeWarning}`}>`r`n                               {m.calculatedStatus === "EN_REGLE" ? "En Regle" : m.calculatedStatus === "INACTIF" ? "Inactif" : m.calculatedStatus === "INSOLVABLE" ? "Insolvable" : m.calculatedStatus || "N/A"}`r`n                            </span>`r`n                         </td>
                         <td style={{ textAlign: "right" }}>
                            <button className={styles.tabBtn} style={{ padding: "0.5rem" }}>
                               <i className="fas fa-eye"></i>
@@ -212,7 +202,7 @@ export default function TreasurerMembersPage() {
                   ))}
                </tbody>
             </table>
-            {filteredMembers.length === 0 && <div style={{ padding: "4rem", textAlign: "center", color: "#858796" }}>Aucun membre trouvé.</div>}
+            {filteredMembers.length === 0 && <div style={{ padding: "4rem", textAlign: "center", color: "#858796" }}>Aucun membre trouvÃ©.</div>}
          </div>
 
          {/* Member Details Modal */}
@@ -259,7 +249,7 @@ export default function TreasurerMembersPage() {
                               transition: "all 0.2s"
                            }}
                         >
-                           {tab === "epargne" ? "Épargne" : tab.charAt(0).toUpperCase() + tab.slice(1)}
+                           {tab === "epargne" ? "Ã‰pargne" : tab.charAt(0).toUpperCase() + tab.slice(1)}
                         </button>
                      ))}
                   </nav>
@@ -268,7 +258,7 @@ export default function TreasurerMembersPage() {
                      {detailsLoading ? (
                         <div style={{ textAlign: "center", padding: "4rem" }}>
                            <i className="fas fa-spinner fa-spin" style={{ fontSize: "2rem", color: "#4e73df" }}></i>
-                           <p style={{ marginTop: "1rem", color: "#858796" }}>Récupération des données financières...</p>
+                           <p style={{ marginTop: "1rem", color: "#858796" }}>RÃ©cupÃ©ration des donnÃ©es financiÃ¨res...</p>
                         </div>
                      ) : memberDetails && (
                         <div className="fade-in">
@@ -277,11 +267,11 @@ export default function TreasurerMembersPage() {
                                  <div>
                                     <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 800, color: "#858796", textTransform: "uppercase" }}>Informations de contact</label>
                                     <p style={{ fontWeight: 600 }}>Email: {selectedMember.user?.email || "N/A"}</p>
-                                    <p style={{ fontWeight: 600 }}>Tél: {selectedMember.user?.tel || "N/A"}</p>
-                                    <p style={{ fontWeight: 600 }}>Adresse: {selectedMember.address || "Non renseignée"}</p>
+                                    <p style={{ fontWeight: 600 }}>TÃ©l: {selectedMember.user?.tel || "N/A"}</p>
+                                    <p style={{ fontWeight: 600 }}>Adresse: {selectedMember.address || "Non renseignÃ©e"}</p>
                                  </div>
                                  <div>
-                                    <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 800, color: "#858796", textTransform: "uppercase" }}>Adhésion</label>
+                                    <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 800, color: "#858796", textTransform: "uppercase" }}>AdhÃ©sion</label>
                                     <p style={{ fontWeight: 600 }}>Statut: {selectedMember.active ? "Actif" : "Inactif"}</p>
                                  </div>
                               </div>
@@ -290,7 +280,7 @@ export default function TreasurerMembersPage() {
                            {activeDetailsTab === "epargne" && (
                               <div>
                                  <div style={{ padding: "1.5rem", background: "rgba(28,200,138,0.1)", borderRadius: "12px", marginBottom: "1.5rem" }}>
-                                    <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#1cc88a" }}>SOLDE ÉPARGNE CUMULÉ</span>
+                                    <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#1cc88a" }}>SOLDE Ã‰PARGNE CUMULÃ‰</span>
                                     <h2 style={{ color: "#1cc88a", margin: 0 }}>{formatAmount(selectedMember.savingsTotal)} XAF</h2>
                                  </div>
                                  <table className={styles.table}>
@@ -303,7 +293,7 @@ export default function TreasurerMembersPage() {
                                              <td>{new Date(s.createdAt).toLocaleDateString()}</td>
                                              <td>
                                                 <span className={s.type === 'INFLOW' ? styles.badgeSuccess : styles.badgeDanger}>
-                                                   {s.type === 'INFLOW' ? 'DÉPÔT' : 'RETRAIT'}
+                                                   {s.type === 'INFLOW' ? 'DÃ‰PÃ”T' : 'RETRAIT'}
                                                 </span>
                                              </td>
                                              <td style={{ fontWeight: 700, color: s.type === 'INFLOW' ? "#1cc88a" : "#e74a3b" }}>
@@ -319,10 +309,10 @@ export default function TreasurerMembersPage() {
                            {activeDetailsTab === "dettes" && (
                               <div>
                                  <div style={{ padding: "1.5rem", background: "rgba(231,74,59,0.1)", borderRadius: "12px", marginBottom: "1.5rem" }}>
-                                    <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#e74a3b" }}>DETTE SOLIDARITÉ RESTANTE</span>
+                                    <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#e74a3b" }}>DETTE SOLIDARITÃ‰ RESTANTE</span>
                                     <h2 style={{ color: "#e74a3b", margin: 0 }}>{formatAmount(memberDetails.solidarity?.remainingAmount)} XAF</h2>
                                  </div>
-                                 <h4 style={{ marginBottom: "1rem" }}>Dettes spécifiques</h4>
+                                 <h4 style={{ marginBottom: "1rem" }}>Dettes spÃ©cifiques</h4>
                                  <table className={styles.table}>
                                     <thead>
                                        <tr><th>Type</th><th>Montant</th><th>Session</th></tr>
@@ -344,7 +334,7 @@ export default function TreasurerMembersPage() {
                               <div>
                                  <table className={styles.table}>
                                     <thead>
-                                       <tr><th>Montant</th><th>Statut</th><th>Demandé le</th><th>Remboursé</th></tr>
+                                       <tr><th>Montant</th><th>Statut</th><th>DemandÃ© le</th><th>RemboursÃ©</th></tr>
                                     </thead>
                                     <tbody>
                                        {memberDetails.borrowings?.map((b: any) => (

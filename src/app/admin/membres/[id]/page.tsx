@@ -45,11 +45,13 @@ export default function MemberDetailsPage() {
   }
 
   const handleDeactivate = async () => {
+    const fullName = `${member?.user?.firstName} ${member?.user?.name}`;
     confirm({
       title: "Confirmer la désactivation",
-      message: "Voulez-vous vraiment désactiver ce membre ?",
+      message: `Voulez-vous vraiment désactiver le membre ${fullName} ? Celui-ci ne pourra plus se connecter.`,
       type: "danger",
       confirmText: "Désactiver",
+      requiredConfirmValue: fullName,
       onConfirm: async () => {
         try {
           await secretaryService.deactivateMember(Number(id));
@@ -113,7 +115,8 @@ export default function MemberDetailsPage() {
           <div className={styles.detailList}>
             <div className={styles.detailItem}><span>Email</span> <strong>{member.user?.email}</strong></div>
             <div className={styles.detailItem}><span>Téléphone</span> <strong>{member.user?.tel}</strong></div>
-            <div className={styles.detailItem}><span>Statut</span> <span className={`${styles.badge} ${member.active ? styles.badgeActive : styles.badgeInactive}`}>{member.active ? "Actif" : "Inactif"}</span></div>
+            <div className={styles.detailItem}><span>Statut du Compte</span> <span className={`${styles.badge} ${member.active ? styles.badgeActive : styles.badgeInactive}`}>{member.active ? "Actif" : "Désactivé"}</span></div>
+            <div className={styles.detailItem}><span>Statut Financier</span> <span className={`${styles.badge} ${member.calculatedStatus === 'EN_REGLE' ? styles.badgeActive : (member.calculatedStatus === 'INACTIF' ? styles.badgeInactive : styles.badgePending)}`}>{member.calculatedStatus || "INACTIF"}</span></div>
           </div>
         </div>
 
