@@ -71,27 +71,29 @@ export default function GlobalOperationsPage() {
 
     if (selectedOp === "remboursement") {
       const numAmount = Number(amount);
-      let limit = 0;
-      let limitLabel = "";
-
       if (refundType === "LOAN") {
-        limit = memberDebts.filter(d => d.type === "LOAN").reduce((acc, d) => acc + d.amount, 0);
-        limitLabel = t.operations.unPret;
-      } else {
-        const socialDebts = memberDebts.filter(d => d.type === "SOLIDARITY" || d.type === "REFUELING");
-        limit = socialDebts.reduce((acc, d) => acc + d.amount, 0);
-        limitLabel = t.operations.solidariteRenflouement;
-      }
-
-      if (numAmount > limit) {
-        showToast(t.operations.erreurMontantExcede.replace("{amount}", numAmount.toLocaleString()).replace("{limitLabel}", limitLabel).replace("{limit}", limit.toLocaleString()), "error");
-        return;
+        const limit = memberDebts.filter(d => d.type === "LOAN").reduce((acc, d) => acc + d.amount, 0);
+        const limitLabel = t.operations.unPret;
+        if (numAmount > limit) {
+          showToast(t.operations.erreurMontantExcede.replace("{amount}", numAmount.toLocaleString()).replace("{limitLabel}", limitLabel).replace("{limit}", limit.toLocaleString()), "error");
+          return;
+        }
       }
     }
 
-    const confirmMsg = selectedOp === "achat"
+    let confirmMsg = selectedOp === "achat"
       ? t.operations.confirmMsgAchat.replace("{amount}", amount)
       : t.operations.confirmMsgOp.replace("{amount}", amount).replace("{member}", `${member?.user?.firstName} ${member?.user?.name}`).replace("{session}", activeSession.name || activeSession.sessionNumber);
+
+    if (selectedOp === "remboursement" && refundType === "SOLIDARITY") {
+      const numAmount = Number(amount);
+      const socialDebts = memberDebts.filter(d => d.type === "SOLIDARITY" || d.type === "REFUELING");
+      const limit = socialDebts.reduce((acc, d) => acc + d.amount, 0);
+      if (numAmount > limit) {
+        const surplus = numAmount - limit;
+        confirmMsg += ` (Note : L'excédent de ${surplus.toLocaleString()} XAF sera versé dans la Caisse d'Inscription / Fond d'Adhésion).`;
+      }
+    }
 
     showConfirm({
       title: `${t.operations.confirmTitre}${opLabel}`,
